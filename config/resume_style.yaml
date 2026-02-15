@@ -1,0 +1,54 @@
+# Resume Style Preferences
+# The resume-writer agent reads this to format generated resumes.
+
+formatting:
+  # Font family (must be universally supported for ATS compatibility)
+  font: "Calibri"              # Options: Calibri, Arial, Helvetica, Garamond, Georgia
+  body_size_pt: 11             # Body text size in points
+  heading_size_pt: 13          # Section heading size
+  name_size_pt: 18             # Candidate name size
+  line_spacing: 1.15           # 1.0 = single, 1.15 = slight spacing, 1.5 = 1.5x
+
+  # Margins in inches
+  margin_top: 0.75
+  margin_bottom: 0.75
+  margin_left: 0.85
+  margin_right: 0.85
+
+  # Color (hex without #) — used for section headings and divider lines
+  accent_color: "2B579A"       # Professional blue; set to "000000" for all black
+
+  # Section dividers
+  use_section_dividers: true   # Thin line under section headings
+
+# Page target
+page_length:
+  # Target number of pages
+  target_pages: 2              # 1 for < 10 years experience, 2 for 10+
+  # Hard maximum
+  max_pages: 2
+
+# Section ordering (top to bottom)
+# Reorder these based on what you want to lead with
+section_order:
+  - "header"                   # Always first: name, title, contact
+  - "summary"                  # Professional summary
+  - "skills"                   # Technical skills
+  - "experience"               # Work experience
+  - "certifications"           # Certifications
+  - "education"                # Education
+  - "publications"             # Publications & speaking (omit if not relevant)
+  - "projects"                 # Notable projects (omit if covered by experience)
+
+# Content preferences
+content:
+  # Maximum bullet points per role
+  max_bullets_per_role: 5
+  # Minimum bullet points per role (to avoid thin entries)
+  min_bullets_per_role: 2
+  # Include skills section as keyword list vs. categorized
+  skills_format: "categorized"  # "categorized" or "flat_list"
+  # Include a professional summary
+  include_summary: true
+  # How many years back to include in detail (older roles get 1-2 bullets)
+  detailed_years: 10

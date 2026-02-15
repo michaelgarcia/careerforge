@@ -1,0 +1,107 @@
+# Job Search Preferences
+# Edit this file to define your hard constraints and soft preferences.
+# The lead-gen agent reads this to filter and score postings.
+# The resume and cover letter agents use soft preferences for emphasis.
+
+# ============================================================
+# HARD CONSTRAINTS — postings that violate these are filtered out
+# ============================================================
+hard_constraints:
+
+  # Location preferences
+  location:
+    # Set to true if you only want remote roles
+    remote_only: false
+    # Acceptable locations (ignored if remote_only is true)
+    acceptable_locations:
+      - "Remote"
+      # - "San Francisco, CA"
+      # - "New York, NY"
+      # - "Seattle, WA"
+    # Set to true to include hybrid roles in acceptable locations
+    include_hybrid: true
+
+  # Compensation floor (set to 0 to disable)
+  minimum_compensation_usd: 0
+
+  # Role types to consider (uncomment the ones that apply)
+  role_types:
+    - "Individual Contributor"
+    # - "Technical Lead"
+    # - "Staff Engineer"
+    # - "Principal Engineer"
+    # - "Engineering Manager"
+    # - "Director"
+    # - "VP"
+
+  # Visa/work authorization requirements
+  requires_sponsorship: false
+
+  # Custom dealbreakers (free-form list, lead-gen agent interprets these)
+  dealbreakers: []
+    # - "No defense/weapons industry"
+    # - "No crypto/web3"
+    # - "No early-stage startups (< 20 employees)"
+
+# ============================================================
+# SOFT PREFERENCES — these improve fit score but don't filter
+# ============================================================
+soft_preferences:
+
+  # Preferred industries/domains (in priority order)
+  preferred_domains: []
+    # - "AI/ML"
+    # - "Cloud Infrastructure"
+    # - "FinTech"
+    # - "HealthTech"
+
+  # Preferred company stages
+  preferred_company_stage: []
+    # - "Growth (50-500 employees)"
+    # - "Scale-up (500-5000)"
+    # - "Enterprise (5000+)"
+
+  # Preferred tech stacks or tools
+  preferred_tech: []
+    # - "Python"
+    # - "Kubernetes"
+    # - "PyTorch"
+    # - "AWS"
+
+  # Work style preferences
+  work_style: []
+    # - "Collaborative team environment"
+    # - "High autonomy"
+    # - "Strong engineering culture"
+    # - "Mentorship opportunities"
+
+  # What you're optimizing for in your next role
+  career_goals: []
+    # - "Technical depth over breadth"
+    # - "Path to Staff+ engineering"
+    # - "More leadership responsibility"
+    # - "Work on cutting-edge technology"
+    # - "Work-life balance"
+    # - "High compensation"
+
+# ============================================================
+# SEARCH KEYWORDS — used by lead-gen agent when searching for postings
+# ============================================================
+search_config:
+  # Job titles to search for
+  target_titles: []
+    # - "Senior Software Engineer"
+    # - "Staff Engineer"
+    # - "ML Engineer"
+    # - "Engineering Manager"
+
+  # Keywords to include in searches
+  keywords: []
+    # - "machine learning"
+    # - "distributed systems"
+    # - "platform engineering"
+
+  # Companies of interest (optional — for targeted searches)
+  target_companies: []
+    # - "Company A"
+    # - "Company B"

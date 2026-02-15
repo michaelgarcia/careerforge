@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Write",
+      "Edit",
+      "Bash(npm:*)",
+      "Bash(node:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(date:*)",
+      "Bash(pdftotext:*)",
+      "Bash(python3:*)",
+      "WebFetch",
+      "WebSearch"
+    ],
+    "deny": [
+      "Bash(rm -rf /)*",
+      "Bash(sudo:*)"
+    ]
+  }
+}

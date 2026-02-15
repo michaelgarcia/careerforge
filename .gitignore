@@ -1,0 +1,58 @@
+# =============================================================================
+# Personal / candidate-specific data (NEVER commit these)
+# =============================================================================
+knowledge_base/candidate_profile.json
+knowledge_base/candidate_narrative.md
+knowledge_base/source_index.md
+knowledge_base/ingestion_progress.yaml
+knowledge_base/sources/*
+!knowledge_base/sources/README.md
+config/preferences.yaml
+
+# Claude Code local settings (machine-specific permissions)
+.claude/settings.local.json
+
+# =============================================================================
+# Output files (regenerable, may contain personal data)
+# =============================================================================
+output/resumes/*
+output/cover_letters/*
+output/lead_reports/*
+output/interview_prep/*
+!output/**/.gitkeep
+
+# Job postings (transient, personal)
+postings/*
+!postings/.gitkeep
+
+# =============================================================================
+# Node.js
+# =============================================================================
+node_modules/
+package-lock.json
+
+# =============================================================================
+# Python
+# =============================================================================
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# =============================================================================
+# Editor / IDE
+# =============================================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =============================================================================
+# OS files
+# =============================================================================
+.DS_Store
+Thumbs.db
+Desktop.ini
