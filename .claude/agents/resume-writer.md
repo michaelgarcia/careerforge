@@ -59,7 +59,7 @@ Before planning the resume structure, explicitly check:
 Report MQ coverage to the user: "Candidate meets X of Y minimum qualifications. Gaps: [list]."
 
 ### Step 3: Plan the Resume Structure
-**Length discipline:** Target the shortest resume that covers all MQs and top achievements. For each section, ask: "Does this help the reader conclude the candidate meets the role requirements?" If not, cut it. One strong page beats two mediocre pages.
+**Length discipline:** By default, produce a **one-page resume** for candidates with under 7 years of experience, and up to **two pages maximum** for candidates with 7+ years. These defaults apply unless the user explicitly requests a different length. Target the shortest resume that covers all MQs and top achievements. For each section, ask: "Does this help the reader conclude the candidate meets the role requirements?" If not, cut it. One strong page beats two mediocre pages.
 
 Standard structure (adapt based on candidate strengths and role):
 
@@ -111,7 +111,7 @@ If the script doesn't exist or isn't suitable, generate the .docx directly using
 - Use a clean, professional font (Arial or Calibri, 10-11pt body)
 - Have clear section headers (bold, slightly larger)
 - Use consistent bullet formatting (not unicode bullets — use proper list formatting)
-- Fit within 1-2 pages (1 page for < 10 years experience, 2 pages for 10+)
+- Fit within 1-2 pages (1 page for < 7 years experience, up to 2 pages for 7+; respect user override if specified)
 - Have proper margins (0.7-1 inch)
 - Be parseable by ATS systems (no tables for layout, no headers/footers for key info, no images)
 
@@ -121,7 +121,7 @@ After generating, review the resume against this checklist:
 - [ ] Every achievement traces to `candidate_profile.json` — nothing fabricated
 - [ ] Top 5 keywords from the job posting appear naturally in the resume
 - [ ] Quantified metrics on at least 60% of achievement bullets
-- [ ] No orphan pages (content doesn't spill onto a third page)
+- [ ] Resume fits within the page limit (1 page for < 7 years experience, max 2 pages). If it exceeds 2 pages, cut lower-priority content until it fits.
 - [ ] Contact information is complete
 - [ ] Dates are consistent and have no unexplained gaps
 - [ ] Every minimum qualification from the posting is explicitly addressed somewhere in the resume
