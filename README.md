@@ -31,7 +31,7 @@ A multi-agent system powered by Claude Code that covers the full job search life
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/YOUR_USERNAME/careerforge.git
+git clone https://github.com/michaelgarcia/careerforge.git
 cd careerforge
 
 # 2. Copy template files to create your personal configs
@@ -58,6 +58,48 @@ claude
 # Then type: /agents
 # You should see all six agents listed
 ```
+
+## Get Started
+
+This section walks you through going from zero to your first tailored resume. By the end, you'll have a populated knowledge base built from your own materials and a job-specific resume ready to send.
+
+### 1. Load your source materials
+
+Drop everything you have about your career into `knowledge_base/sources/`. CareerForge accepts multimodal inputs — the more you provide, the richer your profile:
+
+- Resumes and CVs (PDF, DOCX)
+- Mind maps and career diagrams (images)
+- Project screenshots and architecture diagrams
+- Performance reviews or recommendation letters
+- Conference talk slides or transcripts
+- Published articles or blog posts
+- Portfolio pieces and project write-ups
+
+No need to organize or pre-process — the KB Builder will extract and structure everything for you.
+
+### 2. Build your knowledge base
+
+Run the KB Builder agent to ingest your source materials and create your structured candidate profile:
+
+```bash
+claude "Use the kb-builder agent to ingest all sources in knowledge_base/sources/ and build my candidate profile."
+```
+
+This generates your `candidate_profile.json` (structured data) and `candidate_narrative.md` (prose version) — the foundation that all other agents read from.
+
+### 3. Generate a tailored resume
+
+With your knowledge base ready, point the Resume Writer at any job posting to get a targeted resume:
+
+```bash
+claude "Use the resume-writer agent to create a resume tailored to this job posting: [paste URL or job description]"
+```
+
+Your resume lands in `output/resumes/` as a formatted `.docx` file, with achievements and skills prioritized to match the role.
+
+### 4. Explore further
+
+You now have the core workflow down. CareerForge has four more agents to help with your search — cover letters, lead scoring, story capture, and interview prep. Read on in the [Usage](#usage) section below to see what each one can do.
 
 ## Usage
 
