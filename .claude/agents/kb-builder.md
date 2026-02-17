@@ -63,11 +63,12 @@ Process pending files in this priority order (to build the strongest foundation 
 2. **LinkedIn/** — Supplements resume with additional context
 3. **Certifications/** — Quick structured data
 4. **Projects/** — Specific project details
-5. **Presentations and sessions/** — Speaking engagements, technical depth
-6. **Press articles and blogs/** — External validation, quotes, mentions
-7. **Patents/** — Metadata only (see below)
-8. **Whitepaper/** — Thought leadership
-9. **Website/** — Additional context
+5. **Performance Reviews/** — Peer/manager feedback, ratings, endorsements, growth areas (see dedicated section below)
+6. **Presentations and sessions/** — Speaking engagements, technical depth
+7. **Press articles and blogs/** — External validation, quotes, mentions
+8. **Patents/** — Metadata only (see below)
+9. **Whitepaper/** — Thought leadership
+10. **Website/** — Additional context
 
 **For each file:**
 
@@ -91,6 +92,7 @@ Process pending files in this priority order (to build the strongest foundation 
   - Whether the role was formal (title-based) or informal (tech lead, project lead)
   - Record these details in the achievement's `description` field, e.g., "Led a team of 8 engineers" not just "Led a team"
 - **Soft skills and leadership signals** from narrative context
+- **Performance review data** — See "Extracting from Performance Reviews" section below for detailed instructions
 
 **2c. Merge immediately:** After extracting from each file, merge the data into `candidate_profile.json` right away. Do NOT batch — this ensures progress is saved even if the session is interrupted.
 
@@ -138,6 +140,19 @@ Read the full `candidate_profile.json` and write/rewrite `knowledge_base/candida
 
 ## Notable Projects
 [Deep dives on 3-5 most impactful projects]
+
+## Peer & Manager Feedback Synthesis
+[Synthesize multi-year performance review feedback into a compelling narrative covering:
+- Overall performance trajectory and formal ratings over time
+- Key themes from peer feedback — what colleagues consistently observe and value
+- Manager perspective — how leadership views the candidate's strengths and strategic value
+- Customer/external validation — third-party endorsements
+- Growth and evolution — how the candidate has developed over time
+- Representative quotes — the most impactful direct quotes from reviewers, attributed by relationship type
+- Growth areas — development themes, framed constructively as self-awareness signals]
+
+## Known Gaps
+[Information not confirmed from available sources]
 ```
 
 Write this as a compelling narrative, not a bullet list. This document will be used by the resume and cover letter agents to write persuasive prose about the candidate.
@@ -197,6 +212,51 @@ files:
 - **Validate JSON.** After writing candidate_profile.json, validate it's parseable.
 - **Flag XYZ gaps.** After extraction, list any achievements missing quantified metrics (the Y in XYZ). Prompt the user: "The following achievements are missing quantified metrics — consider running the story-capture agent to fill in details: [list]."
 
+## Extracting from Performance Reviews
+
+Performance reviews (peer feedback, manager assessments, customer feedback collected during annual review cycles) are a uniquely valuable source type. They provide **third-party validation** of the candidate's skills and character — evidence that carries significantly more weight than self-reported claims when used in cover letters, interview preparation, and narrative writing.
+
+### What to extract
+
+**1. Formal Performance Ratings → `performance_history[]`**
+- Extract the year, overall performance rating, and any leadership/competency rating
+- Write a one-line manager summary capturing the essence of that year's assessment
+- Identify 2-4 key themes for the year (e.g., "product strategy", "customer impact", "mentorship")
+- Every entry must include the `source` field pointing to the originating PDF
+
+**2. Direct Quotes → `peer_endorsements[]`**
+- **Collect generously.** Aim for 5-10+ quotes per review year. Prioritize quotes that are:
+  - Specific and vivid (not generic praise like "great job")
+  - Attributable to a relationship type (peer, manager, customer, skip-level)
+  - Demonstrating a concrete skill or behavior pattern
+  - Memorable — the kind of quote that would be powerful in a cover letter or "what would your peers say about you?" interview answer
+- For each quote, tag the `attribute` it demonstrates (e.g., "Customer Obsession", "Technical Depth", "Mentorship", "Strategic Thinking", "Execution", "Communication")
+- Include enough `context` to make the quote usable without reading the full review (e.g., "Said in the context of the BlackBerry IVY partnership work")
+- **Preserve the exact wording.** Do not paraphrase — the power of endorsements is that they are someone else's words
+
+**3. Growth Areas → `growth_areas[]`**
+- Extract constructive feedback and development suggestions from both peers and managers
+- Track whether a theme is `recurring` (appears across multiple years) or `one-time`
+- Record all years in which the theme was cited
+- Frame context constructively — these are self-awareness signals, not weaknesses
+- Common patterns to look for: "scale through others", "delegate more", "think bigger", "say no to less impactful work"
+
+**4. Progression Signals**
+- Pay attention to how language about the candidate evolves year over year
+- Early reviews may say "strong executor" → later reviews may say "strategic shaper" — this progression is valuable
+- Note when reviewers start using leadership-level language ("influences direction", "shapes strategy", "force multiplier")
+- Capture any explicit mentions of promotion readiness or scope expansion
+
+### Processing order for review files
+
+Process review files **chronologically** (earliest year first). This ensures the progression narrative builds naturally and you can identify recurring themes as they emerge across years.
+
+### Merge strategy
+
+- `performance_history`: One entry per year, sorted chronologically
+- `peer_endorsements`: Deduplicate if the same quote appears in multiple years. Keep the earliest occurrence. Do not cap the number — collect all impactful quotes
+- `growth_areas`: Consolidate across years. If "scale through mentorship" appears in 2019, 2020, and 2022, create one entry with `years_cited: ["2019", "2020", "2022"]` and `frequency: "recurring"`
+
 ## Handling Different Source Types
 
 - **PDFs:** Use `pdftotext` or read directly if text-extractable
@@ -206,3 +266,4 @@ files:
 - **Existing resumes:** Primary structured source — extract everything, but verify against other sources for completeness
 - **Patents:** Extract metadata only — title, patent number, date, co-inventors, and a one-line summary. Skip full legal claims text (too large and rarely relevant for resumes). Add to the `publications` section of the profile.
 - **CSV/spreadsheet files:** Extract structured data (certifications, tracking data, etc.)
+- **Performance reviews (PDF):** Read each review PDF fully — do not truncate or skim. Extract formal ratings, direct quotes (preserve exact wording), growth areas, and progression signals. Process chronologically. See "Extracting from Performance Reviews" section above for detailed instructions. If a summary file exists (e.g., `Performance_Review_Summary.md`), use it as a cross-reference but always extract from the original PDFs — the summary may omit quotes or context.

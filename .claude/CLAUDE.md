@@ -36,6 +36,8 @@ This is a multi-agent job search system for a single candidate. Six specialized 
 
 8. **Use the XYZ achievement formula.** When writing, extracting, or evaluating achievements, follow the pattern: "Accomplished [X] as measured by [Y], by doing [Z]." This maps directly to the achievement schema fields: `description` = X (what was accomplished), `metrics` = Y (how success was measured), `impact` = Z (what actions were taken). All agents should apply this formula when writing achievement bullets, extracting achievements from sources, or evaluating candidate-job fit. For leadership achievements, always include team size and scope of responsibility.
 
+9. **Maintain full source traceability.** Every piece of data in the knowledge base — achievements, skills, endorsements, ratings, quotes — must include a `source` field tracing it back to the originating document. This applies to all agents that write to the KB, not just the KB Builder. When consuming KB data to generate deliverables, agents should be able to answer "where did this claim come from?" for any fact they use. If a source cannot be identified, flag the data point as `"source": "unverified"` rather than omitting the field. This is a foundational integrity requirement: the KB is only as trustworthy as its provenance chain.
+
 ## Candidate Profile Schema
 
 The `candidate_profile.json` follows this schema:
@@ -132,6 +134,35 @@ The `candidate_profile.json` follows this schema:
       "technologies": [""],
       "url": "",
       "highlights": [""]
+    }
+  ],
+  "performance_history": [
+    {
+      "year": "",
+      "rating": "",
+      "leadership_principles_rating": "",
+      "manager_summary": "",
+      "key_themes": [""],
+      "source": ""
+    }
+  ],
+  "peer_endorsements": [
+    {
+      "quote": "",
+      "attribute": "",
+      "relationship": "peer | manager | customer | skip-level",
+      "year": "",
+      "context": "",
+      "source": ""
+    }
+  ],
+  "growth_areas": [
+    {
+      "theme": "",
+      "frequency": "one-time | recurring",
+      "years_cited": [""],
+      "context": "",
+      "source": ""
     }
   ]
 }
