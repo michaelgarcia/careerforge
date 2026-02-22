@@ -101,6 +101,23 @@ Your resume lands in `output/resumes/` as a formatted `.docx` file, with achieve
 
 You now have the core workflow down. CareerForge has four more agents to help with your search — cover letters, lead scoring, story capture, and interview prep. Read on in the [Usage](#usage) section below to see what each one can do.
 
+## Slash Commands
+
+CareerForge ships with custom slash commands that provide one-line invocation for every workflow step. Type these directly in Claude Code:
+
+| Command | What it does |
+|---------|-------------|
+| `/build-kb` | Ingest all sources in `knowledge_base/sources/` and build your profile |
+| `/capture-story [transcript]` | Capture a new achievement (interactive if no args, extraction mode if you paste a transcript) |
+| `/resume [URL or description]` | Generate a tailored resume for a job posting |
+| `/cover-letter [URL or description]` | Generate a tailored cover letter for a job posting |
+| `/score [URL or description]` | Score a job posting against your profile and preferences |
+| `/prep [slug or URL]` | Run the full interview prep pipeline (defaults to latest "interviewing" application) |
+| `/track [status update in plain English]` | Update the application tracker (e.g. "I submitted to Stripe") |
+| `/status` | Overview of your job search pipeline, grouped by status |
+
+Commands are defined in `.claude/commands/`. Add or modify them to customize your workflow.
+
 ## Usage
 
 ### KB Builder
@@ -215,13 +232,22 @@ careerforge/
 │   ├── CLAUDE.md                      # Project-wide persistent instructions
 │   ├── settings.json                  # MCP servers, permissions
 │   ├── settings.local.template.json   # Template for local settings
-│   └── agents/
-│       ├── kb-builder.md              # Agent #1 — Knowledge Base Builder
-│       ├── story-capture.md           # Agent #2 — Story Capture & Achievement Extraction
-│       ├── resume-writer.md           # Agent #3 — Resume Writer
-│       ├── cover-letter.md            # Agent #4 — Cover Letter & Application
-│       ├── lead-gen.md                # Agent #5 — Lead Generation & Filtering
-│       └── interview-prep.md          # Agent #6 — Interview Preparation
+│   ├── agents/
+│   │   ├── kb-builder.md              # Agent #1 — Knowledge Base Builder
+│   │   ├── story-capture.md           # Agent #2 — Story Capture & Achievement Extraction
+│   │   ├── resume-writer.md           # Agent #3 — Resume Writer
+│   │   ├── cover-letter.md            # Agent #4 — Cover Letter & Application
+│   │   ├── lead-gen.md                # Agent #5 — Lead Generation & Filtering
+│   │   └── interview-prep.md          # Agent #6 — Interview Preparation
+│   └── commands/
+│       ├── build-kb.md                # /build-kb  — Ingest sources & build profile
+│       ├── capture-story.md           # /capture-story — Capture an achievement
+│       ├── resume.md                  # /resume    — Generate a tailored resume
+│       ├── cover-letter.md            # /cover-letter — Generate a cover letter
+│       ├── score.md                   # /score     — Score a job posting
+│       ├── prep.md                    # /prep      — Full interview prep pipeline
+│       ├── track.md                   # /track     — Update application tracker
+│       └── status.md                  # /status    — Job search pipeline overview
 ├── knowledge_base/
 │   ├── candidate_profile.template.yaml # Template for candidate data
 │   ├── candidate_narrative.template.md # Template for candidate narrative
