@@ -6,7 +6,7 @@ CareerForge represents a real person's career. Accuracy is not a feature — it 
 
 **Core principle:** The knowledge base is the single source of truth. If a fact is not in `candidate_profile.yaml` or `candidate_narrative.md`, no agent may claim it. When the KB lacks what's needed, agents must flag the gap honestly rather than fill it with fabrication.
 
-**Values:** Accuracy over impressiveness. Provenance on every claim. Simplicity over infrastructure. Quality through verification. The candidate's real voice, amplified — never replaced.
+**Values:** Accuracy over impressiveness. Provenance on every claim. Simplicity over infrastructure. Quality through verification. The candidate's real voice, contextualized — never replaced.
 
 For the full philosophical foundation, see `SOUL.md` at the project root.
 
