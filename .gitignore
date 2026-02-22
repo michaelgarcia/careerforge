@@ -1,6 +1,7 @@
 # =============================================================================
 # Personal / candidate-specific data (NEVER commit these)
 # =============================================================================
+knowledge_base/candidate_profile.yaml
 knowledge_base/candidate_profile.json
 knowledge_base/candidate_narrative.md
 knowledge_base/source_index.md

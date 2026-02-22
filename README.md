@@ -35,7 +35,7 @@ git clone https://github.com/michaelgarcia/careerforge.git
 cd careerforge
 
 # 2. Copy template files to create your personal configs
-cp knowledge_base/candidate_profile.template.json knowledge_base/candidate_profile.json
+cp knowledge_base/candidate_profile.template.yaml knowledge_base/candidate_profile.yaml
 cp knowledge_base/candidate_narrative.template.md knowledge_base/candidate_narrative.md
 cp config/preferences.template.yaml config/preferences.yaml
 
@@ -43,7 +43,7 @@ cp config/preferences.template.yaml config/preferences.yaml
 cp .claude/settings.local.template.json .claude/settings.local.json
 
 # 3. Edit the copied files with your personal data
-#    - knowledge_base/candidate_profile.json  → your skills, experience, achievements
+#    - knowledge_base/candidate_profile.yaml  → your skills, experience, achievements
 #    - knowledge_base/candidate_narrative.md   → your career narrative (or let KB Builder generate it)
 #    - config/preferences.yaml                 → your job search filters and preferences
 
@@ -85,7 +85,7 @@ Run the KB Builder agent to ingest your source materials and create your structu
 claude "Use the kb-builder agent to ingest all sources in knowledge_base/sources/ and build my candidate profile."
 ```
 
-This generates your `candidate_profile.json` (structured data) and `candidate_narrative.md` (prose version) — the foundation that all other agents read from.
+This generates your `candidate_profile.yaml` (structured data) and `candidate_narrative.md` (prose version) — the foundation that all other agents read from.
 
 ### 3. Generate a tailored resume
 
@@ -111,7 +111,7 @@ Ingests source materials (resumes, transcripts, articles) and builds the structu
 claude "Use the kb-builder agent to ingest all sources in knowledge_base/sources/ and build my candidate profile."
 ```
 
-Output: `knowledge_base/candidate_profile.json`, `knowledge_base/candidate_narrative.md`, `knowledge_base/source_index.md`
+Output: `knowledge_base/candidate_profile.yaml`, `knowledge_base/candidate_narrative.md`, `knowledge_base/source_index.md`
 
 ### Story Capture
 
@@ -223,9 +223,9 @@ careerforge/
 │       ├── lead-gen.md                # Agent #5 — Lead Generation & Filtering
 │       └── interview-prep.md          # Agent #6 — Interview Preparation
 ├── knowledge_base/
-│   ├── candidate_profile.template.json # Template for candidate data
+│   ├── candidate_profile.template.yaml # Template for candidate data
 │   ├── candidate_narrative.template.md # Template for candidate narrative
-│   ├── candidate_profile.json         # Your structured candidate data (gitignored)
+│   ├── candidate_profile.yaml         # Your structured candidate data (gitignored)
 │   ├── candidate_narrative.md         # Your narrative profile (gitignored)
 │   ├── source_index.md                # Provenance log (gitignored)
 │   └── sources/                       # Raw input materials (gitignored except README)
@@ -272,7 +272,7 @@ The `.gitignore` is configured so that **all personal data stays local automatic
 ### For users who cloned this repo
 
 Your personal files are never tracked by git:
-- `knowledge_base/candidate_profile.json` — your structured profile
+- `knowledge_base/candidate_profile.yaml` — your structured profile
 - `knowledge_base/candidate_narrative.md` — your narrative
 - `knowledge_base/sources/*` — your source materials
 - `config/preferences.yaml` — your job search preferences

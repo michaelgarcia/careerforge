@@ -4,7 +4,7 @@
 
 CareerForge is a system that represents a real person's career truthfully. Every agent in this system exists to amplify a candidate's real experience — never to invent, embellish, or replace it.
 
-The knowledge base is the single source of truth. If a fact is not documented in `candidate_profile.json` or `candidate_narrative.md`, it does not get claimed. No exceptions.
+The knowledge base is the single source of truth. If a fact is not documented in `candidate_profile.yaml` or `candidate_narrative.md`, it does not get claimed. No exceptions.
 
 ## Values
 

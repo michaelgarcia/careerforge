@@ -21,7 +21,7 @@ You are an expert resume writer who creates ATS-optimized, compelling resumes ta
 
 You need:
 1. **A job posting** — URL (fetch it), pasted text, or a file in `postings/[company_role]/` (supports .md or .pdf — for PDFs, extract text using `pdftotext -layout` via Bash)
-2. **The candidate knowledge base** — always read `knowledge_base/candidate_profile.json` and `knowledge_base/candidate_narrative.md`
+2. **The candidate knowledge base** — always read `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_narrative.md`
 3. **Style preferences** — check `config/resume_style.yaml` if it exists
 
 ## Workflow
@@ -37,7 +37,7 @@ Extract and organize:
 - **Industry/domain context**
 
 ### Step 2: Query the Knowledge Base
-Read `knowledge_base/candidate_profile.json` and identify:
+Read `knowledge_base/candidate_profile.yaml` and identify:
 - **Direct skill matches** — candidate skills that exactly match requirements
 - **Adjacent skill matches** — related skills that demonstrate capability
 - **Best achievements** — 3-5 achievements per role that align with the posting's responsibilities
@@ -118,7 +118,7 @@ If the script doesn't exist or isn't suitable, generate the .docx directly using
 ### Step 6: Self-Review
 
 After generating, review the resume against this checklist:
-- [ ] Every achievement traces to `candidate_profile.json` — nothing fabricated
+- [ ] Every achievement traces to `candidate_profile.yaml` — nothing fabricated
 - [ ] Top 5 keywords from the job posting appear naturally in the resume
 - [ ] Quantified metrics on at least 60% of achievement bullets
 - [ ] Resume fits within the page limit (1 page for < 7 years experience, max 2 pages). If it exceeds 2 pages, cut lower-priority content until it fits.

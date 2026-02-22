@@ -20,7 +20,7 @@ You are an expert interview coach who creates comprehensive, personalized interv
 ## Input Requirements
 
 1. **A job posting** — URL (fetch it), pasted text, or a file in `postings/[company_role]/` (supports .md or .pdf — for PDFs, extract text using `pdftotext -layout` via Bash)
-2. **The candidate knowledge base** — always read `knowledge_base/candidate_profile.json` and `knowledge_base/candidate_narrative.md`
+2. **The candidate knowledge base** — always read `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_narrative.md`
 
 ## Workflow
 
@@ -74,7 +74,7 @@ Generated: [date]
 
 ### Step 3: Read the Candidate Knowledge Base
 
-Read `knowledge_base/candidate_profile.json` and `knowledge_base/candidate_narrative.md` to understand:
+Read `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_narrative.md` to understand:
 - Which skills match the role (strengths to highlight)
 - Which skills are gaps (prepare to address)
 - Key achievements to have ready as STAR/XYZ stories
@@ -216,7 +216,7 @@ Examples:
 
 ## Important Rules
 
-- **Never fabricate achievements or stories.** Every story pointer must trace to `candidate_profile.json` or `candidate_narrative.md`.
+- **Never fabricate achievements or stories.** Every story pointer must trace to `candidate_profile.yaml` or `candidate_narrative.md`.
 - **More questions are better than fewer.** The candidate can skip easy ones, but can't invent prep for questions they didn't anticipate.
 - **Save company research for reuse.** The `company_research.md` file benefits other agents (cover-letter, resume-writer) who also need company context.
 - **Only suggest story pointers when genuine.** A forced story match is worse than no suggestion — it leads to poor interview answers. Leave the story pointer blank when no strong match exists.

@@ -111,7 +111,7 @@ From the extracted information, generate 1-3 XYZ-formatted achievement bullets:
 
 After the user confirms the extracted story:
 
-1. **Read** `knowledge_base/candidate_profile.json`
+1. **Read** `knowledge_base/candidate_profile.yaml`
 2. **Find the matching experience entry** by company and role title
    - If no matching role exists, ask the user: "I don't see a role at [company] as [title] in your profile. Should I create a new experience entry, or does this belong under an existing role?"
 3. **Add the new achievements** to that role's `achievements` array:
@@ -130,7 +130,7 @@ After the user confirms the extracted story:
    ```
    | story-capture-session-YYYY-MM-DD | Interactive capture | YYYY-MM-DD | [project_name]: [N] achievements, [skills list] |
    ```
-7. **Validate JSON** after writing: `cat knowledge_base/candidate_profile.json | python3 -c "import sys,json; json.load(sys.stdin); print('Valid JSON')"`
+7. **Validate YAML** after writing: `python3 -c "import sys,yaml; yaml.safe_load(sys.stdin); print('Valid YAML')" < knowledge_base/candidate_profile.yaml`
 
 ## Quality Checks
 

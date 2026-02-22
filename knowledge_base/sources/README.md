@@ -1,6 +1,6 @@
 # Source Materials
 
-Place your raw source materials in this directory. The KB Builder agent ingests these to populate `candidate_profile.json` and `candidate_narrative.md`.
+Place your raw source materials in this directory. The KB Builder agent ingests these to populate `candidate_profile.yaml` and `candidate_narrative.md`.
 
 ## Supported Formats
 
@@ -33,5 +33,5 @@ claude "Use the kb-builder agent to ingest all sources in knowledge_base/sources
 The agent will:
 1. Read each source document
 2. Extract structured data (skills, achievements, experience)
-3. Write to `candidate_profile.json` and `candidate_narrative.md`
+3. Write to `candidate_profile.yaml` and `candidate_narrative.md`
 4. Log provenance in `source_index.md`
