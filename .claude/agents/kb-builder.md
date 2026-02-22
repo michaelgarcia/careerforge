@@ -9,7 +9,7 @@ tools:
   - Grep
   - Glob
   - WebFetch
-model: opus
+model: sonnet
 ---
 
 # Knowledge Base Builder Agent

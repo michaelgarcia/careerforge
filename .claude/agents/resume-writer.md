@@ -10,7 +10,7 @@ tools:
   - Glob
   - WebFetch
   - WebSearch
-model: opus
+model: sonnet
 ---
 
 # Resume Writer Agent

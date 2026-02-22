@@ -9,7 +9,7 @@ tools:
   - Glob
   - WebFetch
   - WebSearch
-model: opus
+model: sonnet
 ---
 
 # Lead Generation & Job Filtering Agent
