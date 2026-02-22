@@ -25,6 +25,8 @@ This is a multi-agent job search system for a single candidate. Six specialized 
 - `config/resume_style.yaml` — Resume formatting preferences
 - `templates/` — Optional custom .docx templates
 - `postings/` — Job postings under consideration, organized as `postings/[company_role]/job_description.md`. Transient inputs, not part of the candidate's permanent profile.
+  - `tracker.yaml` — Application lifecycle tracker (status, history, notes for each posting)
+  - `tracker.template.yaml` — Documented template with schema and status enum (committed to git)
 - `output/` — All generated deliverables, organized by type
 - `scripts/generate_docx.js` — Node.js helper for .docx generation using docx-js
 
@@ -47,6 +49,8 @@ This is a multi-agent job search system for a single candidate. Six specialized 
 8. **Use the XYZ achievement formula.** When writing, extracting, or evaluating achievements, follow the pattern: "Accomplished [X] as measured by [Y], by doing [Z]." This maps directly to the achievement schema fields: `description` = X (what was accomplished), `metrics` = Y (how success was measured), `impact` = Z (what actions were taken). All agents should apply this formula when writing achievement bullets, extracting achievements from sources, or evaluating candidate-job fit. For leadership achievements, always include team size and scope of responsibility.
 
 9. **Maintain full source traceability.** Every piece of data in the knowledge base — achievements, skills, endorsements, ratings, quotes — must include a `source` field tracing it back to the originating document. This applies to all agents that write to the KB, not just the KB Builder. When consuming KB data to generate deliverables, agents should be able to answer "where did this claim come from?" for any fact they use. If a source cannot be identified, flag the data point as `"source": "unverified"` rather than omitting the field. This is a foundational integrity requirement: the KB is only as trustworthy as its provenance chain.
+
+10. **Keep the application tracker current.** When a user saves a new job posting, applies, receives a status update, or withdraws from a role, update `postings/tracker.yaml` accordingly. Each status change must append a new entry to the application's `history` list with the date and (optionally) a note. Valid statuses: `saved`, `applying`, `applied`, `interviewing`, `offered`, `accepted`, `rejected`, `withdrawn`, `closed`. When listing or summarizing applications, read from this file. See `postings/tracker.template.yaml` for the full schema.
 
 ## Candidate Profile Schema
 

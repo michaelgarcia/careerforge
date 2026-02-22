@@ -1,0 +1,56 @@
+# =============================================================================
+# CareerForge — Application Tracker Template
+# =============================================================================
+#
+# Tracks the lifecycle of every job application in one file.
+# Copy this to `tracker.yaml` (which is gitignored) and start adding entries.
+#
+# Each entry is keyed by a slug matching the postings/ subfolder name
+# (e.g., google-customer-engineer-outcome-saas → postings/google-customer-engineer-outcome-saas/).
+#
+# STATUS VALUES (in typical progression order):
+#
+#   saved        — Bookmarked or added to postings/ but not yet applied
+#   applying     — Actively working on application materials (resume, cover letter)
+#   applied      — Application submitted
+#   interviewing — In active interview process (phone screen, onsite, etc.)
+#   offered      — Received an offer
+#   accepted     — Accepted the offer
+#   rejected     — Rejected by the company at any stage
+#   withdrawn    — You withdrew from the process
+#   closed       — Position was closed/filled before you could apply
+#
+# FIELDS:
+#
+#   slug         — (required) Unique identifier, matches postings/ subfolder name
+#   company      — (required) Company name
+#   title        — (required) Job title as listed in the posting
+#   url          — (optional) Link to the original job posting
+#   status       — (required) Current status (see enum above)
+#   notes        — (optional) Free-text notes (recruiter name, referral, etc.)
+#   history      — (required) List of status transitions with dates
+#     - status   — The status that was entered
+#       date     — ISO date (YYYY-MM-DD) when the transition occurred
+#       note     — (optional) Context for this transition
+#
+# =============================================================================
+
+applications:
+
+# --- Example entry (uncomment and modify) ---
+#
+#   - slug: company-role-name
+#     company: Company Name
+#     title: Senior Software Engineer
+#     url: https://example.com/jobs/12345
+#     status: applied
+#     notes: "Referred by Jane Doe"
+#     history:
+#       - status: saved
+#         date: 2025-01-15
+#       - status: applying
+#         date: 2025-01-20
+#         note: Started tailoring resume
+#       - status: applied
+#         date: 2025-01-22
+#         note: Submitted via company portal
