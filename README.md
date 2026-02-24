@@ -45,7 +45,7 @@ cp .claude/settings.local.template.json .claude/settings.local.json
 # 3. Edit the copied files with your personal data
 #    - knowledge_base/candidate_profile.yaml  → your skills, experience, achievements
 #    - knowledge_base/candidate_narrative.md   → your career narrative (or let KB Builder generate it)
-#    - config/preferences.yaml                 → your job search filters and preferences
+#    - config/preferences.yaml                 → your job search filters (or run /setup-preferences to configure interactively)
 
 # 4. Add source materials (resumes, transcripts, articles) to knowledge_base/sources/
 #    See knowledge_base/sources/README.md for supported formats and suggested organization.
@@ -108,6 +108,7 @@ CareerForge ships with custom slash commands that provide one-line invocation fo
 | Command | What it does |
 |---------|-------------|
 | `/build-kb` | Ingest all sources in `knowledge_base/sources/` and build your profile |
+| `/setup-preferences [text or blank]` | Set up job search filters interactively or from free-form text |
 | `/capture-story [transcript]` | Capture a new achievement (interactive if no args, extraction mode if you paste a transcript) |
 | `/resume [URL or description]` | Generate a tailored resume for a job posting |
 | `/cover-letter [URL or description]` | Generate a tailored cover letter for a job posting |
@@ -129,6 +130,24 @@ claude "Use the kb-builder agent to ingest all sources in knowledge_base/sources
 ```
 
 Output: `knowledge_base/candidate_profile.yaml`, `knowledge_base/candidate_narrative.md`, `knowledge_base/source_index.md`
+
+### Preferences Setup
+
+Configures your job search preferences in `config/preferences.yaml` — the filters that every other agent reads to score, filter, and tailor for you.
+
+```bash
+# Guided interview mode — walks through each section conversationally
+/setup-preferences
+
+# Text extraction mode — paste a description of your preferences
+/setup-preferences remote only, at least $250k, AI/ML roles at big tech or AI startups
+```
+
+Runs in two modes:
+- **Interview mode** (no arguments): asks about each section one at a time, shows current values, and collects updates
+- **Text extraction mode** (with arguments): parses your free-form description and maps it to the schema, then asks for confirmation
+
+Output: Updated `config/preferences.yaml`
 
 ### Story Capture
 
@@ -235,12 +254,14 @@ careerforge/
 │   ├── agents/
 │   │   ├── kb-builder.md              # Agent #1 — Knowledge Base Builder
 │   │   ├── story-capture.md           # Agent #2 — Story Capture & Achievement Extraction
+│   │   ├── preferences-setup.md       # Agent — Preferences Setup
 │   │   ├── resume-writer.md           # Agent #3 — Resume Writer
 │   │   ├── cover-letter.md            # Agent #4 — Cover Letter & Application
 │   │   ├── lead-gen.md                # Agent #5 — Lead Generation & Filtering
 │   │   └── interview-prep.md          # Agent #6 — Interview Preparation
 │   └── commands/
 │       ├── build-kb.md                # /build-kb  — Ingest sources & build profile
+│       ├── setup-preferences.md       # /setup-preferences — Configure job search filters
 │       ├── capture-story.md           # /capture-story — Capture an achievement
 │       ├── resume.md                  # /resume    — Generate a tailored resume
 │       ├── cover-letter.md            # /cover-letter — Generate a cover letter
