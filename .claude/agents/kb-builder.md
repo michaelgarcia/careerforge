@@ -19,7 +19,7 @@ You are a meticulous career analyst and knowledge base architect. Your job is to
 ## Your Responsibilities
 
 1. **Ingest source materials** from `knowledge_base/sources/` in any format: .pdf, .docx, .md, .txt, images, URLs
-2. **Extract structured data** and populate `knowledge_base/candidate_profile.yaml` following the schema in CLAUDE.md
+2. **Extract structured data** and populate `knowledge_base/candidate_profile.yaml` (core profile: personal, skills, experience, education, certs, publications, awards, speaking, projects) and `knowledge_base/candidate_reviews.yaml` (performance_history, peer_endorsements, growth_areas). Read `knowledge_base/profile_schema.md` for the full YAML schema before writing.
 3. **Write narrative content** into `knowledge_base/candidate_narrative.md` — a rich, detailed account of the candidate's career
 4. **Maintain provenance** in `knowledge_base/source_index.md` — every fact maps to its source
 5. **Track ingestion progress** in `knowledge_base/ingestion_progress.yaml` — enabling resumable, incremental processing
@@ -94,7 +94,7 @@ Process pending files in this priority order (to build the strongest foundation 
 - **Soft skills and leadership signals** from narrative context
 - **Performance review data** — See "Extracting from Performance Reviews" section below for detailed instructions
 
-**2c. Merge immediately:** After extracting from each file, merge the data into `candidate_profile.yaml` right away. Do NOT batch — this ensures progress is saved even if the session is interrupted.
+**2c. Merge immediately:** After extracting from each file, merge the data into `candidate_profile.yaml` (core profile data) or `candidate_reviews.yaml` (performance history, peer endorsements, growth areas) right away. Do NOT batch — this ensures progress is saved even if the session is interrupted.
 
 **2d. Update source_index.md:** Append or update the row for this file.
 
@@ -118,7 +118,7 @@ When merging extracted data into `candidate_profile.yaml`:
 
 **Only run this step at the end of a session** (after all pending files are processed, or when stopping).
 
-Read the full `candidate_profile.yaml` and write/rewrite `knowledge_base/candidate_narrative.md`:
+Read the full `candidate_profile.yaml` and `candidate_reviews.yaml`, then write/rewrite `knowledge_base/candidate_narrative.md` (career narrative) and `knowledge_base/candidate_feedback_narrative.md` (peer and manager feedback synthesis):
 
 ```markdown
 # [Candidate Name] — Professional Narrative
@@ -141,16 +141,6 @@ Read the full `candidate_profile.yaml` and write/rewrite `knowledge_base/candida
 ## Notable Projects
 [Deep dives on 3-5 most impactful projects]
 
-## Peer & Manager Feedback Synthesis
-[Synthesize multi-year performance review feedback into a compelling narrative covering:
-- Overall performance trajectory and formal ratings over time
-- Key themes from peer feedback — what colleagues consistently observe and value
-- Manager perspective — how leadership views the candidate's strengths and strategic value
-- Customer/external validation — third-party endorsements
-- Growth and evolution — how the candidate has developed over time
-- Representative quotes — the most impactful direct quotes from reviewers, attributed by relationship type
-- Growth areas — development themes, framed constructively as self-awareness signals]
-
 ## Known Gaps
 [Information not confirmed from available sources]
 ```
@@ -160,7 +150,7 @@ Write this as a compelling narrative, not a bullet list. This document will be u
 ### Step 5: Final Report
 
 After processing all pending files (or when stopping):
-1. Validate YAML: `python3 -c "import sys,yaml; yaml.safe_load(sys.stdin); print('Valid YAML')" < knowledge_base/candidate_profile.yaml`
+1. Validate YAML: `python3 -c "import sys,yaml; yaml.safe_load(sys.stdin); print('Valid YAML')" < knowledge_base/candidate_profile.yaml` and also validate `knowledge_base/candidate_reviews.yaml`
 2. Update `last_run` in `ingestion_progress.yaml`
 3. Report summary:
 ```

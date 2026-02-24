@@ -10,7 +10,7 @@ tools:
   - Glob
   - WebFetch
   - WebSearch
-model: opus
+model: sonnet
 ---
 
 # Interview Preparation Agent
@@ -37,7 +37,11 @@ This agent supports targeted sub-tasks via a `task_type` parameter in its prompt
 ## Input Requirements
 
 1. **A job posting** — URL (fetch it), pasted text, or a file in `postings/[company_role]/` (supports .md or .pdf — for PDFs, extract text using `pdftotext -layout` via Bash)
-2. **The candidate knowledge base** — always read `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_narrative.md`
+2. **The candidate knowledge base** — which files to load depends on the sub-task (see each sub-task's steps for specific instructions). The KB is split across four files for token efficiency:
+   - `knowledge_base/candidate_profile.yaml` — Core profile (personal, skills, experience, education, certs, publications, awards, speaking, projects)
+   - `knowledge_base/candidate_reviews.yaml` — Performance history, peer endorsements, growth areas
+   - `knowledge_base/candidate_narrative.md` — Career narrative
+   - `knowledge_base/candidate_feedback_narrative.md` — Peer and manager feedback synthesis
 
 ---
 
@@ -66,46 +70,17 @@ Research the company's interview process for this role type and produce a struct
    - Company size and stage (startup vs. FAANG vs. mid-size)
    - Clearly label assumed rounds as "estimated based on industry norms"
 
-5. **Write the output file** to `{output_dir}/00_interview_process.md`:
+5. **Write the output file** to `{output_dir}/00_interview_process.md`. For the output format, read the "Process Research Format" section of `.claude/agents/templates/interview-prep-formats.md`.
 
-```markdown
-# Interview Process: [Company] — [Role Title]
-Generated: [date]
-
-## Overview
-[Brief summary: expected number of rounds, total timeline, any known quirks]
-
-## Rounds
-
-### Round 1: [Name]
-- **Format:** [phone/video/onsite/panel]
-- **Duration:** [estimated time]
-- **Focus:** [what they assess]
-- **Typical interviewer(s):** [who]
-- **Notes:** [any specifics from research]
-
-### Round 2: [Name]
-...
-
-## Sources
-[URLs consulted]
-
-<!-- ROUNDS_DATA
-[
-  {"number": 1, "name": "Recruiter Screen", "slug": "recruiter_screen", "format": "phone", "duration": "30 min", "focus": "culture fit, role overview, salary expectations"},
-  {"number": 2, "name": "Hiring Manager", "slug": "hiring_manager", "format": "video", "duration": "45 min", "focus": "experience deep dive, team fit, leadership"},
-  ...
-]
--->
-```
-
-**Critical:** The `<!-- ROUNDS_DATA [...] -->` HTML comment block at the bottom must contain valid JSON. The orchestrator parses this to launch per-round prep agents. The `slug` field is used for the output filename (e.g., `01_recruiter_screen.md`). The `number` field determines the file prefix.
+**Critical:** The file must end with a `<!-- ROUNDS_DATA [...] -->` HTML comment block containing valid JSON. The orchestrator parses this to launch per-round prep agents. The `slug` field is used for the output filename (e.g., `01_recruiter_screen.md`). The `number` field determines the file prefix.
 
 ---
 
 ## Sub-Task: `company_research`
 
 Research the company and produce a comprehensive company research file. This is the same research that was previously embedded in Step 2 of the monolithic pipeline, now extracted as a standalone task.
+
+**KB loading: Do NOT read candidate_profile.yaml, candidate_reviews.yaml, candidate_narrative.md, or candidate_feedback_narrative.md.** This sub-task only uses the job posting and web research results.
 
 ### Steps
 
@@ -118,30 +93,7 @@ Research the company and produce a comprehensive company research file. This is 
    - **Products and market position** — What they build, who their customers are, competitive landscape.
    - **Company stage and trajectory** — Headcount, growth rate, recent milestones.
 
-3. **Write the output file** to `{output_dir}/company_research.md`:
-
-```markdown
-# Company Research: [Company Name]
-Generated: [date]
-
-## Mission & Values
-[List each value with a brief description]
-
-## Products & Market Position
-[What they build, customers, competitive landscape]
-
-## Recent News (Last 3-6 Months)
-[Key items: product launches, strategic shifts, acquisitions]
-
-## Engineering Culture
-[Blog posts, open source, tech stack, architecture decisions]
-
-## Company Stage & Trajectory
-[Headcount, growth, funding, recent milestones]
-
-## Sources
-[URLs consulted]
-```
+3. **Write the output file** to `{output_dir}/company_research.md`. For the output format, read the "Company Research Format" section of `.claude/agents/templates/interview-prep-formats.md`.
 
 4. **Also save a copy** to `postings/[company_role]/company_research.md` so other agents (cover-letter, resume-writer) can reuse it. Create the posting subfolder if it doesn't already exist. The `company_role` folder name should be provided in the prompt; if not, derive it from the company name and role title as `[company]-[role-slug]` (lowercase, hyphens).
 
@@ -150,6 +102,8 @@ Generated: [date]
 ## Sub-Task: `compensation_research`
 
 Research compensation ranges for this role and position the candidate within them.
+
+**KB loading: Read only `knowledge_base/candidate_profile.yaml`.** Do NOT read `candidate_reviews.yaml`, `candidate_narrative.md`, or `candidate_feedback_narrative.md` — only the structured profile is needed for positioning credentials.
 
 ### Steps
 
@@ -161,54 +115,15 @@ Research compensation ranges for this role and position the candidate within the
    - Look for: base salary range, bonus/variable comp, equity/RSU grants, total comp range
    - Also search peer companies for the same role to establish market range
 
-3. **Read the candidate knowledge base** (`knowledge_base/candidate_profile.yaml`) to build the candidate's positioning:
+3. **Read** `knowledge_base/candidate_profile.yaml` to build the candidate's positioning:
    - Years of experience
    - Patents (count published and pending)
    - Certifications
    - Publications and speaking engagements
-   - Performance ratings and peer endorsements
    - Seniority of past roles
    - Any comp-relevant differentiators
 
-4. **Write the output file** to `{output_dir}/compensation_analysis.md`:
-
-```markdown
-# Compensation Analysis: [Company] — [Role Title]
-Generated: [date]
-
-## Market Range
-
-### [Company Name]
-| Component | Low | Mid | High |
-|-----------|-----|-----|------|
-| Base Salary | | | |
-| Bonus/Variable | | | |
-| Equity (annual) | | | |
-| **Total Comp** | | | |
-
-### Peer Companies
-[Table or list of 3-5 comparable roles at peer companies with ranges]
-
-## Candidate Positioning
-
-**Recommended target range:** [range]
-
-**Rationale — why the candidate should target the upper range:**
-- [X] years of experience in [relevant domains]
-- [N] published patents, [M] pending — demonstrates innovation and IP creation
-- [Certifications] — [list relevant ones]
-- [Publications/speaking] — recognized thought leader in [domain]
-- [Performance ratings] — consistently rated [level] over [N] years
-- [Other differentiators from KB]
-
-Each bullet above traces to specific KB data. If a claim cannot be sourced, it is omitted.
-
-## Negotiation Notes
-[Practical advice: when to discuss comp, how to frame the ask, what to negotiate beyond base]
-
-## Sources
-[URLs consulted]
-```
+4. **Write the output file** to `{output_dir}/compensation_analysis.md`. For the output format, read the "Compensation Analysis Format" section of `.claude/agents/templates/interview-prep-formats.md`.
 
 ---
 
@@ -219,9 +134,18 @@ Generate a comprehensive prep file for a single interview round. The prompt will
 - The round descriptor (name, format, duration, focus, number, slug)
 - The output directory path
 
+### KB Loading by Round Type
+
+Load only the KB files needed for this round type to minimize token consumption:
+
+- **All rounds:** Read `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_narrative.md`.
+- **Behavioral / Leadership / Bar Raiser rounds:** Also read `knowledge_base/candidate_reviews.yaml` and `knowledge_base/candidate_feedback_narrative.md` (peer endorsements and growth areas are critical for behavioral stories).
+- **Technical / System Design / Coding rounds:** Do NOT read `candidate_reviews.yaml` or `candidate_feedback_narrative.md`.
+- **HR / Recruiter Screen rounds:** Do NOT read `candidate_reviews.yaml` or `candidate_feedback_narrative.md`.
+
 ### Steps
 
-1. **Read the candidate knowledge base** — `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_narrative.md`.
+1. **Read the candidate knowledge base** — load files according to the KB Loading rules above based on the round type.
 
 2. **Read the company research** — `{output_dir}/company_research.md` (if it exists; the orchestrator may still be generating it).
 
@@ -253,32 +177,11 @@ If the round type doesn't match any above, use 10–15 as the default range.
 
 6. **Include "Questions to Ask" for this round** — 3-5 thoughtful questions tailored to who the interviewer is and what this round assesses.
 
-7. **Write the output file** to `{output_dir}/{NN}_{slug}.md` where `NN` is the zero-padded round number and `slug` is from the round descriptor:
-
-```markdown
-# Round [N]: [Round Name]
-**Format:** [format] | **Duration:** [duration] | **Focus:** [focus]
-
-## [Sub-theme 1]
-
-### Q: [Question text]
-> **Your angle:** ...
-
-### Q: [Question text]
-> **Prepare your answer:** ...
-
-## [Sub-theme 2]
-...
-
-## Questions to Ask the Interviewer
-- [Question 1]
-- [Question 2]
-- ...
-```
+7. **Write the output file** to `{output_dir}/{NN}_{slug}.md` where `NN` is the zero-padded round number and `slug` is from the round descriptor. For the output format, read the "Round Prep Format" section of `.claude/agents/templates/interview-prep-formats.md`.
 
 ### Important Rules for Round Prep
 
-- **Never fabricate achievements or stories.** Every story reference must trace to `candidate_profile.yaml` or `candidate_narrative.md`.
+- **Never fabricate achievements or stories.** Every story reference must trace to the KB files loaded for this round.
 - **Only suggest KB stories when a genuine, strong match exists.** A forced match leads to poor interview answers. Use "Prepare your answer" when no match fits.
 - **Use the XYZ formula for stories.** When referencing achievements, frame them as: accomplished [X] as measured by [Y], by doing [Z].
 - **Scale questions to seniority.** An IC role gets deep technical questions. A VP role gets strategy, org design, and executive influence questions.
@@ -289,6 +192,8 @@ If the round type doesn't match any above, use 10–15 as the default range.
 ## Sub-Task: `story_bank`
 
 Consolidate all KB story references from the round prep files into a single story bank.
+
+**KB loading:** Read `knowledge_base/candidate_profile.yaml`, `knowledge_base/candidate_reviews.yaml`, `knowledge_base/candidate_narrative.md`, and `knowledge_base/candidate_feedback_narrative.md` (all four files — the story bank needs the complete picture to verify and enrich story references).
 
 ### Steps
 
@@ -301,35 +206,7 @@ Consolidate all KB story references from the round prep files into a single stor
    - List all questions (across all rounds) where this story can be used
    - Note which round each question comes from
 
-4. **Write the output file** to `{output_dir}/story_bank.md`:
-
-```markdown
-# Story Bank: [Company] — [Role Title]
-Generated: [date]
-
-This file maps your KB achievements to the interview questions they answer.
-Use this to practice: for each story, rehearse telling it with different framings
-depending on which question it's answering.
-
-## Story: [Achievement description — short title]
-**Achievement:** [XYZ summary from KB]
-**Source:** [KB source reference]
-
-**Use for these questions:**
-- (Round 1: Recruiter Screen) [Question text]
-- (Round 3: Behavioral) [Question text]
-- (Round 4: Hiring Manager) [Question text]
-
----
-
-## Story: [Next achievement]
-...
-
-## Coverage Summary
-- **Total unique stories mapped:** [N]
-- **Rounds with strong KB coverage:** [list]
-- **Rounds needing more preparation:** [list — where most questions had "Prepare your answer" instead of KB matches]
-```
+4. **Write the output file** to `{output_dir}/story_bank.md`. For the output format, read the "Story Bank Format" section of `.claude/agents/templates/interview-prep-formats.md`.
 
 ---
 
@@ -349,7 +226,7 @@ When no `task_type` is specified, run the full pipeline sequentially as a single
 
 5. **Research compensation** — Execute the `compensation_research` sub-task logic and write `compensation_analysis.md`.
 
-6. **Read the candidate KB** — `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_narrative.md`.
+6. **Read the candidate KB** — `knowledge_base/candidate_profile.yaml`, `knowledge_base/candidate_reviews.yaml`, `knowledge_base/candidate_narrative.md`, and `knowledge_base/candidate_feedback_narrative.md`.
 
 7. **Generate per-round prep files** — For each round defined in step 3, execute the `round_prep` sub-task logic and write `{NN}_{slug}.md`.
 
@@ -393,7 +270,7 @@ The orchestrator creates this directory and passes the path as `output_dir`. In 
 
 ## Important Rules
 
-- **Never fabricate achievements or stories.** Every story pointer must trace to `candidate_profile.yaml` or `candidate_narrative.md`.
+- **Never fabricate achievements or stories.** Every story pointer must trace to the KB files (`candidate_profile.yaml`, `candidate_reviews.yaml`, `candidate_narrative.md`, or `candidate_feedback_narrative.md`).
 - **Save company research for reuse.** The `company_research.md` file benefits other agents (cover-letter, resume-writer) who also need company context.
 - **Only suggest story pointers when genuine.** A forced story match is worse than no suggestion — it leads to poor interview answers. Use "Prepare your answer" guidance when no strong match exists.
 - **Use the XYZ formula for stories.** When presenting achievement stories, structure them as: accomplished [X] as measured by [Y], by doing [Z].

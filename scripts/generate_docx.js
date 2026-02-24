@@ -12,8 +12,9 @@
  * 
  * Requires: npm install -g docx
  * 
- * NOTE: This is a starter template. The agents may also generate .docx files
- * directly via inline Node.js scripts for more customization per-document.
+ * All resume and cover letter generation MUST use this template.
+ * Agents should write structured JSON and call this script — do not generate
+ * inline Node.js scripts with hardcoded content.
  */
 
 const fs = require('fs');
@@ -65,6 +66,11 @@ const content = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
  *   "experience": [{ "company", "title", "dates", "location", "bullets": ["..."] }],
  *   "education": [{ "institution", "degree", "field", "date", "honors" }],
  *   "certifications": [{ "name", "issuer", "date" }],
+ *   "publications": [{ "title", "venue", "date", "summary" }],
+ *   "speaking": [{ "title", "event", "date", "description" }],
+ *   "projects": [{ "name", "technologies", "description", "highlights": ["..."] }],
+ *   "awards": [{ "name", "issuer", "description" }],
+ *   "patents": [{ "title", "number", "date", "description" }],
  *   "style": { "font", "accent_color", "body_size_pt", ... }
  * }
  */
@@ -202,6 +208,123 @@ function generateResume(content) {
           new TextRun({ text: cert.date ? `  (${cert.date})` : '', font, size: bodySize - 2, color: '666666' }),
         ]
       }));
+    }
+  }
+
+  // Publications
+  if (content.publications && content.publications.length > 0) {
+    children.push(sectionHeading('Publications'));
+    for (const pub of content.publications) {
+      children.push(new Paragraph({
+        spacing: { after: 40 },
+        children: [
+          new TextRun({ text: pub.title || '', font, size: bodySize, bold: true }),
+          new TextRun({ text: pub.venue ? `  —  ${pub.venue}` : '', font, size: bodySize }),
+          new TextRun({ text: pub.date ? `  (${pub.date})` : '', font, size: bodySize - 2, color: '666666' }),
+        ]
+      }));
+      if (pub.summary) {
+        children.push(new Paragraph({
+          spacing: { after: 40 },
+          indent: { left: 360 },
+          children: [new TextRun({ text: pub.summary, font, size: bodySize - 2, italics: true })]
+        }));
+      }
+    }
+  }
+
+  // Speaking
+  if (content.speaking && content.speaking.length > 0) {
+    children.push(sectionHeading('Speaking'));
+    for (const talk of content.speaking) {
+      children.push(new Paragraph({
+        spacing: { after: 40 },
+        children: [
+          new TextRun({ text: talk.title || '', font, size: bodySize, bold: true }),
+          new TextRun({ text: talk.event ? `  —  ${talk.event}` : '', font, size: bodySize }),
+          new TextRun({ text: talk.date ? `  (${talk.date})` : '', font, size: bodySize - 2, color: '666666' }),
+        ]
+      }));
+      if (talk.description) {
+        children.push(new Paragraph({
+          spacing: { after: 40 },
+          indent: { left: 360 },
+          children: [new TextRun({ text: talk.description, font, size: bodySize - 2, italics: true })]
+        }));
+      }
+    }
+  }
+
+  // Projects
+  if (content.projects && content.projects.length > 0) {
+    children.push(sectionHeading('Projects'));
+    for (const proj of content.projects) {
+      children.push(new Paragraph({
+        spacing: { before: 100, after: 20 },
+        children: [
+          new TextRun({ text: proj.name || '', font, size: bodySize, bold: true }),
+          new TextRun({ text: proj.technologies ? `  (${proj.technologies})` : '', font, size: bodySize - 2, color: '666666' }),
+        ]
+      }));
+      if (proj.description) {
+        children.push(new Paragraph({
+          spacing: { after: 40 },
+          indent: { left: 360 },
+          children: [new TextRun({ text: proj.description, font, size: bodySize })]
+        }));
+      }
+      if (proj.highlights) {
+        for (const highlight of proj.highlights) {
+          children.push(new Paragraph({
+            spacing: { after: 40 },
+            indent: { left: 360, hanging: 180 },
+            children: [new TextRun({ text: `•  ${highlight}`, font, size: bodySize })]
+          }));
+        }
+      }
+    }
+  }
+
+  // Awards
+  if (content.awards && content.awards.length > 0) {
+    children.push(sectionHeading('Awards'));
+    for (const award of content.awards) {
+      children.push(new Paragraph({
+        spacing: { after: 40 },
+        children: [
+          new TextRun({ text: award.name || '', font, size: bodySize, bold: true }),
+          new TextRun({ text: award.issuer ? `  —  ${award.issuer}` : '', font, size: bodySize }),
+        ]
+      }));
+      if (award.description) {
+        children.push(new Paragraph({
+          spacing: { after: 40 },
+          indent: { left: 360 },
+          children: [new TextRun({ text: award.description, font, size: bodySize - 2, italics: true })]
+        }));
+      }
+    }
+  }
+
+  // Patents
+  if (content.patents && content.patents.length > 0) {
+    children.push(sectionHeading('Patents'));
+    for (const patent of content.patents) {
+      children.push(new Paragraph({
+        spacing: { after: 40 },
+        children: [
+          new TextRun({ text: patent.title || '', font, size: bodySize, bold: true }),
+          new TextRun({ text: patent.number ? `  —  ${patent.number}` : '', font, size: bodySize }),
+          new TextRun({ text: patent.date ? `  (${patent.date})` : '', font, size: bodySize - 2, color: '666666' }),
+        ]
+      }));
+      if (patent.description) {
+        children.push(new Paragraph({
+          spacing: { after: 40 },
+          indent: { left: 360 },
+          children: [new TextRun({ text: patent.description, font, size: bodySize - 2, italics: true })]
+        }));
+      }
     }
   }
 
