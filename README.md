@@ -211,6 +211,27 @@ claude "Use the interview-prep agent to prepare for the interview at postings/co
 
 Output: `output/interview_prep/`. Company research is saved to `postings/[company_role]/company_research.md` for reuse by other agents.
 
+### Utilities / Scripts
+
+#### `convert_md_to_pdf.js` — Markdown to PDF
+
+Converts `.md` files to PDF for mobile reading. PDFs are written alongside the originals; source files are never modified.
+
+```bash
+# Convert all .md files in a directory
+node scripts/convert_md_to_pdf.js output/interview_prep/Google_PrincipalArchitectIV_2026-03-05/
+
+# Convert a single file
+node scripts/convert_md_to_pdf.js output/interview_prep/Google_PrincipalArchitectIV_2026-03-05/00_interview_process.md
+
+# Recurse into subdirectories
+node scripts/convert_md_to_pdf.js output/interview_prep/ --recursive
+```
+
+Or via npm: `npm run convert -- <path>`
+
+Tables, blockquotes, and code blocks render with full CSS styling via headless Chromium (Puppeteer).
+
 ### Application Tracker
 
 Track the lifecycle of every application in `postings/tracker.yaml`. Claude Code reads and updates this file automatically when you mention application status changes.
@@ -295,7 +316,8 @@ careerforge/
 │   ├── lead_reports/                  # Generated lead gen reports (gitignored)
 │   └── interview_prep/               # Generated interview prep guides (gitignored)
 └── scripts/
-    └── generate_docx.js               # Helper: Node.js docx generator
+    ├── generate_docx.js               # Helper: Node.js docx generator
+    └── convert_md_to_pdf.js           # Helper: Convert markdown files to PDF
 ```
 
 ## Configuration

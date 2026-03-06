@@ -37,6 +37,8 @@ This agent supports targeted sub-tasks via a `task_type` parameter in its prompt
 ## Input Requirements
 
 1. **A job posting** — URL (fetch it), pasted text, or a file in `postings/[company_role]/` (supports .md or .pdf — for PDFs, extract text using `pdftotext -layout` via Bash)
+
+   **URL fetch failure — HARD STOP:** If a URL is provided and the fetched content does not contain a readable job title, role description, and responsibilities (e.g., the page returns minified JavaScript, a login wall, or a generic shell with no job text), you MUST stop immediately and report the failure. Do NOT search for an alternative posting, do NOT infer or guess the role from the URL slug, and do NOT proceed with any pipeline steps. Return a message like: "I was unable to fetch the job posting at [URL] — the page returned [brief description of what was returned, e.g., minified JavaScript]. Please paste the job description text directly or save it to `postings/[folder]/job_description.md` and re-run."
 2. **The candidate knowledge base** — which files to load depends on the sub-task (see each sub-task's steps for specific instructions). The KB is split across four files for token efficiency:
    - `knowledge_base/candidate_profile.yaml` — Core profile (personal, skills, experience, education, certs, publications, awards, speaking, projects)
    - `knowledge_base/candidate_reviews.yaml` — Performance history, peer endorsements, growth areas
@@ -269,6 +271,8 @@ The orchestrator creates this directory and passes the path as `output_dir`. In 
 ---
 
 ## Important Rules
+
+- **Never substitute a different job posting if a URL fails.** If a URL cannot be fetched and does not yield a readable job description, stop and ask the user. Searching for an alternative posting and proceeding silently is a critical failure — it wastes the candidate's preparation time and produces materials for the wrong role.
 
 - **Never fabricate achievements or stories.** Every story pointer must trace to the KB files (`candidate_profile.yaml`, `candidate_reviews.yaml`, `candidate_narrative.md`, or `candidate_feedback_narrative.md`).
 - **Save company research for reuse.** The `company_research.md` file benefits other agents (cover-letter, resume-writer) who also need company context.
