@@ -408,3 +408,33 @@ When you're ready to move to the Claude Agent SDK for batch processing, scheduli
 - **Use `/agents` in Claude Code** to verify all agents are loaded.
 - **Use `--print` flag** for non-interactive / scriptable runs.
 - **Check `knowledge_base/source_index.md`** to verify what the KB builder has ingested.
+
+## Key Features
+
+1. **Your resume never contains anything you didn't do** — Every achievement, skill, and metric in every deliverable traces back to your source documents. Agents flag gaps honestly rather than fill them with plausible-sounding fabrications.
+
+2. **One profile, every job search workflow covered** — Update your knowledge base once and every agent picks it up automatically — resumes, cover letters, lead scoring, and interview prep all draw from the same verified source.
+
+3. **Your achievements always land with maximum impact** — The XYZ formula ("Accomplished X, measured by Y, by doing Z") is enforced at every step — extraction, resume writing, cover letter stories, and interview coaching — so every claim is quantified and credible.
+
+4. **Stop and resume without losing work** — The KB Builder tracks what's already been processed. You can interrupt ingestion mid-session and pick up exactly where you left off the next time you run it.
+
+5. **Resumes that work well with ATS filters** — Output is a properly formatted Word document built to ATS parsing standards — no tables for layout, no key information buried in headers, keyword optimization grounded in your actual experience.
+
+6. **Know your qualification gaps before you apply** — Before writing your resume or scoring a posting, every stated minimum qualification is checked against your profile and any gaps are surfaced — so you're not surprised by a rejection.
+
+7. **Stop wasting time on roles that don't meet your requirements** — Hard constraints (compensation floor, location, role type) are enforced as absolute filters. Postings that violate them are excluded outright — never just scored lower and left in the pile.
+
+8. **Full interview prep in one command** — Research on the company, interview process, compensation ranges, and per-round question guides with your own story pointers all generated together — including a consolidated story bank showing which of your achievements answers which questions.
+
+9. **Company research you only do once** — Research generated for interview prep is reused automatically when writing cover letters for the same company. No duplicate web searches, no inconsistency between documents.
+
+10. **Turn vague stories into resume-ready bullets** — Story Capture walks you through a guided interview (or extracts from a transcript you paste in) and pushes back until every impact statement has a real number behind it.
+
+11. **Discover roles you didn't know you were qualified for** — Career Explorer works outward from your profile to map the landscape of genuinely fitting roles in the current market — with real job posting examples, pay ranges from Levels.fyi and Glassdoor, and work-life balance data.
+
+12. **No need for prompting — all important flows accessible through slash commands** — Every major workflow step has a dedicated slash command (`/resume`, `/cover-letter`, `/score`, `/prep`, `/capture-story`, `/build-kb`, `/explore`, `/track`, `/status`) you can invoke directly in Claude Code.
+
+13. **Your personal data never accidentally ends up in git** — All personal files — profile, narrative, preferences, source materials, generated outputs — are gitignored by default. `git add .` is always safe to run.
+
+14. **Read your interview prep on your phone** — `scripts/convert_md_to_pdf.js` converts any prep guide to a clean, mobile-friendly PDF with styled tables and formatted answer guides, ready to read anywhere.
