@@ -116,6 +116,7 @@ CareerForge ships with custom slash commands that provide one-line invocation fo
 | `/prep [slug or URL]` | Run the full interview prep pipeline (defaults to latest "interviewing" application) |
 | `/track [status update in plain English]` | Update the application tracker (e.g. "I submitted to Stripe") |
 | `/status` | Overview of your job search pipeline, grouped by status |
+| `/scan [--scope name] [--bootstrap]` | Run the LinkedIn job scanner: sync, filter, score, and report top opportunities |
 
 Commands are defined in `.claude/commands/`. Add or modify them to customize your workflow.
 
@@ -279,7 +280,8 @@ careerforge/
 │   │   ├── resume-writer.md           # Agent #3 — Resume Writer
 │   │   ├── cover-letter.md            # Agent #4 — Cover Letter & Application
 │   │   ├── lead-gen.md                # Agent #5 — Lead Generation & Filtering
-│   │   └── interview-prep.md          # Agent #6 — Interview Preparation
+│   │   ├── interview-prep.md          # Agent #6 — Interview Preparation
+│   │   └── job-scanner.md             # Agent #7 — Proactive LinkedIn Job Scanner
 │   └── commands/
 │       ├── build-kb.md                # /build-kb  — Ingest sources & build profile
 │       ├── setup-preferences.md       # /setup-preferences — Configure job search filters
@@ -289,7 +291,8 @@ careerforge/
 │       ├── score.md                   # /score     — Score a job posting
 │       ├── prep.md                    # /prep      — Full interview prep pipeline
 │       ├── track.md                   # /track     — Update application tracker
-│       └── status.md                  # /status    — Job search pipeline overview
+│       ├── status.md                  # /status    — Job search pipeline overview
+│       └── scan.md                    # /scan      — Daily LinkedIn job scan
 ├── knowledge_base/
 │   ├── candidate_profile.template.yaml # Template for candidate data
 │   ├── candidate_narrative.template.md # Template for candidate narrative
@@ -307,7 +310,14 @@ careerforge/
 ├── config/
 │   ├── preferences.template.yaml      # Template for job search preferences
 │   ├── preferences.yaml               # Your preferences & hard filters (gitignored)
-│   └── resume_style.yaml              # Resume formatting preferences
+│   ├── resume_style.yaml              # Resume formatting preferences
+│   └── search_scopes.yaml             # LinkedIn search scope configurations
+├── data/
+│   └── jobs.db                        # SQLite job database (gitignored, local only)
+├── tools/
+│   └── linkedin_job_search/           # LinkedIn Guest API client package
+├── docs/
+│   └── linkedin-scanner.md            # LinkedIn scanner deep-dive reference
 ├── templates/
 │   └── .gitkeep                       # Optional: custom .docx templates
 ├── output/
@@ -317,7 +327,15 @@ careerforge/
 │   └── interview_prep/               # Generated interview prep guides (gitignored)
 └── scripts/
     ├── generate_docx.js               # Helper: Node.js docx generator
-    └── convert_md_to_pdf.js           # Helper: Convert markdown files to PDF
+    ├── convert_md_to_pdf.js           # Helper: Convert markdown files to PDF
+    └── linkedin/
+        ├── init_db.py                 # Initialise SQLite schema (run once)
+        ├── map_preferences.py         # Convert preferences.yaml → search params
+        ├── sync.py                    # Fetch jobs from LinkedIn → SQLite
+        ├── pre_filter.py              # Rule-based hard filter (no LLM)
+        ├── export_for_scoring.py      # Export unscored jobs as markdown
+        ├── update_scores.py           # Write LLM scores back to SQLite
+        └── report.py                  # Generate ranked markdown report
 ```
 
 ## Configuration
@@ -438,3 +456,5 @@ When you're ready to move to the Claude Agent SDK for batch processing, scheduli
 13. **Your personal data never accidentally ends up in git** — All personal files — profile, narrative, preferences, source materials, generated outputs — are gitignored by default. `git add .` is always safe to run.
 
 14. **Read your interview prep on your phone** — `scripts/convert_md_to_pdf.js` converts any prep guide to a clean, mobile-friendly PDF with styled tables and formatted answer guides, ready to read anywhere.
+
+15. **Automated LinkedIn Job Scanner** — Daily discovery pipeline that queries LinkedIn across configurable search scopes, deduplicates results in a local SQLite database, pre-filters with rule-based hard constraints, and LLM-scores shortlisted candidates against your profile. Surfaces only the highest-fit opportunities via `/scan`.

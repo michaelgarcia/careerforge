@@ -1,0 +1,89 @@
+# Named search scopes for LinkedIn job discovery.
+# Add/disable scopes here to tune coverage. Run a single scope with:
+#   python scripts/linkedin/sync.py --scope <name> --dry-run
+#
+# Field reference:
+#   name            - Unique identifier used in CLI --scope flag and DB records
+#   description     - Human-readable summary of what this scope targets
+#   keywords        - Free-text LinkedIn search string
+#   locations       - List of location strings (e.g. "Remote", "Chicago, IL")
+#   experience_levels - LinkedIn levels: internship, entry-level, associate,
+#                       mid-senior, director, executive
+#   work_model      - remote | hybrid | on-site (omit for any)
+#   date_posted     - past-24h | past-week | past-month | any-time
+#   limit           - Max jobs to collect per run (LinkedIn pages of 25)
+#   enabled         - Set to false to skip without deleting the config
+
+scopes:
+  - name: ai_architect_remote
+    description: "Principal/Staff AI Architect roles, fully remote"
+    keywords: "Principal Architect AI Generative Applied"
+    locations:
+      - "Remote"
+    experience_levels:
+      - director      # LinkedIn: director maps to Staff/Principal level
+    work_model: remote
+    date_posted: past-week
+    limit: 75
+    enabled: true
+
+  - name: applied_ai_chicago
+    description: "Applied AI / ML Architect roles in Chicago metro, hybrid-friendly"
+    keywords: "Applied AI Machine Learning Architect Engineer"
+    locations:
+      - "Chicago, IL"
+    experience_levels:
+      - mid-senior
+      - director
+    work_model: hybrid
+    date_posted: past-week
+    limit: 75
+    enabled: true
+
+  - name: ai_engineer_remote
+    description: "AI/ML Engineer roles, fully remote, senior+"
+    keywords: "AI Engineer Machine Learning Generative AI"
+    locations:
+      - "Remote"
+    experience_levels:
+      - mid-senior
+      - director
+    work_model: remote
+    date_posted: past-week
+    limit: 50
+    enabled: true
+
+  - name: target_companies
+    description: "Any AI/Architect role at target companies from preferences"
+    keywords: "AI Architect Engineer"
+    locations:
+      - "Remote"
+      - "Chicago, IL"
+    companies: []   # populated at runtime by map_preferences.py from preferences.yaml
+    date_posted: past-week
+    limit: 50
+    enabled: true
+
+  # Disabled examples for reference / testing:
+  - name: executive_ai_nationwide
+    description: "VP/Director AI roles nationwide (broad, high noise)"
+    keywords: "VP AI Director Artificial Intelligence"
+    locations: []
+    experience_levels:
+      - executive
+    date_posted: past-week
+    limit: 50
+    enabled: false
+
+  - name: physical_ai_robotics
+    description: "Physical AI / Robotics Architect roles (niche, low volume)"
+    keywords: "Physical AI Robotics Architect Principal"
+    locations:
+      - "Remote"
+      - "Chicago, IL"
+    experience_levels:
+      - mid-senior
+      - director
+    date_posted: past-month
+    limit: 50
+    enabled: false
