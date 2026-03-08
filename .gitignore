@@ -6,6 +6,7 @@ knowledge_base/candidate_profile.json
 knowledge_base/candidate_narrative.md
 knowledge_base/source_index.md
 knowledge_base/ingestion_progress.yaml
+knowledge_base/archive/
 knowledge_base/sources/*
 !knowledge_base/sources/README.md
 config/preferences.yaml

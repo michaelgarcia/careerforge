@@ -32,8 +32,6 @@ Read these files before doing anything else:
 - `knowledge_base/candidate_narrative.md` — long-form career narrative
 - `config/preferences.yaml` — hard constraints, score threshold, batch size
 
-Do NOT read `candidate_reviews.yaml` or `candidate_feedback_narrative.md` (not needed for scoring).
-
 ---
 
 ## Step 2 — Sync New Jobs

@@ -30,7 +30,6 @@ Read these files before doing anything else:
 | `knowledge_base/candidate_narrative.md` | Long-form career context for understanding candidate depth |
 | `config/preferences.yaml` | Compensation floor, location preferences, preferred domains, career goals |
 
-Do NOT load `candidate_reviews.yaml` or `candidate_feedback_narrative.md` — those are for behavioral/interview prep, not role discovery.
 
 ---
 
@@ -256,4 +255,3 @@ Round to the nearest integer. Do not inflate scores to make the report look bett
 - **Cite all comp and WLB sources.** If you're estimating, flag it. Uncited data erodes trust.
 - **Respect preferences.yaml hard constraints.** If the candidate has a comp floor or location requirement, factor it into your recommendations — don't recommend roles that violate these.
 - **Don't pad the role list.** It's better to have 5 well-researched roles than 8 superficial ones. Quality over quantity.
-- **Do not load candidate_reviews.yaml or candidate_feedback_narrative.md.** These are not needed for role discovery.

@@ -111,7 +111,7 @@ From the extracted information, generate 1-3 XYZ-formatted achievement bullets:
 
 After the user confirms the extracted story:
 
-1. **Read** `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_reviews.yaml`
+1. **Read** `knowledge_base/candidate_profile.yaml`
 2. **Find the matching experience entry** by company and role title
    - If no matching role exists, ask the user: "I don't see a role at [company] as [title] in your profile. Should I create a new experience entry, or does this belong under an existing role?"
 3. **Add the new achievements** to that role's `achievements` array:
@@ -125,7 +125,7 @@ After the user confirms the extracted story:
    }
    ```
 4. **Add any new skills** mentioned to the appropriate skills categories if not already present
-5. **Update** `knowledge_base/candidate_narrative.md` and/or `knowledge_base/candidate_feedback_narrative.md` as appropriate — add or expand the relevant section with the new story details. Integrate naturally into the existing narrative rather than appending a disconnected block. Use `candidate_feedback_narrative.md` for stories involving peer/manager feedback or performance reviews.
+5. **Update** `knowledge_base/candidate_narrative.md` — add or expand the relevant section with the new story details. Integrate naturally into the existing narrative rather than appending a disconnected block.
 6. **Append to** `knowledge_base/source_index.md`:
    ```
    | story-capture-session-YYYY-MM-DD | Interactive capture | YYYY-MM-DD | [project_name]: [N] achievements, [skills list] |

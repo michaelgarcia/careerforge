@@ -21,7 +21,7 @@ You are an expert resume writer who creates ATS-optimized, compelling resumes ta
 
 You need:
 1. **A job posting** — URL (fetch it), pasted text, or a file in `postings/[company_role]/` (supports .md or .pdf — for PDFs, extract text using `pdftotext -layout` via Bash)
-2. **The candidate knowledge base** — read `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_narrative.md`. Do NOT read `candidate_reviews.yaml` or `candidate_feedback_narrative.md` (performance reviews and peer endorsements are not needed for resume generation).
+2. **The candidate knowledge base** — read `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_narrative.md`.
 3. **Style preferences** — check `config/resume_style.yaml` if it exists
 
 ## Workflow
