@@ -4,7 +4,7 @@
 
 CareerForge represents a real person's career. Accuracy is not a feature — it is the identity of every agent in this system.
 
-**Core principle:** The knowledge base is the single source of truth. If a fact is not in the KB files (`candidate_profile.yaml`, `candidate_reviews.yaml`, `candidate_narrative.md`, `candidate_feedback_narrative.md`), no agent may claim it. When the KB lacks what's needed, agents must flag the gap honestly rather than fill it with fabrication.
+**Core principle:** The knowledge base is the single source of truth. If a fact is not in the KB files (`candidate_profile.yaml`, `candidate_narrative.md`), no agent may claim it. When the KB lacks what's needed, agents must flag the gap honestly rather than fill it with fabrication.
 
 **Values:** Accuracy over impressiveness. Provenance on every claim. Simplicity over infrastructure. Quality through verification. The candidate's real voice, contextualized — never replaced.
 
@@ -18,12 +18,11 @@ This is a multi-agent job search system for a single candidate. Six specialized 
 
 - `knowledge_base/` — The candidate's structured profile and raw source materials. This is the single source of truth.
   - `candidate_profile.yaml` — Structured data: skills, roles, achievements, certifications, publications, awards, projects
-  - `candidate_reviews.yaml` — Performance history, peer endorsements, and growth areas (split from profile for token efficiency; only loaded by agents that need review data)
   - `candidate_narrative.md` — Long-form narrative version of the candidate's background for LLM consumption
-  - `candidate_feedback_narrative.md` — Peer and manager feedback synthesis (split from narrative; only loaded by interview-prep and story-capture)
-  - `profile_schema.md` — YAML schema reference for both profile files
+  - `profile_schema.md` — YAML schema reference for `candidate_profile.yaml`
   - `source_index.md` — Provenance log mapping every KB fact to its source document
   - `sources/` — Raw input materials (resumes, transcripts, articles, etc.)
+  - `archive/` — Retired KB data (performance reviews, peer feedback). Gitignored; not loaded by any agent.
 - `config/preferences.yaml` — Job search hard filters and soft preferences (location, comp, role type, etc.)
 - `config/resume_style.yaml` — Resume formatting preferences
 - `templates/` — Optional custom .docx templates
@@ -35,7 +34,7 @@ This is a multi-agent job search system for a single candidate. Six specialized 
 
 ## Global Rules
 
-1. **Always read the knowledge base before generating any deliverable.** Never fabricate achievements, skills, or experiences. Every claim must trace to the KB files. Note: the KB is split for token efficiency — `candidate_profile.yaml` (core profile) and `candidate_reviews.yaml` (performance reviews, endorsements, growth areas) are separate files. Each agent's prompt specifies which files it needs. Similarly, `candidate_narrative.md` (career narrative) and `candidate_feedback_narrative.md` (peer/manager feedback) are separate.
+1. **Always read the knowledge base before generating any deliverable.** Never fabricate achievements, skills, or experiences. Every claim must trace to the KB files (`candidate_profile.yaml` and `candidate_narrative.md`). Use `candidate_profile.yaml` when you need structured data (skills, achievements, certifications). Use `candidate_narrative.md` when you need narrative context.
 
 2. **Never overwrite existing outputs without confirmation.** Use timestamped or descriptive filenames (e.g., `resume_stripe_sr_ml_engineer_2026-02-13.docx`).
 
@@ -57,4 +56,4 @@ This is a multi-agent job search system for a single candidate. Six specialized 
 
 ## Candidate Profile Schema
 
-See `knowledge_base/profile_schema.md` for the full YAML schemas for both `candidate_profile.yaml` and `candidate_reviews.yaml`.
+See `knowledge_base/profile_schema.md` for the full YAML schema for `candidate_profile.yaml`.

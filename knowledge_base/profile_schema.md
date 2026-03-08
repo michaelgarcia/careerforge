@@ -79,7 +79,9 @@ projects:
     highlights: [""]
 ```
 
-The `candidate_reviews.yaml` follows this schema:
+> **Archived.** `candidate_reviews.yaml` has been moved to `knowledge_base/archive/`. No active agent reads from it. Performance review data is now integrated directly into `candidate_profile.yaml` achievements and `candidate_narrative.md`.
+
+The `candidate_reviews.yaml` schema (archived reference):
 
 ```yaml
 performance_history:

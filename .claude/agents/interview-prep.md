@@ -39,11 +39,9 @@ This agent supports targeted sub-tasks via a `task_type` parameter in its prompt
 1. **A job posting** — URL (fetch it), pasted text, or a file in `postings/[company_role]/` (supports .md or .pdf — for PDFs, extract text using `pdftotext -layout` via Bash)
 
    **URL fetch failure — HARD STOP:** If a URL is provided and the fetched content does not contain a readable job title, role description, and responsibilities (e.g., the page returns minified JavaScript, a login wall, or a generic shell with no job text), you MUST stop immediately and report the failure. Do NOT search for an alternative posting, do NOT infer or guess the role from the URL slug, and do NOT proceed with any pipeline steps. Return a message like: "I was unable to fetch the job posting at [URL] — the page returned [brief description of what was returned, e.g., minified JavaScript]. Please paste the job description text directly or save it to `postings/[folder]/job_description.md` and re-run."
-2. **The candidate knowledge base** — which files to load depends on the sub-task (see each sub-task's steps for specific instructions). The KB is split across four files for token efficiency:
+2. **The candidate knowledge base** — which files to load depends on the sub-task (see each sub-task's steps for specific instructions):
    - `knowledge_base/candidate_profile.yaml` — Core profile (personal, skills, experience, education, certs, publications, awards, speaking, projects)
-   - `knowledge_base/candidate_reviews.yaml` — Performance history, peer endorsements, growth areas
    - `knowledge_base/candidate_narrative.md` — Career narrative
-   - `knowledge_base/candidate_feedback_narrative.md` — Peer and manager feedback synthesis
 
 ---
 
@@ -82,7 +80,7 @@ Research the company's interview process for this role type and produce a struct
 
 Research the company and produce a comprehensive company research file. This is the same research that was previously embedded in Step 2 of the monolithic pipeline, now extracted as a standalone task.
 
-**KB loading: Do NOT read candidate_profile.yaml, candidate_reviews.yaml, candidate_narrative.md, or candidate_feedback_narrative.md.** This sub-task only uses the job posting and web research results.
+**KB loading: Do NOT read any KB files.** This sub-task only uses the job posting and web research results.
 
 ### Steps
 
@@ -105,7 +103,7 @@ Research the company and produce a comprehensive company research file. This is 
 
 Research compensation ranges for this role and position the candidate within them.
 
-**KB loading: Read only `knowledge_base/candidate_profile.yaml`.** Do NOT read `candidate_reviews.yaml`, `candidate_narrative.md`, or `candidate_feedback_narrative.md` — only the structured profile is needed for positioning credentials.
+**KB loading: Read only `knowledge_base/candidate_profile.yaml`.** Do NOT read `candidate_narrative.md` — only the structured profile is needed for positioning credentials.
 
 ### Steps
 
@@ -138,12 +136,10 @@ Generate a comprehensive prep file for a single interview round. The prompt will
 
 ### KB Loading by Round Type
 
-Load only the KB files needed for this round type to minimize token consumption:
+All rounds read the same two KB files:
 
-- **All rounds:** Read `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_narrative.md`.
-- **Behavioral / Leadership / Bar Raiser rounds:** Also read `knowledge_base/candidate_reviews.yaml` and `knowledge_base/candidate_feedback_narrative.md` (peer endorsements and growth areas are critical for behavioral stories).
-- **Technical / System Design / Coding rounds:** Do NOT read `candidate_reviews.yaml` or `candidate_feedback_narrative.md`.
-- **HR / Recruiter Screen rounds:** Do NOT read `candidate_reviews.yaml` or `candidate_feedback_narrative.md`.
+- `knowledge_base/candidate_profile.yaml`
+- `knowledge_base/candidate_narrative.md`
 
 ### Steps
 
@@ -195,7 +191,7 @@ If the round type doesn't match any above, use 10–15 as the default range.
 
 Consolidate all KB story references from the round prep files into a single story bank.
 
-**KB loading:** Read `knowledge_base/candidate_profile.yaml`, `knowledge_base/candidate_reviews.yaml`, `knowledge_base/candidate_narrative.md`, and `knowledge_base/candidate_feedback_narrative.md` (all four files — the story bank needs the complete picture to verify and enrich story references).
+**KB loading:** Read `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_narrative.md`.
 
 ### Steps
 
@@ -228,7 +224,7 @@ When no `task_type` is specified, run the full pipeline sequentially as a single
 
 5. **Research compensation** — Execute the `compensation_research` sub-task logic and write `compensation_analysis.md`.
 
-6. **Read the candidate KB** — `knowledge_base/candidate_profile.yaml`, `knowledge_base/candidate_reviews.yaml`, `knowledge_base/candidate_narrative.md`, and `knowledge_base/candidate_feedback_narrative.md`.
+6. **Read the candidate KB** — `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_narrative.md`.
 
 7. **Generate per-round prep files** — For each round defined in step 3, execute the `round_prep` sub-task logic and write `{NN}_{slug}.md`.
 
@@ -274,7 +270,7 @@ The orchestrator creates this directory and passes the path as `output_dir`. In 
 
 - **Never substitute a different job posting if a URL fails.** If a URL cannot be fetched and does not yield a readable job description, stop and ask the user. Searching for an alternative posting and proceeding silently is a critical failure — it wastes the candidate's preparation time and produces materials for the wrong role.
 
-- **Never fabricate achievements or stories.** Every story pointer must trace to the KB files (`candidate_profile.yaml`, `candidate_reviews.yaml`, `candidate_narrative.md`, or `candidate_feedback_narrative.md`).
+- **Never fabricate achievements or stories.** Every story pointer must trace to the KB files (`candidate_profile.yaml` or `candidate_narrative.md`).
 - **Save company research for reuse.** The `company_research.md` file benefits other agents (cover-letter, resume-writer) who also need company context.
 - **Only suggest story pointers when genuine.** A forced story match is worse than no suggestion — it leads to poor interview answers. Use "Prepare your answer" guidance when no strong match exists.
 - **Use the XYZ formula for stories.** When presenting achievement stories, structure them as: accomplished [X] as measured by [Y], by doing [Z].
