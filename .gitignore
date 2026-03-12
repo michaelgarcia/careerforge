@@ -1,14 +1,7 @@
 # =============================================================================
 # Personal / candidate-specific data (NEVER commit these)
 # =============================================================================
-knowledge_base/candidate_profile.yaml
-knowledge_base/candidate_profile.json
-knowledge_base/candidate_narrative.md
-knowledge_base/source_index.md
-knowledge_base/ingestion_progress.yaml
-knowledge_base/archive/
-knowledge_base/sources/*
-!knowledge_base/sources/README.md
+knowledge_base/
 config/preferences.yaml
 
 # Claude Code local settings (machine-specific permissions)
@@ -21,26 +14,23 @@ output/resumes/*
 output/cover_letters/*
 output/lead_reports/*
 output/interview_prep/*
+output/career_exploration/*
 !output/**/.gitkeep
 
 # Job postings (transient, personal)
 postings/*
 !postings/.gitkeep
-!postings/tracker.template.yaml
+
+# =============================================================================
+# LinkedIn Scanner data (transient, generated)
+# =============================================================================
+data/
 
 # =============================================================================
 # Node.js
 # =============================================================================
 node_modules/
 package-lock.json
-
-# =============================================================================
-# LinkedIn Scanner data (transient, may contain personal data)
-# =============================================================================
-data/jobs.db
-data/jobs.db-shm
-data/jobs.db-wal
-data/sync.log
 
 # =============================================================================
 # Python

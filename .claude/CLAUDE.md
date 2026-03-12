@@ -2,35 +2,43 @@
 
 ## Soul
 
-CareerForge represents a real person's career. Accuracy is not a feature — it is the identity of every agent in this system.
-
-**Core principle:** The knowledge base is the single source of truth. If a fact is not in the KB files (`candidate_profile.yaml`, `candidate_narrative.md`), no agent may claim it. When the KB lacks what's needed, agents must flag the gap honestly rather than fill it with fabrication.
-
-**Values:** Accuracy over impressiveness. Provenance on every claim. Simplicity over infrastructure. Quality through verification. The candidate's real voice, contextualized — never replaced.
-
-For the full philosophical foundation, see `SOUL.md` at the project root.
+_CareerForge represents a real person's career. Accuracy is non-negotiable. See `SOUL.md` for the full philosophical foundation._
 
 ## Project Context
 
-This is a multi-agent job search system for a single candidate. Six specialized agents work from a shared knowledge base to cover the full job search lifecycle.
+This is a multi-agent job search system for a single candidate. Nine specialized agents work from a shared knowledge base to cover the full job search lifecycle.
 
 ## Directory Layout
 
-- `knowledge_base/` — The candidate's structured profile and raw source materials. This is the single source of truth.
+- `knowledge_base/` — The candidate's structured profile and raw source materials. This is the single source of truth. **Fully gitignored — all contents stay local.**
   - `candidate_profile.yaml` — Structured data: skills, roles, achievements, certifications, publications, awards, projects
   - `candidate_narrative.md` — Long-form narrative version of the candidate's background for LLM consumption
-  - `profile_schema.md` — YAML schema reference for `candidate_profile.yaml`
   - `source_index.md` — Provenance log mapping every KB fact to its source document
   - `sources/` — Raw input materials (resumes, transcripts, articles, etc.)
   - `archive/` — Retired KB data (performance reviews, peer feedback). Gitignored; not loaded by any agent.
 - `config/preferences.yaml` — Job search hard filters and soft preferences (location, comp, role type, etc.)
 - `config/resume_style.yaml` — Resume formatting preferences
-- `templates/` — Optional custom .docx templates
+- `config/search_scopes.yaml` — LinkedIn search scope definitions (committed)
+- `templates/` — Copy-me starter templates (all committed):
+  - `candidate_profile.template.yaml` — Template for candidate data
+  - `candidate_narrative.template.md` — Template for candidate narrative
+  - `preferences.template.yaml` — Template for job search preferences
+  - `tracker.template.yaml` — Application tracker schema and status enum
 - `postings/` — Job postings under consideration, organized as `postings/[company_role]/job_description.md`. Transient inputs, not part of the candidate's permanent profile.
   - `tracker.yaml` — Application lifecycle tracker (status, history, notes for each posting)
-  - `tracker.template.yaml` — Documented template with schema and status enum (committed to git)
 - `output/` — All generated deliverables, organized by type
 - `scripts/generate_docx.js` — Node.js helper for .docx generation using docx-js
+- `scripts/linkedin/` — Orchestration scripts: init_db, map_preferences, sync, pre_filter, export_for_scoring, update_scores, report.
+  _Scripts add `scripts/` to `sys.path` and import as `from linkedin.X import Y`. The `tools/` directory is added separately; import as `from linkedin_job_search.X import Y`._
+- `tools/` — LinkedIn Guest API client library (`linkedin_job_search/` package)
+- `data/` — Local SQLite database (`jobs.db`, gitignored)
+- `docs/` — Reference documentation (e.g., `linkedin-scanner.md`, `profile_schema.md`)
+
+## Core Principles
+
+- **Simplicity First**: Make every change as simple as possible. Impact minimal code and data.
+- **No Laziness**: Find root causes. No temporary fixes or workarounds.
+- **Minimal Impact**: Changes should only touch what's necessary. Avoid side effects.
 
 ## Global Rules
 
@@ -52,8 +60,10 @@ This is a multi-agent job search system for a single candidate. Six specialized 
 
 9. **Maintain full source traceability.** Every piece of data in the knowledge base — achievements, skills, endorsements, ratings, quotes — must include a `source` field tracing it back to the originating document. This applies to all agents that write to the KB, not just the KB Builder. When consuming KB data to generate deliverables, agents should be able to answer "where did this claim come from?" for any fact they use. If a source cannot be identified, flag the data point as `"source": "unverified"` rather than omitting the field. This is a foundational integrity requirement: the KB is only as trustworthy as its provenance chain.
 
-10. **Keep the application tracker current.** When a user saves a new job posting, applies, receives a status update, or withdraws from a role, update `postings/tracker.yaml` accordingly. Each status change must append a new entry to the application's `history` list with the date and (optionally) a note. Valid statuses: `saved`, `applying`, `applied`, `interviewing`, `offered`, `accepted`, `rejected`, `withdrawn`, `closed`. When listing or summarizing applications, read from this file. See `postings/tracker.template.yaml` for the full schema.
+10. **Keep the application tracker current.** When a user saves a new job posting, applies, receives a status update, or withdraws from a role, update `postings/tracker.yaml` accordingly. Each status change must append a new entry to the application's `history` list with the date and (optionally) a note. Valid statuses: `saved`, `applying`, `applied`, `interviewing`, `offered`, `accepted`, `rejected`, `withdrawn`, `closed`. When listing or summarizing applications, read from this file. See `templates/tracker.template.yaml` for the full schema.
 
-## Candidate Profile Schema
+11. **Delegate multi-step deliverables to named subagents.** For resumes, cover letters, interview prep, KB ingestion, and job scanning, delegate to the appropriate named subagent. Do not handle these workflows inline.
 
-See `knowledge_base/profile_schema.md` for the full YAML schema for `candidate_profile.yaml`.
+12. **Capture lessons after corrections.** After any user correction, save a `feedback` memory. Write it as a rule that prevents the same mistake — not a description of what happened. This is how the system learns across sessions.
+
+13. **Verify before marking complete.** Never consider a task done without proving it works. For YAML edits: confirm it parses. For .docx: confirm the file exists and is non-zero. For scripts: confirm they run. Ask: "Would the user be satisfied if they saw this now?"
