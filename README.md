@@ -5,18 +5,21 @@ A multi-agent system powered by Claude Code that covers the full job search life
 ## Architecture
 
 ```
-                      ┌──────────────────────────┐
-                      │   Candidate Knowledge     │
-                      │       Base (KB)           │
-                      │  (structured JSON/MD)     │
-                      └─────────┬────────────────┘
-                                │
-  ┌────────────┬────────────────┼────────────────┬──────────────┬──────────────┐
-  │            │                │                │              │              │
-┌─▼──────┐ ┌──▼───────┐ ┌──────▼──────┐ ┌──────▼──────┐ ┌─────▼─────┐ ┌─────▼──────┐
-│ Story  │ │  Resume  │ │ Cover Letter│ │    Lead     │ │    KB     │ │ Interview  │
-│Capture │ │  Writer  │ │ & Applicant │ │ Generation  │ │  Builder  │ │    Prep    │
-└────────┘ └──────────┘ └─────────────┘ └─────────────┘ └───────────┘ └────────────┘
+                           ┌──────────────────────────┐
+                           │   Candidate Knowledge     │
+                           │       Base (KB)           │
+                           │  (structured YAML/MD)     │
+                           └────────────┬─────────────┘
+                                        │
+          ┌─────────────────────────────┼──────────────────────────────┐
+          │                             │                              │
+   ┌──────▼──────────────┐   ┌──────────▼──────────────┐   ┌──────────▼──────────────┐
+   │     KB Layer        │   │    Delivery Layer        │   │   Discovery Layer       │
+   │─────────────────────│   │─────────────────────────│   │─────────────────────────│
+   │ • KB Builder        │   │ • Resume Writer          │   │ • Lead Gen              │
+   │ • Story Capture     │   │ • Cover Letter           │   │ • Career Explorer       │
+   │ • Preferences Setup │   │ • Interview Prep         │   │ • Job Scanner           │
+   └─────────────────────┘   └─────────────────────────┘   └─────────────────────────┘
 ```
 
 ## Install
@@ -35,9 +38,10 @@ git clone https://github.com/michaelgarcia/careerforge.git
 cd careerforge
 
 # 2. Copy template files to create your personal configs
-cp knowledge_base/candidate_profile.template.yaml knowledge_base/candidate_profile.yaml
-cp knowledge_base/candidate_narrative.template.md knowledge_base/candidate_narrative.md
-cp config/preferences.template.yaml config/preferences.yaml
+cp templates/candidate_profile.template.yaml knowledge_base/candidate_profile.yaml
+cp templates/candidate_narrative.template.md knowledge_base/candidate_narrative.md
+cp templates/preferences.template.yaml config/preferences.yaml
+cp templates/tracker.template.yaml postings/tracker.yaml
 
 # Optional: copy local Claude Code settings
 cp .claude/settings.local.template.json .claude/settings.local.json
@@ -48,7 +52,6 @@ cp .claude/settings.local.template.json .claude/settings.local.json
 #    - config/preferences.yaml                 → your job search filters (or run /setup-preferences to configure interactively)
 
 # 4. Add source materials (resumes, transcripts, articles) to knowledge_base/sources/
-#    See knowledge_base/sources/README.md for supported formats and suggested organization.
 
 # 5. Run the KB Builder to populate your knowledge base
 claude "Use the kb-builder agent to ingest all sources in knowledge_base/sources/ and build my candidate profile."
@@ -56,7 +59,7 @@ claude "Use the kb-builder agent to ingest all sources in knowledge_base/sources
 # 6. Verify all agents are available
 claude
 # Then type: /agents
-# You should see all six agents listed
+# You should see all nine agents listed
 ```
 
 ## Get Started
@@ -99,7 +102,7 @@ Your resume lands in `output/resumes/` as a formatted `.docx` file, with achieve
 
 ### 4. Explore further
 
-You now have the core workflow down. CareerForge has four more agents to help with your search — cover letters, lead scoring, story capture, and interview prep. Read on in the [Usage](#usage) section below to see what each one can do.
+You now have the core workflow down. CareerForge has eight more agents to help with your search — cover letters, lead scoring, story capture, interview prep, career exploration, and an automated LinkedIn job scanner. Read on in the [Usage](#usage) section below to see what each one can do.
 
 ## Slash Commands
 
@@ -117,6 +120,7 @@ CareerForge ships with custom slash commands that provide one-line invocation fo
 | `/track [status update in plain English]` | Update the application tracker (e.g. "I submitted to Stripe") |
 | `/status` | Overview of your job search pipeline, grouped by status |
 | `/scan [--scope name] [--bootstrap]` | Run the LinkedIn job scanner: sync, filter, score, and report top opportunities |
+| `/explore` | Discover best-fit roles from your profile across the current job market |
 
 Commands are defined in `.claude/commands/`. Add or modify them to customize your workflow.
 
@@ -212,6 +216,16 @@ claude "Use the interview-prep agent to prepare for the interview at postings/co
 
 Output: `output/interview_prep/`. Company research is saved to `postings/[company_role]/company_research.md` for reuse by other agents.
 
+### Career Explorer
+
+Analyzes your profile and generates a research report of best-fit roles in the current job market — with real job posting examples, compensation estimates, and work-life balance data.
+
+```bash
+claude "Use the career-explorer agent to discover what roles I'm best suited for in today's market."
+```
+
+Output: `output/career_exploration/`
+
 ### Utilities / Scripts
 
 #### `convert_md_to_pdf.js` — Markdown to PDF
@@ -251,7 +265,7 @@ claude "List all my active applications"
 claude "Show me everything in interviewing status"
 ```
 
-The tracker uses a simple YAML format. See `postings/tracker.template.yaml` for the full schema and status values.
+The tracker uses a simple YAML format. See `templates/tracker.template.yaml` for the full schema and status values.
 
 ### Using the Postings Directory
 
@@ -281,7 +295,8 @@ careerforge/
 │   │   ├── cover-letter.md            # Agent #4 — Cover Letter & Application
 │   │   ├── lead-gen.md                # Agent #5 — Lead Generation & Filtering
 │   │   ├── interview-prep.md          # Agent #6 — Interview Preparation
-│   │   └── job-scanner.md             # Agent #7 — Proactive LinkedIn Job Scanner
+│   │   ├── career-explorer.md         # Agent #7 — Career Explorer
+│   │   └── job-scanner.md             # Agent #8 — Proactive LinkedIn Job Scanner
 │   └── commands/
 │       ├── build-kb.md                # /build-kb  — Ingest sources & build profile
 │       ├── setup-preferences.md       # /setup-preferences — Configure job search filters
@@ -293,22 +308,17 @@ careerforge/
 │       ├── track.md                   # /track     — Update application tracker
 │       ├── status.md                  # /status    — Job search pipeline overview
 │       └── scan.md                    # /scan      — Daily LinkedIn job scan
-├── knowledge_base/
-│   ├── candidate_profile.template.yaml # Template for candidate data
-│   ├── candidate_narrative.template.md # Template for candidate narrative
-│   ├── candidate_profile.yaml         # Your structured candidate data (gitignored)
-│   ├── candidate_narrative.md         # Your narrative profile (gitignored)
-│   ├── source_index.md                # Provenance log (gitignored)
-│   └── sources/                       # Raw input materials (gitignored except README)
-│       └── README.md                  # Instructions for source materials
+├── knowledge_base/                    # Fully gitignored — all contents stay local
+│   ├── candidate_profile.yaml         # Your structured candidate data
+│   ├── candidate_narrative.md         # Your narrative profile
+│   ├── source_index.md                # Provenance log
+│   └── sources/                       # Raw input materials
 ├── postings/                          # Job postings under consideration (gitignored)
-│   ├── tracker.template.yaml         # Application tracker schema (committed)
 │   ├── tracker.yaml                  # Your application tracker (gitignored)
 │   └── [company_role]/
 │       ├── job_description.md         # The full job posting (.md or .pdf)
 │       └── company_research.md        # Auto-generated by agents
 ├── config/
-│   ├── preferences.template.yaml      # Template for job search preferences
 │   ├── preferences.yaml               # Your preferences & hard filters (gitignored)
 │   ├── resume_style.yaml              # Resume formatting preferences
 │   └── search_scopes.yaml             # LinkedIn search scope configurations
@@ -317,14 +327,19 @@ careerforge/
 ├── tools/
 │   └── linkedin_job_search/           # LinkedIn Guest API client package
 ├── docs/
-│   └── linkedin-scanner.md            # LinkedIn scanner deep-dive reference
+│   ├── linkedin-scanner.md            # LinkedIn scanner deep-dive reference
+│   └── profile_schema.md              # YAML schema reference for candidate_profile.yaml
 ├── templates/
-│   └── .gitkeep                       # Optional: custom .docx templates
+│   ├── candidate_profile.template.yaml # Template for candidate data
+│   ├── candidate_narrative.template.md # Template for candidate narrative
+│   ├── preferences.template.yaml       # Template for job search preferences
+│   └── tracker.template.yaml           # Application tracker schema
 ├── output/
 │   ├── resumes/                       # Generated resumes (gitignored)
 │   ├── cover_letters/                 # Generated cover letters (gitignored)
 │   ├── lead_reports/                  # Generated lead gen reports (gitignored)
-│   └── interview_prep/               # Generated interview prep guides (gitignored)
+│   ├── interview_prep/                # Generated interview prep guides (gitignored)
+│   └── career_exploration/            # Generated career exploration reports (gitignored)
 └── scripts/
     ├── generate_docx.js               # Helper: Node.js docx generator
     ├── convert_md_to_pdf.js           # Helper: Convert markdown files to PDF
