@@ -24,16 +24,6 @@ hard_constraints:
   # Compensation floor (set to 0 to disable)
   minimum_compensation_usd: 0
 
-  # Role types to consider (uncomment the ones that apply)
-  role_types:
-    - "Individual Contributor"
-    # - "Technical Lead"
-    # - "Staff Engineer"
-    # - "Principal Engineer"
-    # - "Engineering Manager"
-    # - "Director"
-    # - "VP"
-
   # Visa/work authorization requirements
   requires_sponsorship: false
 
@@ -105,3 +95,32 @@ search_config:
   target_companies: []
     # - "Company A"
     # - "Company B"
+
+# ============================================================
+# LINKEDIN SCANNER — settings for automated job discovery
+# ============================================================
+linkedin_scanner:
+  # Role types to target. Maps to LinkedIn experience_level filters.
+  # Must use exact strings from this list:
+  #   "Individual Contributor"  → mid-senior
+  #   "Technical Lead"          → mid-senior, director
+  #   "Staff Architect"         → mid-senior, director
+  #   "Principal Architect"     → director
+  #   "Director"                → director
+  #   "VP"                      → executive
+  #   "C-Level"                 → executive
+  role_types:
+    - "Individual Contributor"
+    # - "Technical Lead"
+    # - "Staff Architect"
+    # - "Principal Architect"
+    # - "Director"
+    # - "VP"
+    # - "C-Level"
+
+  # Minimum score (0-100) to surface a job in the daily report
+  lead_score_threshold: 65
+  # Maximum jobs to LLM-score per scan run (controls cost)
+  max_score_per_run: 30
+  # Number of days back to include unscored jobs in export
+  export_lookback_days: 7
