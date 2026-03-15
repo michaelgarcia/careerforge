@@ -1,0 +1,43 @@
+# Named search scopes for LinkedIn job discovery.
+# Copy to config/search_scopes.yaml and customize for the candidate.
+# Run a single scope with:
+#   python scripts/linkedin/sync.py --scope <name> --dry-run
+#
+# Field reference:
+#   name              - Unique identifier used in CLI --scope flag and DB records
+#   description       - Human-readable summary of what this scope targets
+#   keywords          - Free-text LinkedIn search string (≤5 words for best results)
+#   locations         - List of LinkedIn location strings.
+#                       Use exact values as they appear in LinkedIn job postings.
+#                       "United States" = US-wide / remote-eligible roles
+#   experience_levels - LinkedIn levels: internship, entry-level, associate,
+#                       mid-senior, director, executive
+#   work_model        - remote | hybrid | on-site (omit to accept all)
+#   date_posted       - past-24h | past-week | past-month | any-time
+#   limit             - Max jobs to collect per run (LinkedIn pages of 25)
+#   enabled           - Set to false to skip without deleting the config
+
+scopes:
+  - name: example_scope_1
+    description: "Brief description of what roles this scope targets and why"
+    keywords: "Job Title Domain"
+    locations:
+      - "United States"
+      # - "Chicago, IL"
+    experience_levels:
+      - mid-senior
+      - director
+    date_posted: past-week
+    limit: 75
+    enabled: true
+
+  - name: example_scope_2
+    description: "Another scope targeting a different role archetype"
+    keywords: "Principal Architect AI"
+    locations:
+      - "United States"
+    experience_levels:
+      - director
+    date_posted: past-week
+    limit: 50
+    enabled: false

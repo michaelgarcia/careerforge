@@ -35,6 +35,80 @@ _TIER_EMOJI = {
 }
 
 
+def _build_metrics_section(cur: sqlite3.Cursor, threshold: int) -> str:
+    """Build a pipeline metrics summary to prepend to the report."""
+    # Collection counts
+    cur.execute("SELECT COUNT(*) FROM jobs")
+    total_jobs = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM job_scores WHERE hard_filtered=1")
+    hard_filtered = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM job_scores WHERE score IS NOT NULL AND hard_filtered=0")
+    scored = cur.fetchone()[0]
+
+    eligible = total_jobs - hard_filtered
+
+    # Tier breakdown
+    cur.execute(
+        "SELECT tier, COUNT(*), ROUND(AVG(score),1) FROM job_scores WHERE score IS NOT NULL GROUP BY tier ORDER BY tier"
+    )
+    tier_rows = cur.fetchall()
+
+    above_threshold = sum(cnt for tier, cnt, avg in tier_rows if tier in ("tier1", "tier2"))
+    # More precise: count directly
+    cur.execute("SELECT COUNT(*) FROM job_scores WHERE score >= ? AND hard_filtered=0", (threshold,))
+    above_threshold = cur.fetchone()[0]
+
+    # Scope breakdown
+    cur.execute("SELECT source_scope, COUNT(*) FROM jobs GROUP BY source_scope ORDER BY COUNT(*) DESC")
+    scope_rows = cur.fetchall()
+
+    # Top 5 scored jobs
+    cur.execute(
+        """
+        SELECT j.title, j.company_name, j.location, js.score
+        FROM jobs j JOIN job_scores js ON j.job_id = js.job_id
+        WHERE js.score IS NOT NULL AND js.hard_filtered=0
+        ORDER BY js.score DESC LIMIT 5
+        """
+    )
+    top_rows = cur.fetchall()
+
+    lines = [
+        "## Pipeline Summary",
+        "",
+        "| Metric | Count |",
+        "| --- | --- |",
+        f"| Total collected | {total_jobs} |",
+        f"| Hard-filtered | {hard_filtered} |",
+        f"| Eligible (passed filter) | {eligible} |",
+        f"| LLM-scored | {scored} |",
+        f"| Above threshold (≥{threshold}) | {above_threshold} |",
+        "",
+    ]
+
+    if tier_rows:
+        lines += ["**Score tiers:**", "", "| Tier | Count | Avg Score |", "| --- | --- | --- |"]
+        for tier, cnt, avg in tier_rows:
+            lines.append(f"| {tier} | {cnt} | {avg} |")
+        lines.append("")
+
+    if scope_rows:
+        lines += ["**Jobs by scope:**", "", "| Scope | Jobs |", "| --- | --- |"]
+        for scope, cnt in scope_rows:
+            lines.append(f"| {scope or 'unknown'} | {cnt} |")
+        lines.append("")
+
+    if top_rows:
+        lines += ["**Top 5 roles:**", "", "| # | Title | Company | Location | Score |", "| --- | --- | --- | --- | --- |"]
+        for i, (title, company, location, score) in enumerate(top_rows, 1):
+            lines.append(f"| {i} | {title or '—'} | {company or '—'} | {location or '—'} | {score} |")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
 def generate_report(
     con: sqlite3.Connection,
     threshold: int,
@@ -65,16 +139,20 @@ def generate_report(
     rows = cur.fetchall()
     cols = [d[0] for d in cur.description]
 
-    if not rows:
-        return "_No new scored jobs above threshold._\n", 0
-
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     lines = [
         f"# LinkedIn Job Scan — {today}",
         f"",
         f"**Score threshold:** {threshold}  |  **Jobs shown:** {len(rows)}",
         f"",
+        _build_metrics_section(cur, threshold),
+        "---",
+        "",
     ]
+
+    if not rows:
+        lines.append("_No new scored jobs above threshold._\n")
+        return "\n".join(lines) + "\n", 0
 
     for row in rows:
         job = dict(zip(cols, row))

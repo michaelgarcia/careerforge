@@ -45,7 +45,7 @@ def build_from_preferences_scope(prefs: dict) -> dict[str, Any]:
         work_model = "remote"
     else:
         locations = [str(l) for l in (loc_cfg.get("acceptable_locations") or [])]
-        work_model = "hybrid" if loc_cfg.get("include_hybrid") else "on-site"
+        work_model = None  # accept all work models; pre_filter handles location enforcement
 
     # --- experience levels ---
     role_types = prefs.get("linkedin_scanner", {}).get("role_types") or hc.get("role_types") or []
@@ -67,17 +67,19 @@ def build_from_preferences_scope(prefs: dict) -> dict[str, Any]:
             all_terms.append(term)
     keywords_str = " ".join(all_terms[:8])  # LinkedIn keyword string has practical length limit
 
-    return {
+    scope: dict[str, Any] = {
         "name": "from_preferences",
         "description": "Auto-generated scope from config/preferences.yaml",
         "keywords": keywords_str,
         "locations": locations,
         "experience_levels": exp_levels,
-        "work_model": work_model,
         "date_posted": "past-week",
         "limit": 75,
         "enabled": True,
     }
+    if work_model is not None:
+        scope["work_model"] = work_model
+    return scope
 
 
 def get_target_companies(prefs: dict) -> list[str]:
