@@ -210,7 +210,7 @@ def build_report(con: sqlite3.Connection) -> str:
   <div class="card"><div class="stat">{hard_filtered}</div><div class="label">Hard-filtered</div></div>
   <div class="card"><div class="stat">{eligible}</div><div class="label">Eligible</div></div>
   <div class="card"><div class="stat">{scored}</div><div class="label">LLM-scored</div></div>
-  <div class="card"><div class="stat">{sensitivity[2][1]}</div><div class="label">Above threshold (≥70)</div></div>
+  <div class="card"><div class="stat">{sensitivity[3][1]}</div><div class="label">Above threshold (≥75)</div></div>
 </div>
 
 <h2>Score Distribution</h2>
