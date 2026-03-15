@@ -73,7 +73,7 @@ def location_invalid(location: str | None, acceptable_locations: list[str], incl
     # If include_hybrid and job mentions hybrid
     if include_hybrid and "hybrid" in loc_lower:
         return False
-    # Check against acceptable_locations list
+    # Check against acceptable_locations list (substring both ways)
     for acceptable in acceptable_locations:
         if acceptable.lower() in loc_lower or loc_lower in acceptable.lower():
             return False
