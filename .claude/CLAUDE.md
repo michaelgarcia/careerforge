@@ -50,7 +50,7 @@ This is a multi-agent job search system for a single candidate. Nine specialized
 
 4. **Prefer structured data for querying, narrative for generation.** Use `candidate_profile.yaml` when you need to match skills/keywords. Use `candidate_narrative.md` when you need to write compelling prose about the candidate's experience.
 
-5. **Respect the preferences config.** The `config/preferences.yaml` file defines the candidate's hard constraints (e.g., "remote only", "minimum $200k") and soft preferences (e.g., "prefers ML/AI roles"). Lead gen must respect hard constraints as absolute filters. Resume and cover letter agents should weight soft preferences.
+5. **Respect the preferences config.** The `config/preferences.yaml` file defines the candidate's hard constraints (e.g., "remote only", "minimum $200k") and soft preferences (e.g., "prefers ML/AI roles"). The scorer agent must respect hard constraints as absolute filters. Resume and cover letter agents should weight soft preferences.
 
 6. **Use web search for company context.** When writing cover letters or scoring job fit, search for recent company news, mission statements, and culture signals. Cite what you find.
 

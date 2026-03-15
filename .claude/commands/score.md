@@ -1,4 +1,4 @@
-Use the lead-gen agent to score and evaluate the following job posting against my profile and preferences:
+Use the scorer agent to score and evaluate the following job posting against my profile and preferences:
 
 $ARGUMENTS
 

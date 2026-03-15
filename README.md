@@ -16,7 +16,7 @@ A multi-agent system powered by Claude Code that covers the full job search life
    ┌──────▼──────────────┐   ┌──────────▼──────────────┐   ┌──────────▼──────────────┐
    │     KB Layer        │   │    Delivery Layer        │   │   Discovery Layer       │
    │─────────────────────│   │─────────────────────────│   │─────────────────────────│
-   │ • KB Builder        │   │ • Resume Writer          │   │ • Lead Gen              │
+   │ • KB Builder        │   │ • Resume Writer          │   │ • Scorer                │
    │ • Story Capture     │   │ • Cover Letter           │   │ • Career Explorer       │
    │ • Preferences Setup │   │ • Interview Prep         │   │ • Job Scanner           │
    └─────────────────────┘   └─────────────────────────┘   └─────────────────────────┘
@@ -188,16 +188,16 @@ claude "Use the cover-letter agent to write a cover letter for this posting: [pa
 
 Output: `output/cover_letters/`
 
-### Lead Gen
+### Scorer
 
 Scores and filters job postings against your profile and preferences. Respects hard constraints from `config/preferences.yaml`.
 
 ```bash
 # Single posting
-claude "Use the lead-gen agent to score this job posting against my profile: [paste URL]"
+claude "Use the scorer agent to score this job posting against my profile: [paste URL]"
 
 # Batch — drop multiple postings into a folder
-claude "Use the lead-gen agent to score all postings in ./input_postings/ and produce a ranked report."
+claude "Use the scorer agent to score all postings in ./input_postings/ and produce a ranked report."
 ```
 
 Output: `output/lead_reports/`
@@ -276,7 +276,7 @@ postings/company_sr_engineer/job_description.md
 postings/startup_ml_lead/job_description.pdf
 ```
 
-All agents (resume-writer, cover-letter, lead-gen, interview-prep) can read from these folders. The interview-prep and cover-letter agents also write `company_research.md` into the subfolder for shared reuse.
+All agents (resume-writer, cover-letter, scorer, interview-prep) can read from these folders. The interview-prep and cover-letter agents also write `company_research.md` into the subfolder for shared reuse.
 
 ## Project Structure
 
@@ -293,7 +293,7 @@ careerforge/
 │   │   ├── preferences-setup.md       # Agent — Preferences Setup
 │   │   ├── resume-writer.md           # Agent #3 — Resume Writer
 │   │   ├── cover-letter.md            # Agent #4 — Cover Letter & Application
-│   │   ├── lead-gen.md                # Agent #5 — Lead Generation & Filtering
+│   │   ├── scorer.md                  # Agent #5 — Scorer
 │   │   ├── interview-prep.md          # Agent #6 — Interview Preparation
 │   │   ├── career-explorer.md         # Agent #7 — Career Explorer
 │   │   └── job-scanner.md             # Agent #8 — Proactive LinkedIn Job Scanner
@@ -337,7 +337,7 @@ careerforge/
 ├── output/
 │   ├── resumes/                       # Generated resumes (gitignored)
 │   ├── cover_letters/                 # Generated cover letters (gitignored)
-│   ├── lead_reports/                  # Generated lead gen reports (gitignored)
+│   ├── lead_reports/                  # Generated scorer reports (gitignored)
 │   ├── interview_prep/                # Generated interview prep guides (gitignored)
 │   └── career_exploration/            # Generated career exploration reports (gitignored)
 └── scripts/
@@ -357,7 +357,7 @@ careerforge/
 
 ### Job Search Preferences (`config/preferences.yaml`)
 
-Edit this file to define your hard filters and soft preferences. The lead-gen agent reads this to score postings.
+Edit this file to define your hard filters and soft preferences. The scorer agent reads this to score postings.
 
 ### Resume Style (`config/resume_style.yaml`)
 
