@@ -1,6 +1,6 @@
 # Job Search Preferences
 # Edit this file to define your hard constraints and soft preferences.
-# The lead-gen agent reads this to filter and score postings.
+# The scorer agent reads this to filter and score postings.
 # The resume and cover letter agents use soft preferences for emphasis.
 
 # ============================================================
@@ -12,9 +12,12 @@ hard_constraints:
   location:
     # Set to true if you only want remote roles
     remote_only: false
-    # Acceptable locations (ignored if remote_only is true)
+    # Acceptable locations (ignored if remote_only is true).
+    # Use exact LinkedIn location strings as they appear in job postings.
+    # "United States" = US-wide / remote-eligible roles (LinkedIn's standard value for remote jobs)
     acceptable_locations:
-      - "Remote"
+      - "United States"
+      # - "Chicago, IL"
       # - "San Francisco, CA"
       # - "New York, NY"
       # - "Seattle, WA"
@@ -27,7 +30,7 @@ hard_constraints:
   # Visa/work authorization requirements
   requires_sponsorship: false
 
-  # Custom dealbreakers (free-form list, lead-gen agent interprets these)
+  # Custom dealbreakers (free-form list, scorer agent interprets these)
   dealbreakers: []
     # - "No defense/weapons industry"
     # - "No crypto/web3"
@@ -75,7 +78,7 @@ soft_preferences:
     # - "High compensation"
 
 # ============================================================
-# SEARCH KEYWORDS — used by lead-gen agent when searching for postings
+# SEARCH KEYWORDS — used by scorer agent when searching for postings
 # ============================================================
 search_config:
   # Job titles to search for

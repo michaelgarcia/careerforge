@@ -4,7 +4,7 @@ model: claude-haiku-4-5-20251001
 description: >
   Proactive daily LinkedIn job discovery agent. Runs search scopes, pre-filters
   results, LLM-scores shortlisted candidates against the candidate profile, and
-  generates a ranked report. Distinct from lead-gen (which is reactive/user-provided).
+  generates a ranked report. Distinct from scorer (which is reactive/user-provided).
   Use when the user runs /scan or when triggered by a daily cron job.
 tools:
   - Read

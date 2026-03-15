@@ -4,7 +4,7 @@
 
 The LinkedIn Scanner is a two-tier automated job discovery pipeline integrated into CareerForge. It queries LinkedIn's public Guest API across configurable search scopes, deduplicates results globally in a local SQLite database, pre-filters with rule-based hard constraints, and LLM-scores shortlisted candidates against your profile. Only the highest-fit opportunities are surfaced via `/scan`.
 
-**Why it exists:** The existing `lead-gen` agent is reactive (you bring it a posting). The scanner is proactive — it discovers, filters, scores, and surfaces jobs autonomously every day so you don't have to manually search.
+**Why it exists:** The existing `scorer` agent is reactive (you bring it a posting). The scanner is proactive — it discovers, filters, scores, and surfaces jobs autonomously every day so you don't have to manually search.
 
 ---
 
