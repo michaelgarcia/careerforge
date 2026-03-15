@@ -267,9 +267,13 @@ new Chart(document.getElementById('scoreHistChart'), {{
   data: {{ labels: {bucket_labels}, datasets: [{{ label: 'Jobs', data: {bucket_data},
     backgroundColor: ['#e8e8e8','#cce4ff','#cce4ff','#70b5f9','#0a66c2'] }}] }},
   options: {{
-    plugins: {{ legend: {{ display: false }}, title: {{ display: true, text: 'Score Distribution' }},
-      datalabels: {{ anchor: 'end', align: 'top', color: '#444', font: {{ size: 11 }},
-        formatter: v => v > 0 ? v : '' }} }},
+    layout: {{ padding: {{ top: 24 }} }},
+    plugins: {{
+      legend: {{ display: false }},
+      title: {{ display: true, text: 'Score Distribution', padding: {{ bottom: 12 }} }},
+      datalabels: {{ anchor: 'end', align: 'top', offset: 2, color: '#444', font: {{ size: 11 }},
+        formatter: v => v > 0 ? v : '' }}
+    }},
     scales: {{ y: {{ beginAtZero: true, ticks: {{ precision: 0 }} }} }}
   }}
 }});
@@ -297,10 +301,14 @@ new Chart(document.getElementById('scopeChart'), {{
   data: {{
     labels: {scope_names},
     datasets: [
-      {{ label: 'Total Jobs', data: {scope_totals}, backgroundColor: '#70b5f9', yAxisID: 'y', order: 2 }},
+      {{ label: 'Total Jobs', data: {scope_totals}, backgroundColor: '#70b5f9', yAxisID: 'y', order: 2,
+        datalabels: {{ anchor: 'start', align: 'end', clamp: true, color: '#1a3a5c',
+          font: {{ size: 10, weight: 'bold' }}, formatter: v => v > 0 ? v : '' }} }},
       {{ label: 'Avg Score', data: {scope_avgs}, type: 'line', borderColor: '#c37d16',
         backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 5,
-        yAxisID: 'y2', order: 1 }}
+        yAxisID: 'y2', order: 1,
+        datalabels: {{ anchor: 'end', align: 'top', offset: 6, color: '#c37d16',
+          font: {{ size: 10, weight: 'bold' }}, formatter: v => v > 0 ? v : '' }} }}
     ]
   }},
   options: {{
