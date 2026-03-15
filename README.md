@@ -44,25 +44,9 @@ CareerForge is a multi-agent job search system powered by Claude Code. It covers
 
 ---
 
-## Architecture
+## High level overview and Architecture
 
-```
-                           ┌──────────────────────────┐
-                           │   Candidate Knowledge     │
-                           │       Base (KB)           │
-                           │  (structured YAML/MD)     │
-                           └────────────┬─────────────┘
-                                        │
-          ┌─────────────────────────────┼──────────────────────────────┐
-          │                             │                              │
-   ┌──────▼──────────────┐   ┌──────────▼──────────────┐   ┌──────────▼──────────────┐
-   │     KB Layer        │   │    Delivery Layer        │   │   Discovery Layer       │
-   │─────────────────────│   │─────────────────────────│   │─────────────────────────│
-   │ • KB Builder        │   │ • Resume Writer          │   │ • Scorer                │
-   │ • Story Capture     │   │ • Cover Letter           │   │ • Career Explorer       │
-   │ • Preferences Setup │   │ • Interview Prep         │   │ • Job Scanner           │
-   └─────────────────────┘   └─────────────────────────┘   └─────────────────────────┘
-```
+![Analytics Demo](docs/CareerForge_Introduction.png)
 
 ---
 
