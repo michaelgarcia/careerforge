@@ -48,7 +48,7 @@ def build_from_preferences_scope(prefs: dict) -> dict[str, Any]:
         work_model = "hybrid" if loc_cfg.get("include_hybrid") else "on-site"
 
     # --- experience levels ---
-    role_types = hc.get("role_types") or []
+    role_types = prefs.get("linkedin_scanner", {}).get("role_types") or hc.get("role_types") or []
     exp_levels: list[str] = []
     for rt in role_types:
         for lvl in _ROLE_TO_EXP_LEVEL.get(rt, []):
