@@ -104,6 +104,7 @@ Standard structure (adapt based on candidate strengths and role):
 1. Write resume content as a JSON file to `/tmp/resume_content_[timestamp].json` matching the schema documented in `scripts/generate_docx.js`. The JSON supports: `personal`, `summary`, `skills`, `experience`, `education`, `certifications`, `publications`, `speaking`, `projects`, `awards`, `patents`, and `style`.
 2. Run: `node scripts/generate_docx.js --input <json_path> --output <output_path> --type resume`
 3. **Do NOT generate inline Node.js scripts with hardcoded content.** The template handles all formatting — publications, speaking, projects, awards, and patents sections are all supported.
+4. Run: `python scripts/convert_to_pdf.py --input <output_path>` to generate a `.pdf` alongside the `.docx`. Both files are delivered to the user.
 
 The generated resume will:
 - Use a clean, professional font (Calibri by default, configurable via `style.font`)
@@ -116,20 +117,45 @@ To control page length, adjust content volume (fewer bullets, fewer sections) ra
 
 ### Step 6: Self-Review
 
-After generating, review the resume against this checklist:
-- [ ] Every achievement traces to `candidate_profile.yaml` — nothing fabricated
-- [ ] Top 5 keywords from the job posting appear naturally in the resume
-- [ ] Quantified metrics on at least 60% of achievement bullets
-- [ ] Resume fits within the page limit (1 page for < 7 years experience, max 2 pages). If it exceeds 2 pages, cut lower-priority content until it fits.
-- [ ] Contact information is complete
-- [ ] Dates are consistent and have no unexplained gaps
-- [ ] Every minimum qualification from the posting is explicitly addressed somewhere in the resume
-- [ ] Achievement bullets follow XYZ formula: what was accomplished, how it was measured, what was done
-- [ ] Leadership roles include team size and scope
-- [ ] No filler phrases ("responsible for", "helped to", "worked on") — every bullet leads with impact
-- [ ] File is saved to `output/resumes/` with a descriptive filename
+After generating, review the resume against the following grouped checklist.
 
-Report the review results to the user along with the output file path.
+**Group 1: Visual (PDF-based)**
+*Read the generated PDF with the Read tool. Visually inspect the rendered output.*
+
+- [ ] No section overlap — all content fits within margins, nothing is cut off
+- [ ] Consistent formatting throughout — font, size, and weight are uniform within each section type
+- [ ] Consistent spacing — gaps between roles, between sections, and between bullets are uniform
+- [ ] Accent color applied correctly to section headers and dividers (matches `accent_color` in `resume_style.yaml`)
+- [ ] Overall appearance is clean and professional — no visual clutter, walls of text, or awkward whitespace
+
+**Group 2: Length & Structure**
+*Verify bounds defined in `resume_style.yaml`.*
+
+- [ ] Total page count is within bounds: 1 page for < 7 years experience, ≤ `page_length.max_pages` for 7+ years. If over, cut lower-priority content.
+- [ ] Each role has between `content.min_bullets_per_role` and `content.max_bullets_per_role` bullets (defaults: 2–5)
+- [ ] Older roles (beyond `content.detailed_years`, default 10 years) have at most 1–2 bullets
+- [ ] No empty sections — omit any section header with no content
+
+**Group 3: Impact & Relevance**
+*Verify bullet quality and skills curation.*
+
+- [ ] ≥ 60% of achievement bullets follow the XYZ formula: "Accomplished [X] as measured by [Y], by doing [Z]" — check each bullet
+- [ ] Every bullet leads with a strong action verb; no filler phrases ("responsible for", "helped to", "worked on")
+- [ ] Leadership roles include team size and scope
+- [ ] Skills section contains only skills relevant to this specific job posting, selected from the full KB — not a dump of all skills
+- [ ] Top 5 keywords from the job posting appear naturally (at minimum in summary + first bullet of most recent role)
+
+**Group 4: Content Accuracy & Deliverable**
+*Verify accuracy and confirm both output files exist.*
+
+- [ ] Every achievement traces to `candidate_profile.yaml` — nothing fabricated
+- [ ] Quantified metrics on at least 60% of achievement bullets
+- [ ] Contact information is complete
+- [ ] Dates are consistent with no unexplained gaps
+- [ ] Every minimum qualification from the posting is explicitly addressed somewhere in the resume
+- [ ] Both files confirmed generated: run `ls -lh <output_path>.docx <output_path>.pdf` — both exist and are > 0 KB
+
+Report review results (pass/fail per group, flag any failures) to the user along with both output file paths.
 
 ## Output Naming Convention
 
