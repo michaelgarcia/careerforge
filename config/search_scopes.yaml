@@ -15,75 +15,67 @@
 #   enabled         - Set to false to skip without deleting the config
 
 scopes:
-  - name: ai_architect_remote
-    description: "Principal/Staff AI Architect roles, fully remote"
-    keywords: "Principal Architect AI Generative Applied"
+  - name: gtm_sa_ai_cloud
+    description: "Solutions Architect roles in AI and Cloud go-to-market (pre-sales); targets Anthropic, Databricks, OpenAI, Google, Microsoft and the broader AI-native market"
+    keywords: "Solutions Architect AI Cloud Generative GTM Pre-Sales"
     locations:
       - "Remote"
+      - "Chicago, IL"
     experience_levels:
-      - director      # LinkedIn: director maps to Staff/Principal level
-    work_model: remote
+      - mid-senior
+      - director
     date_posted: past-week
     limit: 75
     enabled: true
 
-  - name: applied_ai_chicago
-    description: "Applied AI / ML Architect roles in Chicago metro, hybrid-friendly"
-    keywords: "Applied AI Machine Learning Architect Engineer"
+  - name: forward_deploy_engineer
+    description: "Forward Deploy Engineer and Delivery Solutions Architect roles; post-sales, customer implementation-focused"
+    keywords: "Forward Deploy Engineer Delivery Solutions Architect Implementation Customer"
     locations:
+      - "Remote"
       - "Chicago, IL"
     experience_levels:
       - mid-senior
       - director
-    work_model: hybrid
     date_posted: past-week
     limit: 75
     enabled: true
 
-  - name: ai_engineer_remote
-    description: "AI/ML Engineer roles, fully remote, senior+"
-    keywords: "AI Engineer Machine Learning Generative AI"
-    locations:
-      - "Remote"
-    experience_levels:
-      - mid-senior
-      - director
-    work_model: remote
-    date_posted: past-week
-    limit: 50
-    enabled: true
-
-  - name: target_companies
-    description: "Any AI/Architect role at target companies from preferences"
-    keywords: "AI Architect Engineer"
-    locations:
-      - "Remote"
-      - "Chicago, IL"
-    companies: []   # populated at runtime by map_preferences.py from preferences.yaml
-    date_posted: past-week
-    limit: 50
-    enabled: true
-
-  # Disabled examples for reference / testing:
-  - name: executive_ai_nationwide
-    description: "VP/Director AI roles nationwide (broad, high noise)"
-    keywords: "VP AI Director Artificial Intelligence"
-    locations: []
-    experience_levels:
-      - executive
-    date_posted: past-week
-    limit: 50
-    enabled: false
-
-  - name: physical_ai_robotics
-    description: "Physical AI / Robotics Architect roles (niche, low volume)"
-    keywords: "Physical AI Robotics Architect Principal"
+  - name: field_cto_industrial_tech
+    description: "Field CTO roles at industrial tech, AI data platform, manufacturing tech, or IoT vendors; leverages automotive and cloud domain expertise"
+    keywords: "Field CTO Technology Vendor Industrial Manufacturing Automotive Cloud"
     locations:
       - "Remote"
       - "Chicago, IL"
     experience_levels:
       - mid-senior
       - director
-    date_posted: past-month
-    limit: 50
-    enabled: false
+    date_posted: past-week
+    limit: 75
+    enabled: true
+
+  - name: physical_ai_robotics_architect
+    description: "Principal Architect or Staff Architect for AI solutions in robotics and physical AI; manufacturing and automotive background is a differentiator"
+    keywords: "Principal Architect Staff Architect AI Robotics Physical Manufacturing Autonomous"
+    locations:
+      - "Remote"
+      - "Chicago, IL"
+    experience_levels:
+      - mid-senior
+      - director
+    date_posted: past-week
+    limit: 75
+    enabled: true
+
+  - name: director_ai_product_roles
+    description: "Director of Product, Director AI Solutions, Principal PM, and Head of AI roles in AI and cloud technology companies"
+    keywords: "Director Product AI Technology Cloud Principal Program Manager Head"
+    locations:
+      - "Remote"
+      - "Chicago, IL"
+    experience_levels:
+      - mid-senior
+      - director
+    date_posted: past-week
+    limit: 75
+    enabled: true
