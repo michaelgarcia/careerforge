@@ -1,6 +1,48 @@
 # CareerForge
 
-A multi-agent system powered by Claude Code that covers the full job search lifecycle: knowledge base management, tailored resume generation, cover letter writing, lead generation/filtering, and interview preparation.
+CareerForge is a multi-agent job search system powered by Claude Code. It covers the full search lifecycle — from discovering the right roles, to applying faster with tailored materials, to walking into interviews prepared.
+
+**Find roles worth pursuing.** The Career Explorer maps the current job market against your actual skills and experience, surfacing roles you're genuinely qualified for — including ones you might not have considered. The LinkedIn Job Scanner then runs daily across configurable search scopes, hard-filters out anything that fails your requirements (location, compensation, employment type), and LLM-scores the rest against your profile so only the strongest matches reach you.
+
+**Apply in minutes, not hours.** Point the Resume Writer at any job posting and it generates a tailored `.docx` resume — achievements reordered, keywords matched, qualification gaps flagged — grounded entirely in your verified knowledge base. The Cover Letter agent does the same, adding company research it pulls fresh from the web.
+
+**Walk into every interview prepared.** The Interview Prep agent researches the company, maps out the interview process and rounds, generates predicted questions per stage, and builds a personal story bank showing which of your own achievements best answers each question — all in one command.
+
+---
+
+## What it looks like in practice
+
+![Analytics Demo](docs/analytics_demo.png)
+
+*354 jobs collected across 5 search scopes → 287 hard-filtered by location/type → 67 LLM-scored → **6 top matches surfaced automatically***
+
+---
+
+## Why CareerForge?
+
+**Discover** — Career Explorer maps roles you're qualified for. Daily LinkedIn scans across configurable search scopes bring fresh postings to you automatically.
+
+**Filter** — Hard constraints (location, compensation, employment type) eliminate noise before any AI token is spent. You never see a role that fails your requirements.
+
+**Apply** — Resume Writer and Cover Letter agents generate bespoke, fully-sourced documents matched to each posting. One command, minutes to a finished `.docx`.
+
+**Prepare** — Interview Prep generates company research, per-round question guides, and a story bank tied to your own achievements — everything you need before you walk in.
+
+---
+
+## Key Features
+
+1. **Accuracy-first deliverables** — Every achievement, skill, and metric in every resume and cover letter traces back to your source documents. Agents flag gaps honestly rather than fill them with fabrications.
+
+2. **Automated daily discovery** — LinkedIn scanner queries configurable search scopes, deduplicates results in a local SQLite database, hard-filters with rule-based constraints, and LLM-scores shortlisted candidates against your profile.
+
+3. **Hard constraints are hard** — Compensation floor, location, and role type are enforced as absolute filters. Postings that violate them are excluded outright — never just scored lower and buried in the list.
+
+4. **Full interview prep in one command** — Company research, interview process, predicted questions per round, and your own story pointers — all generated together, with a story bank showing which of your achievements answers which questions.
+
+5. **Your personal data never ends up in git** — All personal files (profile, narrative, preferences, source materials, generated outputs) are gitignored by default. `git add .` is always safe.
+
+---
 
 ## Architecture
 
@@ -21,6 +63,8 @@ A multi-agent system powered by Claude Code that covers the full job search life
    │ • Preferences Setup │   │ • Interview Prep         │   │ • Job Scanner           │
    └─────────────────────┘   └─────────────────────────┘   └─────────────────────────┘
 ```
+
+---
 
 ## Install
 
@@ -62,9 +106,9 @@ claude
 # You should see all nine agents listed
 ```
 
-## Get Started
+---
 
-This section walks you through going from zero to your first tailored resume. By the end, you'll have a populated knowledge base built from your own materials and a job-specific resume ready to send.
+## Get Started
 
 ### 1. Load your source materials
 
@@ -82,8 +126,6 @@ No need to organize or pre-process — the KB Builder will extract and structure
 
 ### 2. Build your knowledge base
 
-Run the KB Builder agent to ingest your source materials and create your structured candidate profile:
-
 ```bash
 claude "Use the kb-builder agent to ingest all sources in knowledge_base/sources/ and build my candidate profile."
 ```
@@ -91,8 +133,6 @@ claude "Use the kb-builder agent to ingest all sources in knowledge_base/sources
 This generates your `candidate_profile.yaml` (structured data) and `candidate_narrative.md` (prose version) — the foundation that all other agents read from.
 
 ### 3. Generate a tailored resume
-
-With your knowledge base ready, point the Resume Writer at any job posting to get a targeted resume:
 
 ```bash
 claude "Use the resume-writer agent to create a resume tailored to this job posting: [paste URL or job description]"
@@ -102,11 +142,11 @@ Your resume lands in `output/resumes/` as a formatted `.docx` file, with achieve
 
 ### 4. Explore further
 
-You now have the core workflow down. CareerForge has eight more agents to help with your search — cover letters, lead scoring, story capture, interview prep, career exploration, and an automated LinkedIn job scanner. Read on in the [Usage](#usage) section below to see what each one can do.
+You now have the core workflow down. CareerForge has eight more agents to help with your search — cover letters, lead scoring, story capture, interview prep, career exploration, and an automated LinkedIn job scanner. Read on in the [Usage](#usage) section below.
+
+---
 
 ## Slash Commands
-
-CareerForge ships with custom slash commands that provide one-line invocation for every workflow step. Type these directly in Claude Code:
 
 | Command | What it does |
 |---------|-------------|
@@ -123,6 +163,8 @@ CareerForge ships with custom slash commands that provide one-line invocation fo
 | `/explore` | Discover best-fit roles from your profile across the current job market |
 
 Commands are defined in `.claude/commands/`. Add or modify them to customize your workflow.
+
+---
 
 ## Usage
 
@@ -278,6 +320,8 @@ postings/startup_ml_lead/job_description.pdf
 
 All agents (resume-writer, cover-letter, scorer, interview-prep) can read from these folders. The interview-prep and cover-letter agents also write `company_research.md` into the subfolder for shared reuse.
 
+---
+
 ## Project Structure
 
 ```
@@ -327,6 +371,8 @@ careerforge/
 ├── tools/
 │   └── linkedin_job_search/           # LinkedIn Guest API client package
 ├── docs/
+│   ├── analytics_demo.html            # Anonymized analytics demo
+│   ├── analytics_demo.png             # Analytics screenshot (add after taking screenshot)
 │   ├── linkedin-scanner.md            # LinkedIn scanner deep-dive reference
 │   └── profile_schema.md              # YAML schema reference for candidate_profile.yaml
 ├── templates/
@@ -353,6 +399,8 @@ careerforge/
         └── report.py                  # Generate ranked markdown report
 ```
 
+---
+
 ## Configuration
 
 ### Job Search Preferences (`config/preferences.yaml`)
@@ -366,6 +414,8 @@ Controls formatting preferences — fonts, section ordering, page length targets
 ### MCP Servers (`.claude/settings.json`)
 
 Pre-configured with filesystem access scoped to this project. Add additional MCP servers as needed (e.g., email integration for lead gen from inbox).
+
+---
 
 ## Git Management
 
@@ -409,7 +459,7 @@ git push
 
 No special steps needed to protect personal data — the `.gitignore` handles it.
 
-For extra safety, you can add a pre-push hook that scans for personal data patterns. This is a local-only safeguard (git hooks aren't committed to the repo).
+---
 
 ## Design Principles
 
@@ -425,6 +475,8 @@ For extra safety, you can add a pre-push hook that scans for personal data patte
 
 **Keep it simple.** Resist adding infrastructure, dependencies, or tooling unless the benefit is clear and immediate. Voice input? Use an external app and paste the transcript. Batch processing? A for-loop in bash. Database? A JSON file. Complexity is a cost — pay it only when you must.
 
+---
+
 ## Migration Path to Agent SDK
 
 When you're ready to move to the Claude Agent SDK for batch processing, scheduling, or programmatic control:
@@ -435,41 +487,11 @@ When you're ready to move to the Claude Agent SDK for batch processing, scheduli
 4. The knowledge base and output structure remain identical
 5. See the architecture plan document for full SDK code patterns
 
+---
+
 ## Tips
 
 - **Iterate on prompts first.** The agent markdown files are the primary lever. Refine them based on output quality before adding complexity.
 - **Use `/agents` in Claude Code** to verify all agents are loaded.
 - **Use `--print` flag** for non-interactive / scriptable runs.
 - **Check `knowledge_base/source_index.md`** to verify what the KB builder has ingested.
-
-## Key Features
-
-1. **Your resume never contains anything you didn't do** — Every achievement, skill, and metric in every deliverable traces back to your source documents. Agents flag gaps honestly rather than fill them with plausible-sounding fabrications.
-
-2. **One profile, every job search workflow covered** — Update your knowledge base once and every agent picks it up automatically — resumes, cover letters, lead scoring, and interview prep all draw from the same verified source.
-
-3. **Your achievements always land with maximum impact** — The XYZ formula ("Accomplished X, measured by Y, by doing Z") is enforced at every step — extraction, resume writing, cover letter stories, and interview coaching — so every claim is quantified and credible.
-
-4. **Stop and resume without losing work** — The KB Builder tracks what's already been processed. You can interrupt ingestion mid-session and pick up exactly where you left off the next time you run it.
-
-5. **Resumes that work well with ATS filters** — Output is a properly formatted Word document built to ATS parsing standards — no tables for layout, no key information buried in headers, keyword optimization grounded in your actual experience.
-
-6. **Know your qualification gaps before you apply** — Before writing your resume or scoring a posting, every stated minimum qualification is checked against your profile and any gaps are surfaced — so you're not surprised by a rejection.
-
-7. **Stop wasting time on roles that don't meet your requirements** — Hard constraints (compensation floor, location, role type) are enforced as absolute filters. Postings that violate them are excluded outright — never just scored lower and left in the pile.
-
-8. **Full interview prep in one command** — Research on the company, interview process, compensation ranges, and per-round question guides with your own story pointers all generated together — including a consolidated story bank showing which of your achievements answers which questions.
-
-9. **Company research you only do once** — Research generated for interview prep is reused automatically when writing cover letters for the same company. No duplicate web searches, no inconsistency between documents.
-
-10. **Turn vague stories into resume-ready bullets** — Story Capture walks you through a guided interview (or extracts from a transcript you paste in) and pushes back until every impact statement has a real number behind it.
-
-11. **Discover roles you didn't know you were qualified for** — Career Explorer works outward from your profile to map the landscape of genuinely fitting roles in the current market — with real job posting examples, pay ranges from Levels.fyi and Glassdoor, and work-life balance data.
-
-12. **No need for prompting — all important flows accessible through slash commands** — Every major workflow step has a dedicated slash command (`/resume`, `/cover-letter`, `/score`, `/prep`, `/capture-story`, `/build-kb`, `/explore`, `/track`, `/status`) you can invoke directly in Claude Code.
-
-13. **Your personal data never accidentally ends up in git** — All personal files — profile, narrative, preferences, source materials, generated outputs — are gitignored by default. `git add .` is always safe to run.
-
-14. **Read your interview prep on your phone** — `scripts/convert_md_to_pdf.js` converts any prep guide to a clean, mobile-friendly PDF with styled tables and formatted answer guides, ready to read anywhere.
-
-15. **Automated LinkedIn Job Scanner** — Daily discovery pipeline that queries LinkedIn across configurable search scopes, deduplicates results in a local SQLite database, pre-filters with rule-based hard constraints, and LLM-scores shortlisted candidates against your profile. Surfaces only the highest-fit opportunities via `/scan`.
