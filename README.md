@@ -1,12 +1,31 @@
 # CareerForge
 
-CareerForge is a multi-agent job search system powered by Claude Code. It covers the full search lifecycle — from discovering the right roles, to applying faster with tailored materials, to walking into interviews prepared.
+Job searching manually is slow, inconsistent, and doesn't scale — you're rewriting resumes from scratch for each posting, manually scrolling LinkedIn every day, and walking into interviews underprepared.
+
+CareerForge is a personal AI job search system powered by Claude Code. It automates the repetitive work across the full search lifecycle — from daily job discovery, to tailored applications in minutes, to walking into every interview prepared.
 
 **Find roles worth pursuing.** The Career Explorer maps the current job market against your actual skills and experience, surfacing roles you're genuinely qualified for — including ones you might not have considered. The LinkedIn Job Scanner then runs daily across configurable search scopes, hard-filters out anything that fails your requirements (location, compensation, employment type), and LLM-scores the rest against your profile so only the strongest matches reach you.
 
 **Apply in minutes, not hours.** Point the Resume Writer at any job posting and it generates a tailored `.docx` resume — achievements reordered, keywords matched, qualification gaps flagged — grounded entirely in your verified knowledge base. The Cover Letter agent does the same, adding company research it pulls fresh from the web.
 
 **Walk into every interview prepared.** The Interview Prep agent researches the company, maps out the interview process and rounds, generates predicted questions per stage, and builds a personal story bank showing which of your own achievements best answers each question — all in one command.
+
+---
+
+## What can it do for you?
+
+| I want to... | Use this |
+|---|---|
+| Build my profile from my resume | `/build-kb` |
+| Configure my job search filters | `/setup-preferences` |
+| Find jobs automatically every day | `/scan` |
+| Score a specific job posting | `/score` |
+| Generate a tailored resume | `/resume` |
+| Write a tailored cover letter | `/cover-letter` |
+| Prepare for an interview | `/prep` |
+| Discover what roles I'm best suited for | `/explore` |
+| View my application pipeline | `/status` |
+| Generate a pipeline analytics report | `/analytics` |
 
 ---
 
@@ -94,7 +113,7 @@ claude
 
 ## Get Started
 
-### 1. Load your source materials
+### Step 1 — Build your knowledge base
 
 Drop everything you have about your career into `knowledge_base/sources/`. CareerForge accepts multimodal inputs — the more you provide, the richer your profile:
 
@@ -106,27 +125,35 @@ Drop everything you have about your career into `knowledge_base/sources/`. Caree
 - Published articles or blog posts
 - Portfolio pieces and project write-ups
 
-No need to organize or pre-process — the KB Builder will extract and structure everything for you.
-
-### 2. Build your knowledge base
+Then build your profile:
 
 ```bash
-claude "Use the kb-builder agent to ingest all sources in knowledge_base/sources/ and build my candidate profile."
+/build-kb
 ```
 
-This generates your `candidate_profile.yaml` (structured data) and `candidate_narrative.md` (prose version) — the foundation that all other agents read from.
+This generates `candidate_profile.yaml` (structured data) and `candidate_narrative.md` (prose version) — the foundation that all other agents read from.
 
-### 3. Generate a tailored resume
+### Step 2 — Configure your preferences
+
+Set your hard constraints (location, compensation, role type) and soft preferences so every agent filters and tailors for you automatically:
 
 ```bash
-claude "Use the resume-writer agent to create a resume tailored to this job posting: [paste URL or job description]"
+/setup-preferences
 ```
 
-Your resume lands in `output/resumes/` as a formatted `.docx` file, with achievements and skills prioritized to match the role.
+Interactive mode walks through each section. Or pass a description directly: `/setup-preferences remote only, at least $250k, AI/ML roles`.
 
-### 4. Explore further
+### Step 3 — Run your first scan
 
-You now have the core workflow down. CareerForge has eight more agents to help with your search — cover letters, lead scoring, story capture, interview prep, career exploration, and an automated LinkedIn job scanner. Read on in the [Usage](#usage) section below.
+Fetch jobs across your configured search scopes, filter out noise, and get a ranked report of your best matches:
+
+```bash
+/scan --bootstrap
+```
+
+Use `--bootstrap` on the first run to pull the past month of data. From here, set up a daily cron ("Create a daily cron at 8 AM that runs /scan") for fully automated daily discovery.
+
+From this point, the [Slash Commands](#slash-commands) and [Usage](#usage) sections cover everything else — resumes, cover letters, interview prep, and more.
 
 ---
 
@@ -145,6 +172,7 @@ You now have the core workflow down. CareerForge has eight more agents to help w
 | `/status` | Overview of your job search pipeline, grouped by status |
 | `/scan [--scope name] [--bootstrap]` | Run the LinkedIn job scanner: sync, filter, score, and report top opportunities |
 | `/explore` | Discover best-fit roles from your profile across the current job market |
+| `/analytics` | Generate an interactive HTML analytics dashboard from the jobs database |
 
 Commands are defined in `.claude/commands/`. Add or modify them to customize your workflow.
 
@@ -252,6 +280,27 @@ claude "Use the career-explorer agent to discover what roles I'm best suited for
 
 Output: `output/career_exploration/`
 
+### LinkedIn Job Scanner
+
+Runs a proactive daily pipeline: fetches jobs from LinkedIn across your configured search scopes, deduplicates in a local SQLite database, hard-filters with rule-based constraints (no LLM), LLM-scores shortlisted jobs against your profile, and generates a ranked report.
+
+```bash
+# Full pipeline (sync → filter → score → report)
+/scan
+
+# First run — fetch past month of data
+/scan --bootstrap
+
+# Test a single scope
+/scan --scope ai_architect_remote
+```
+
+Configure search scopes in `config/search_scopes.yaml`. Set up a daily cron (ask Claude Code to "create a daily cron at 8 AM that runs /scan") for fully automated discovery.
+
+Output: `output/lead_reports/linkedin_scan_YYYY-MM-DD.md`
+
+See `docs/linkedin-scanner.md` for the full reference (scope schema, script CLI flags, calibration guide, troubleshooting).
+
 ### Utilities / Scripts
 
 #### `convert_md_to_pdf.js` — Markdown to PDF
@@ -272,6 +321,18 @@ node scripts/convert_md_to_pdf.js output/interview_prep/ --recursive
 Or via npm: `npm run convert -- <path>`
 
 Tables, blockquotes, and code blocks render with full CSS styling via headless Chromium (Puppeteer).
+
+#### `analytics.py` — LinkedIn Pipeline Analytics
+
+Generates an interactive HTML analytics dashboard from the jobs database with zero extra dependencies (uses Chart.js from CDN).
+
+```bash
+/analytics
+# or directly:
+python scripts/linkedin/analytics.py
+```
+
+Output: `output/analytics/analytics_YYYY-MM-DD.html` — open in any browser. Charts include score distribution, scope performance, tier breakdown, and top filter reasons.
 
 ### Application Tracker
 
@@ -335,7 +396,8 @@ careerforge/
 │       ├── prep.md                    # /prep      — Full interview prep pipeline
 │       ├── track.md                   # /track     — Update application tracker
 │       ├── status.md                  # /status    — Job search pipeline overview
-│       └── scan.md                    # /scan      — Daily LinkedIn job scan
+│       ├── scan.md                    # /scan      — Daily LinkedIn job scan
+│       └── analytics.md               # /analytics — LinkedIn pipeline analytics dashboard
 ├── knowledge_base/                    # Fully gitignored — all contents stay local
 │   ├── candidate_profile.yaml         # Your structured candidate data
 │   ├── candidate_narrative.md         # Your narrative profile
@@ -369,7 +431,8 @@ careerforge/
 │   ├── cover_letters/                 # Generated cover letters (gitignored)
 │   ├── lead_reports/                  # Generated scorer reports (gitignored)
 │   ├── interview_prep/                # Generated interview prep guides (gitignored)
-│   └── career_exploration/            # Generated career exploration reports (gitignored)
+│   ├── career_exploration/            # Generated career exploration reports (gitignored)
+│   └── analytics/                     # Generated analytics dashboards (gitignored)
 └── scripts/
     ├── generate_docx.js               # Helper: Node.js docx generator
     ├── convert_md_to_pdf.js           # Helper: Convert markdown files to PDF
@@ -380,7 +443,8 @@ careerforge/
         ├── pre_filter.py              # Rule-based hard filter (no LLM)
         ├── export_for_scoring.py      # Export unscored jobs as markdown
         ├── update_scores.py           # Write LLM scores back to SQLite
-        └── report.py                  # Generate ranked markdown report
+        ├── report.py                  # Generate ranked markdown report
+        └── analytics.py               # Generate HTML analytics dashboard
 ```
 
 ---

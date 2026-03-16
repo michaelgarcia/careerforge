@@ -223,6 +223,25 @@ python scripts/linkedin/report.py --no-mark              # don't mark as present
 python scripts/linkedin/report.py --limit 30             # more jobs in report
 ```
 
+### `scripts/linkedin/analytics.py`
+Generates an interactive HTML analytics dashboard from the jobs database. No extra dependencies — charts are rendered with Chart.js loaded from CDN.
+
+```bash
+python scripts/linkedin/analytics.py                     # writes to output/analytics/
+python scripts/linkedin/analytics.py --output /tmp/report.html  # custom path
+```
+
+Or via the `/analytics` Claude Code command.
+
+**Output:** `output/analytics/analytics_YYYY-MM-DD.html` — open in any browser, no server required.
+
+**Dashboard includes:**
+- **Pipeline overview** — total jobs collected → hard-filtered → scored → Tier 1 matches, with threshold tile
+- **Score distribution** — histogram of all scored jobs (0–100)
+- **Scope performance** — per-scope bar chart (jobs collected vs. scored)
+- **Tier breakdown** — Tier 1 / Tier 2 / Tier 3 / filtered counts
+- **Top filter reasons** — why jobs were hard-filtered (location, employment type, etc.)
+
 ---
 
 ## Job-Scanner Agent
@@ -270,6 +289,27 @@ Invokes the job-scanner agent to run the full pipeline:
 ```
 
 Reports are saved to `output/lead_reports/linkedin_scan_YYYY-MM-DD.md`.
+
+---
+
+## Utilities
+
+### `scripts/convert_md_to_pdf.js` — Markdown to PDF
+
+Converts `.md` files to PDF on demand. Useful for converting scan reports and interview prep guides for mobile reading. Requires the `md-to-pdf` npm package. PDFs are written alongside the originals; source files are never modified.
+
+```bash
+# Convert a single scan report to PDF
+node scripts/convert_md_to_pdf.js output/lead_reports/linkedin_scan_2026-03-15.md
+
+# Convert all .md files in a directory
+node scripts/convert_md_to_pdf.js output/lead_reports/
+
+# Recurse into subdirectories
+node scripts/convert_md_to_pdf.js output/ --recursive
+```
+
+Or via npm: `npm run convert -- <path>`
 
 ---
 

@@ -95,10 +95,15 @@ def export_jobs(
         md_path.write_text("\n".join(lines), encoding="utf-8")
 
     # Write a manifest for the agent to consume
-    manifest = [{"job_id": dict(zip(cols, r))["job_id"],
-                  "title": dict(zip(cols, r))["title"],
-                  "company_name": dict(zip(cols, r))["company_name"],
-                  "file": f"{dict(zip(cols, r))['job_id']}.md"} for r in rows]
+    manifest = []
+    for r in rows:
+        job = dict(zip(cols, r))
+        manifest.append({
+            "job_id": job["job_id"],
+            "title": job["title"],
+            "company_name": job["company_name"],
+            "file": f"{job['job_id']}.md",
+        })
     manifest_path = output_dir / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
