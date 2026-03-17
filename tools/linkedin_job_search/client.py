@@ -228,10 +228,8 @@ class LinkedInJobSearch:
 
         locations: list[GeoLocation] = []
         for item in data:
-            # Try id.objectUrn first, then entityUrn at top level
-            raw_urn = item.get("id", {}).get("objectUrn", "") or item.get("entityUrn", "")
-            # Extract numeric part after the last colon
-            geo_id = raw_urn.rsplit(":", 1)[-1] if ":" in raw_urn else raw_urn
+            # LinkedIn returns id as a plain numeric string (e.g. "103112676")
+            geo_id = str(item.get("id", "")).strip()
             display_name = item.get("displayName", "")
             if geo_id and display_name:
                 locations.append(GeoLocation(geo_id=geo_id, display_name=display_name))

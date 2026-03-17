@@ -117,16 +117,16 @@ Logs every sync run. Used for auditing and provenance (`first_seen_run`).
 scopes:
   - name: unique_identifier          # Used in --scope CLI flag and DB records
     description: "Human-readable"
-    keywords: "keyword string"       # LinkedIn free-text search
-    locations:                       # List of location strings
-      - "Remote"
-      - "Chicago, IL"
+    keywords: "keyword string"       # LinkedIn free-text search (≤5 words)
+    geo_searches:                    # List of {geo_id, work_model?} pairs
+      - geo_id: "103644278"          # United States — remote jobs only
+        work_model: remote
+      - geo_id: "103112676"          # Chicago, IL — all work models
     experience_levels:               # internship | entry-level | associate |
       - mid-senior                   # mid-senior | director | executive
       - director
-    work_model: remote               # remote | hybrid | on-site (omit for any)
     date_posted: past-week           # past-24h | past-week | past-month | any-time
-    limit: 75                        # Max jobs per location per run
+    limit: 75                        # Max jobs per geo_search entry per run
     enabled: true                    # false = skip without deleting
 ```
 
@@ -138,14 +138,64 @@ scopes:
 
 ---
 
+## Location Filtering — Why `geo_searches` instead of `locations`
+
+**LinkedIn's text `location` parameter is not a hard filter.** It is treated as a relevance hint only. In practice, passing `location="Remote"` returns jobs from India, Canada, Spain, and random US cities — LinkedIn ignores it for geographic exclusion.
+
+**The reliable approach is `geo_id` + `f_WT` (work model).** These are the parameters the LinkedIn UI itself sends when you select a location and work-model filter.
+
+**Empirical test results (same keyword, same date filter):**
+
+| Approach | Parameter sent | Actual locations returned |
+|---|---|---|
+| Old: `location="Remote"` | `location=Remote` | Toronto, India, Spain, NJ, CA, Phoenix — random global results |
+| New: US geoId + remote | `geoId=103644278&f_WT=2` | 9/10 results: "United States" ✅ |
+| New: Chicago geoId | `geoId=103112676` | 9/10 results: "Chicago, IL" ✅ |
+
+**Consequence of using text locations:** The pre-filter was rejecting ~60% of all collected jobs as location mismatches — a waste of API calls, tokens, and LLM scoring budget.
+
+### Finding geoIds
+
+```python
+import sys; sys.path.insert(0, 'tools')
+from linkedin_job_search.client import LinkedInJobSearch
+c = LinkedInJobSearch()
+print(c.resolve_geo_id('Chicago, Illinois'))
+c.close()
+```
+
+### Common geoIds
+
+| Location | geoId |
+|---|---|
+| United States | `103644278` |
+| Chicago, Illinois | `103112676` |
+| New York, New York | `102571732` |
+| Los Angeles, California | `102448103` |
+| Austin, Texas | `101743403` |
+| San Francisco Bay Area | `90000084` |
+
+### Standard pattern: remote US + local city
+
+```yaml
+geo_searches:
+  - geo_id: "103644278"   # United States — remote jobs only
+    work_model: remote
+  - geo_id: "103112676"   # Chicago, IL — on-site and hybrid accepted
+```
+
+This runs two LinkedIn searches per scope: one filtering to US remote roles, one filtering to Chicago-area roles of any work model. Results are merged and deduplicated before DB insert.
+
+---
+
 ## Preferences Mapping
 
 `map_preferences.py` translates `config/preferences.yaml` fields to LinkedIn search parameters:
 
 | `preferences.yaml` field | Maps to |
 |---|---|
-| `hard_constraints.location.remote_only: true` | `work_model = remote`, location = "Remote" |
-| `hard_constraints.location.acceptable_locations` | Search locations list |
+| `hard_constraints.location.remote_only: true` | `geo_searches` = US geoId + `work_model: remote` |
+| `hard_constraints.location.acceptable_locations` | `geo_searches` entries (mapped via known geoId table) |
 | `hard_constraints.location.include_hybrid` | `work_model = hybrid` |
 | `hard_constraints.role_types` | `experience_levels` (see mapping table below) |
 | `search_config.target_titles` | Prefix of `keywords` string |
@@ -187,10 +237,13 @@ python scripts/linkedin/map_preferences.py
 Main sync orchestration. Fetches jobs for all enabled scopes and stores in DB.
 ```bash
 python scripts/linkedin/sync.py                          # all enabled scopes
-python scripts/linkedin/sync.py --scope ai_architect_remote  # one scope
+python scripts/linkedin/sync.py --scope gtm_sa_ai_cloud  # one scope
 python scripts/linkedin/sync.py --dry-run                # no DB writes
-python scripts/linkedin/sync.py --bootstrap              # past-month filter
+python scripts/linkedin/sync.py --days 1                 # past-24h (daily)
+python scripts/linkedin/sync.py --days 30                # past-month (bootstrap)
 ```
+
+`--days N` maps to LinkedIn date filters: 1=past-24h, 2–7=past-week, 8–30=past-month, >30=any-time. Omit to use each scope's configured `date_posted`.
 
 ### `scripts/linkedin/pre_filter.py`
 Rule-based hard filter. Marks clearly wrong jobs as `hard_filtered=1`.
@@ -282,9 +335,10 @@ Or via the `/analytics` Claude Code command.
 Invokes the job-scanner agent to run the full pipeline:
 
 ```
-/scan
-/scan --scope ai_architect_remote      # test a single scope
-/scan --bootstrap                      # first run: past-month data
+/scan                                  # daily run: past-24h (default)
+/scan --days 7                         # past-week catch-up
+/scan --days 30                        # past-month bootstrap / reset
+/scan --scope gtm_sa_ai_cloud          # test a single scope
 /scan --dry-run                        # fetch without writing to DB
 ```
 
@@ -344,14 +398,14 @@ This decouples data freshness from Claude Code availability and keeps LLM costs 
 
 ### Test a Single Scope (Dry-Run)
 ```bash
-python scripts/linkedin/sync.py --scope ai_architect_remote --dry-run
+python scripts/linkedin/sync.py --scope gtm_sa_ai_cloud --dry-run --days 1
 ```
-Prints how many jobs would be fetched without writing to DB.
+Prints how many jobs would be fetched without writing to DB. Check the log lines for `geo_id=` and `work_model=` to confirm location filtering is correct.
 
 ### Compare Scope Coverage
 ```bash
-python scripts/linkedin/sync.py --scope ai_architect_remote
-python scripts/linkedin/sync.py --scope applied_ai_chicago
+python scripts/linkedin/sync.py --scope gtm_sa_ai_cloud --days 7
+python scripts/linkedin/sync.py --scope forward_deploy_engineer --days 7
 sqlite3 data/jobs.db "SELECT source_scope, COUNT(*) FROM jobs GROUP BY source_scope"
 ```
 
@@ -387,7 +441,7 @@ sqlite3 data/jobs.db "DELETE FROM job_scores WHERE hard_filtered=0"
 - `sync.py` uses `INSERT OR IGNORE` — duplicate job IDs are silently skipped
 - `search_runs.jobs_skipped` counts how many duplicates were absorbed each run
 - `jobs.source_scope` records which scope **first** found a job (first writer wins)
-- **Bootstrap:** Run `sync.py --bootstrap` once (uses `past-month`) to populate historical data. Subsequent daily runs use `past-week`. SQLite dedup absorbs all overlap — no special handling needed.
+- **Bootstrap:** Run `sync.py --days 30` once to populate historical data. Subsequent daily runs use `/scan` (defaults to `--days 1`). SQLite dedup absorbs all overlap — no special handling needed.
 - **Cross-scope dedup:** If `ai_architect_remote` and `applied_ai_chicago` both find the same job, it is stored once with `source_scope = ai_architect_remote` (whichever ran first).
 
 ---
@@ -400,8 +454,9 @@ LinkedIn throttles the Guest API. `sync.py` uses 1.5s delay between requests wit
 - Run fewer scopes per day (disable some in `search_scopes.yaml`)
 
 ### Empty results
-- Check that `keywords` and `locations` in the scope are correct
+- Verify `geo_id` values are correct — test with `client.resolve_geo_id('City Name')`
 - Test with `--dry-run` and reduce `limit` to 10
+- Do NOT use the text `location` parameter — LinkedIn does not enforce it (use `geo_id`)
 - LinkedIn may have changed HTML structure — check `client.py` parsers
 
 ### YAML parse errors in preferences.yaml

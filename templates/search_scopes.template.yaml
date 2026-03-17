@@ -3,27 +3,63 @@
 # Run a single scope with:
 #   python scripts/linkedin/sync.py --scope <name> --dry-run
 #
+# ──────────────────────────────────────────────────────────────────────────────
+# LOCATION FILTERING — READ THIS BEFORE ADDING SCOPES
+# ──────────────────────────────────────────────────────────────────────────────
+# LinkedIn's text-based "location" parameter is NOT a hard filter. It is a
+# relevance hint only. Passing location="Remote" will return jobs from India,
+# Canada, Spain, and random US cities — LinkedIn ignores it for filtering.
+#
+# Use "geo_searches" with numeric geoIds instead. geoId is enforced by LinkedIn.
+#
+# How to find a geoId:
+#   python -c "
+#   import sys; sys.path.insert(0, 'tools')
+#   from linkedin_job_search.client import LinkedInJobSearch
+#   c = LinkedInJobSearch(); print(c.resolve_geo_id('Chicago, Illinois')); c.close()
+#   "
+#
+# Common geoIds:
+#   103644278  — United States (country-level; use with work_model: remote)
+#   103112676  — Chicago, Illinois, United States
+#   102571732  — New York, New York, United States
+#   102448103  — Los Angeles, California, United States
+#   101743403  — Austin, Texas, United States
+#   103743442  — Houston, Texas, United States
+#   90000084   — San Francisco Bay Area
+#
+# Pattern for "remote US + Chicago local" (the most common setup):
+#   geo_searches:
+#     - geo_id: "103644278"   # United States — remote jobs only
+#       work_model: remote
+#     - geo_id: "103112676"   # Chicago, IL — all work models (on-site, hybrid, remote)
+#
+# ──────────────────────────────────────────────────────────────────────────────
+#
 # Field reference:
 #   name              - Unique identifier used in CLI --scope flag and DB records
 #   description       - Human-readable summary of what this scope targets
 #   keywords          - Free-text LinkedIn search string (≤5 words for best results)
-#   locations         - List of LinkedIn location strings.
-#                       Use exact values as they appear in LinkedIn job postings.
-#                       "United States" = US-wide / remote-eligible roles
+#   geo_searches      - List of {geo_id, work_model?} pairs.
+#                       Each entry runs as a separate LinkedIn search.
+#                       work_model per entry overrides the scope-level work_model.
+#                       Omit work_model on an entry to accept all work models.
 #   experience_levels - LinkedIn levels: internship, entry-level, associate,
 #                       mid-senior, director, executive
-#   work_model        - remote | hybrid | on-site (omit to accept all)
+#   work_model        - remote | hybrid | on-site (scope-level default; per-entry
+#                       work_model in geo_searches takes precedence)
 #   date_posted       - past-24h | past-week | past-month | any-time
-#   limit             - Max jobs to collect per run (LinkedIn pages of 25)
+#   limit             - Max jobs to collect per geo_search entry per run
 #   enabled           - Set to false to skip without deleting the config
 
 scopes:
   - name: example_scope_1
     description: "Brief description of what roles this scope targets and why"
     keywords: "Job Title Domain"
-    locations:
-      - "United States"
-      # - "Chicago, IL"
+    geo_searches:
+      - geo_id: "103644278"   # United States — remote jobs only
+        work_model: remote
+      - geo_id: "103112676"   # Chicago, IL — all work models
     experience_levels:
       - mid-senior
       - director
@@ -34,8 +70,9 @@ scopes:
   - name: example_scope_2
     description: "Another scope targeting a different role archetype"
     keywords: "Principal Architect AI"
-    locations:
-      - "United States"
+    geo_searches:
+      - geo_id: "103644278"   # United States — remote jobs only
+        work_model: remote
     experience_levels:
       - director
     date_posted: past-week
