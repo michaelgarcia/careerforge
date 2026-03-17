@@ -39,13 +39,30 @@ def build_from_preferences_scope(prefs: dict) -> dict[str, Any]:
     sc = prefs.get("search_config", {})
 
     # --- locations ---
+    # Use geo_searches with numeric geoIds for reliable LinkedIn location filtering.
+    # LinkedIn's text location parameter is not enforced; geoId is.
+    # Known geoIds: 103644278=United States, 103112676=Chicago IL
+    _GEO_ID_MAP = {
+        "United States": "103644278",
+        "Chicago, IL": "103112676",
+    }
     loc_cfg = hc.get("location", {})
+    work_model = None
     if loc_cfg.get("remote_only"):
-        locations = ["Remote"]
-        work_model = "remote"
+        # Remote-only: search US with remote work model filter
+        geo_searches = [{"geo_id": "103644278", "work_model": "remote"}]
     else:
-        locations = [str(l) for l in (loc_cfg.get("acceptable_locations") or [])]
-        work_model = None  # accept all work models; pre_filter handles location enforcement
+        acceptable = [str(l) for l in (loc_cfg.get("acceptable_locations") or [])]
+        geo_searches = []
+        for loc in acceptable:
+            geo_id = _GEO_ID_MAP.get(loc)
+            if geo_id:
+                entry: dict = {"geo_id": geo_id}
+                # "United States" without remote_only: only remote jobs make sense
+                if loc == "United States":
+                    entry["work_model"] = "remote"
+                geo_searches.append(entry)
+            # If no geoId known, skip (pre_filter handles location enforcement)
 
     # --- experience levels ---
     role_types = prefs.get("linkedin_scanner", {}).get("role_types") or hc.get("role_types") or []
@@ -71,14 +88,12 @@ def build_from_preferences_scope(prefs: dict) -> dict[str, Any]:
         "name": "from_preferences",
         "description": "Auto-generated scope from config/preferences.yaml",
         "keywords": keywords_str,
-        "locations": locations,
+        "geo_searches": geo_searches,
         "experience_levels": exp_levels,
         "date_posted": "past-week",
         "limit": 75,
         "enabled": True,
     }
-    if work_model is not None:
-        scope["work_model"] = work_model
     return scope
 
 

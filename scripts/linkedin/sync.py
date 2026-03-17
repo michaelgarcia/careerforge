@@ -4,12 +4,16 @@ Loads enabled search scopes from config/search_scopes.yaml, runs each scope
 through the LinkedIn Guest API, and stores results with global deduplication.
 
 Usage:
-    python scripts/linkedin/sync.py [--scope <name>] [--dry-run] [--bootstrap]
+    python scripts/linkedin/sync.py [--scope <name>] [--dry-run] [--days N]
 
     --scope <name>   Run only the named scope (for testing).
     --dry-run        Fetch and parse results but do not write to the database.
-    --bootstrap      Use 'past-month' date filter (overrides scope date_posted).
-                     Use once on first run to populate historical data.
+    --days N         Override the date filter for all scopes:
+                       1     → past-24h
+                       2–7   → past-week
+                       8–30  → past-month
+                       >30   → any-time
+                     Omit to use each scope's configured date_posted.
 """
 
 from __future__ import annotations
@@ -86,37 +90,78 @@ def load_scopes(path: Path = SCOPES_PATH) -> list[dict[str, Any]]:
     return data.get("scopes", [])
 
 
+def _days_to_date_posted(days: int) -> str:
+    if days <= 1:
+        return "past-24h"
+    elif days <= 7:
+        return "past-week"
+    elif days <= 30:
+        return "past-month"
+    else:
+        return "any-time"
+
+
 def run_scope(
     client: LinkedInJobSearch,
     scope: dict[str, Any],
     con: sqlite3.Connection,
     dry_run: bool,
-    bootstrap: bool,
+    days_override: int | None = None,
 ) -> tuple[int, int, int]:
     """Run one search scope. Returns (jobs_found, jobs_added, jobs_skipped)."""
     name = scope["name"]
     keywords = scope.get("keywords") or None
-    locations: list[str] = scope.get("locations") or []
     exp_level_names: list[str] = scope.get("experience_levels") or []
-    work_model_name: str | None = scope.get("work_model")
-    date_posted_name: str = "past-month" if bootstrap else (scope.get("date_posted") or "past-week")
+    default_work_model_name: str | None = scope.get("work_model")
+    if days_override is not None:
+        date_posted_name = _days_to_date_posted(days_override)
+    else:
+        date_posted_name = scope.get("date_posted") or "past-week"
     limit: int = scope.get("limit", 50)
 
     # Map string values to enum instances
     exp_levels = [_EXP_LEVEL_MAP[n] for n in exp_level_names if n in _EXP_LEVEL_MAP]
-    work_model = _WORK_MODEL_MAP.get(work_model_name) if work_model_name else None
     date_posted = _DATE_POSTED_MAP.get(date_posted_name, DatePosted.PAST_WEEK)
 
-    # LinkedIn doesn't support multi-location searches natively; run once per location
-    # (or once with no location if locations list is empty)
-    search_locations = locations if locations else [None]
+    # Build list of (geo_id, work_model) pairs to search.
+    # Prefer geo_searches (precise numeric geoId) over legacy locations (text string).
+    # LinkedIn's text location parameter is not reliably enforced; geoId is.
+    geo_searches: list[dict] = scope.get("geo_searches") or []
+    if geo_searches:
+        search_targets = [
+            {
+                "geo_id": entry["geo_id"],
+                "work_model_name": entry.get("work_model") or default_work_model_name,
+            }
+            for entry in geo_searches
+        ]
+    else:
+        # Legacy fallback: use location text strings (less reliable)
+        locations: list[str] = scope.get("locations") or []
+        if locations:
+            search_targets = [
+                {"location": loc, "work_model_name": default_work_model_name}
+                for loc in locations
+            ]
+        else:
+            search_targets = [{"work_model_name": default_work_model_name}]
 
     all_results: list[EnrichedJob] = []
-    for loc in search_locations:
-        logger.info("Scope '%s' — searching location: %s", name, loc or "(any)")
+    for target in search_targets:
+        geo_id = target.get("geo_id")
+        location = target.get("location")
+        work_model = _WORK_MODEL_MAP.get(target["work_model_name"]) if target["work_model_name"] else None
+        logger.info(
+            "Scope '%s' — geo_id=%s location=%s work_model=%s",
+            name,
+            geo_id or "(none)",
+            location or "(none)",
+            target["work_model_name"] or "(any)",
+        )
         results = client.search(
             keywords=keywords,
-            location=loc,
+            location=location,
+            geo_id=geo_id,
             experience_level=exp_levels if exp_levels else None,
             work_model=work_model,
             date_posted=date_posted,
@@ -206,9 +251,11 @@ def main() -> None:
     parser.add_argument("--scope", type=str, default=None, help="Run only this named scope.")
     parser.add_argument("--dry-run", action="store_true", help="Fetch but do not write to DB.")
     parser.add_argument(
-        "--bootstrap",
-        action="store_true",
-        help="Use past-month date filter (for initial population).",
+        "--days",
+        type=int,
+        default=None,
+        metavar="N",
+        help="Override date filter: 1=past-24h, 2-7=past-week, 8-30=past-month, >30=any-time.",
     )
     args = parser.parse_args()
 
@@ -250,7 +297,7 @@ def main() -> None:
 
     try:
         for scope in scopes:
-            found, added, skipped = run_scope(client, scope, con, args.dry_run, args.bootstrap)
+            found, added, skipped = run_scope(client, scope, con, args.dry_run, args.days)
             total_found += found
             total_added += added
             total_skipped += skipped
