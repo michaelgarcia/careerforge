@@ -24,6 +24,21 @@ You need:
 2. **The candidate knowledge base** — read `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_narrative.md`.
 3. **Style preferences** — check `config/resume_style.yaml` if it exists
 
+## KB Required Gate
+
+**Before doing anything else**, check whether `knowledge_base/candidate_profile.yaml` exists and contains real data (i.e., `personal.name` is not `"Your Name"`).
+
+If the file does not exist, or if it contains template defaults:
+- Stop immediately. Do not attempt to write a resume.
+- Respond:
+  > "I need your career profile to write a resume — every achievement and skill in the resume must trace to your verified profile to avoid fabrication. It looks like your profile hasn't been built yet.
+  >
+  > Run `/build-kb` (drop your resume or career docs into `knowledge_base/sources/` first) and then come back. It usually takes about 5 minutes. Once your profile is ready, I can generate a tailored resume in about 2 minutes."
+
+There is no degraded mode for resume writing. The integrity rule ("never fabricate achievements") is absolute — a resume without a KB would require fabrication.
+
+---
+
 ## Workflow
 
 ### Step 1: Parse the Job Posting
