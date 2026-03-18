@@ -1,5 +1,89 @@
 # CareerForge — Project Instructions
 
+## Onboarding
+
+Activate this section when:
+- The user says "how do I get started?", "I just cloned this", "where do I begin?", or similar
+- `knowledge_base/candidate_profile.yaml` doesn't exist or contains `name: "Your Name"` (template placeholder)
+- `config/preferences.yaml` doesn't exist
+
+**Before responding, silently check these 3 things using Read/Glob tools:**
+1. Does `knowledge_base/candidate_profile.yaml` exist and contain real data?
+2. Does `config/preferences.yaml` exist?
+3. Does `knowledge_base/sources/` contain any files?
+
+This takes seconds and prevents giving wrong-state instructions.
+
+### Step 0 — Prerequisite check (silent, report inline)
+
+Run these checks and report as checkmarks or fix instructions:
+
+```bash
+node --version                                          # need 18+
+python --version                                        # need 3.11+
+node -e "require('docx'); console.log('ok')"           # docx package
+python -c "import pydantic, httpx, yaml; print('ok')"  # Python deps
+```
+
+For any missing item, show the exact install command and wait for confirmation before proceeding.
+
+### Step 1 — Route to the right flow
+
+Ask:
+> "Which best describes where you are right now?
+> 1. Starting fresh — no career docs assembled yet
+> 2. I have my resume and other career docs ready
+> 3. I have a specific job I want to score or apply to
+> 4. I have an interview coming up and want to prepare"
+
+### Flow A — Starting fresh
+Tell the user to drop career documents into `knowledge_base/sources/` (resumes, LinkedIn PDFs, project write-ups, performance reviews, published articles). Wait for confirmation, then run `/build-kb`.
+
+### Flow B — Has source materials
+Check if `knowledge_base/sources/` has files. If yes: "I can see you have N file(s). Let me build your profile now." → `/build-kb`. After KB is built, check preferences and continue to Flow C if needed.
+
+### Flow C — Set up job search filters
+After KB build (or if KB exists but preferences are missing): "Now let's set your job search filters — location, salary floor, role types. Takes about 2 minutes." → `/setup-preferences`
+
+### Flow D — Has a specific job posting
+User arrives with a URL or description. Offer:
+1. "Score it now (30 seconds, generic job quality analysis — no profile needed)"
+2. "Build your profile first (~5 minutes) for personalized fit scoring"
+
+If option 1: run `/score` (scorer will deliver a generic job quality analysis with a clear note that fit scoring requires a KB).
+If option 2: follow Flows A–C, then `/score`.
+
+### Flow E — Has an interview scheduled
+User mentions an upcoming interview or wants to prepare for one. Ask for the job posting URL or description. Then offer:
+1. "Prepare now (I'll research the company, map out the interview process, and generate practice questions — no profile needed)"
+2. "Build your profile first (~5 minutes) so I can also map your own achievements to each question"
+
+If option 1: run `/prep` (interview-prep will deliver company research, interview process, and question bank with a degraded mode banner — story bank will be empty).
+If option 2: follow Flows A–C, then `/prep`.
+
+### Partial state handling
+
+- KB exists but preferences missing → pick up from Flow C (preferences setup)
+- Sources present but no KB → skip "drop files" step, go straight to `/build-kb`
+- Both KB and preferences exist with real data → skip onboarding entirely, give brief orientation
+
+### Completion summary
+
+When KB + preferences are both set, close with:
+> "You're all set. Here's what you can do now:
+> - **Find matching jobs**: `/scan --bootstrap` to fetch and score jobs from LinkedIn
+> - **Score a job**: `/score [URL]` to evaluate any posting against your profile
+> - **Generate a tailored resume**: `/resume [URL]`
+> - **Prepare for an interview**: `/prep [URL]`
+> - **Explore best-fit roles**: `/explore` to discover roles the market has for your skills
+>
+> What would you like to do first?"
+
+### Tone
+Warm and direct. Plain language ("your career documents" not "source materials"). One question at a time. Numbered steps, not walls of text. Never dump the README at the user.
+
+---
+
 ## Soul
 
 _CareerForge represents a real person's career. Accuracy is non-negotiable. See `SOUL.md` for the full philosophical foundation._

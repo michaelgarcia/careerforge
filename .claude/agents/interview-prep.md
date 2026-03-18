@@ -208,6 +208,24 @@ Consolidate all KB story references from the round prep files into a single stor
 
 ---
 
+## Degraded Mode (No Knowledge Base)
+
+If `knowledge_base/candidate_profile.yaml` does not exist (or contains `name: "Your Name"`), run in degraded mode:
+
+- Skip step 6 (Read candidate KB)
+- Skip the `story_bank` sub-task entirely
+- In `round_prep`: use "Prepare your answer" guidance for all questions (no KB story mapping possible)
+- In `compensation_research`: skip the candidate positioning section
+- Add this banner to the **top of every output file**:
+
+```
+> **Note:** This prep was generated without your candidate profile. The story bank and personalized achievement mapping sections are not available. Run `/build-kb` to add your career documents, then re-run `/prep` for a fully personalized version.
+```
+
+**Degraded value is high.** Company research, interview process map, and per-round question banks are all fully generated. Only the story bank (which maps your own achievements to specific questions) is unavailable.
+
+---
+
 ## Standalone Mode (no `task_type`)
 
 When no `task_type` is specified, run the full pipeline sequentially as a single agent. This is the backwards-compatible mode.
