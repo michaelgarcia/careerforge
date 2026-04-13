@@ -10,25 +10,65 @@ CareerForge is a personal AI job search system powered by Claude Code. It automa
 
 **Walk into every interview prepared.** The Interview Prep agent researches the company, maps out the interview process and rounds, generates predicted questions per stage, and builds a personal story bank showing which of your own achievements best answers each question — all in one command.
 
-## Quickstart
+## Getting Started
 
-### Setup
+### Prerequisites
+
+| Requirement | Version | Notes |
+|-------------|---------|-------|
+| [Claude Pro](https://claude.ai) | Any | Required for Claude Code |
+| [Claude Code](https://claude.ai/code) | Latest | The AI shell CareerForge runs in |
+| [Git](https://git-scm.com/downloads) | Any | For cloning the repository |
+| [Node.js](https://nodejs.org) | 18+ | For resume/cover letter `.docx` generation |
+| [Python](https://www.python.org) | 3.11+ | For the LinkedIn job scanner |
+
+### Step 1 — Get the code
 
 ```bash
 git clone https://github.com/michaelgarcia/careerforge.git
 cd careerforge
+```
+
+### Step 2 — Run setup
+
+The setup script installs all dependencies and confirms your environment is ready.
+
+**Windows** — double-click `setup.bat`
+
+**Mac / Linux** — open Terminal in the careerforge folder and run:
+```bash
+bash setup.sh
+```
+
+
+### Step 3 — Launch CareerForge
+
+**Windows** — double-click `launch.bat`
+
+**Mac / Linux** — double-click `launch.command`
+_(First time on Mac: right-click → Open to bypass Gatekeeper, then double-click works normally.)_
+
+Or from any terminal in the careerforge folder:
+```bash
 claude
 ```
 
-Then ask: 
+### Step 4 — Get started
 
-> **"How do I get started with this project?"**
+Once Claude Code opens, just say:
 
-The easiest way to get started is to open a Claude Code terminal in this folder and ask:
+> **"I'm ready to get started"**
 
+CareerForge will check your setup, walk you through building your profile from your resume and career documents, and get you ready for your first job scan — all in one conversation.
 
+After your profile is set up, you can talk to CareerForge in plain English:
 
-Claude will check your setup, walk you through building your profile, and get you ready to run your first job scan — all in one conversation. No README required.
+- *"Find me jobs in machine learning"*
+- *"I want to apply to [paste URL]"*
+- *"I have an interview at AnyCompany next week"*
+- *"What's my application status?"*
+
+No need to memorize commands — CareerForge figures out what you need and routes to the right tool automatically.
 
 ---
 
@@ -83,10 +123,3 @@ Claude will check your setup, walk you through building your profile, and get yo
 Commands are defined in `.claude/commands/`. Add or modify them to customize your workflow.
 
 ---
-
-## Tips
-
-- **Iterate on prompts first.** The agent markdown files are the primary lever. Refine them based on output quality before adding complexity.
-- **Use `/agents` in Claude Code** to verify all agents are loaded.
-- **Check `knowledge_base/source_index.md`** to verify what the KB builder has ingested.
-- **Check 'docs/usage.md'** for detailed usage instructions and technical reference.
