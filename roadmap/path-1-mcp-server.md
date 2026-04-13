@@ -1,6 +1,13 @@
 # Path 1 — CareerForge as a Claude Desktop MCP Extension
 
-## Status: Future / Post v1
+## Status: Future / Post v1 — Blocked on MCP Sampling
+
+> **Critical finding (verified April 2026):** Claude Desktop does **not** implement
+> `sampling/createMessage`. This invalidates the "no API key needed" assumption that made
+> this path uniquely attractive. The feature is requested (anthropics/claude-code#1785,
+> 106 👍) but has no timeline — Anthropic engineers have flagged it as architecturally
+> complex. Until sampling lands, all LLM work in the MCP server requires a direct Anthropic
+> API key. See the **Updated Architecture** section below for adjusted options.
 
 This document captures the full specification for evolving CareerForge into a Claude Desktop
 MCP extension. It is preserved here so it can be picked up in a future session with full
@@ -137,30 +144,47 @@ Claude Desktop config snippet added by setup:
 
 ---
 
-## How the MCP Sampling Mechanism Works
+## MCP Sampling — Current Status (April 2026)
 
-This is the core technical question for this path. MCP's sampling API works as follows:
+> **`sampling/createMessage` is not implemented in Claude Desktop.** The section below
+> describes the original intended mechanism and an updated architecture that works today.
 
-1. The MCP server calls `client.createMessage(request)` where `request` contains:
-   - `systemPrompt`: the agent's system prompt (loaded from `.claude/agents/resume-writer.md`)
-   - `messages`: the conversation messages (KB context + user request)
-   - `maxTokens`: output token budget
+### Original intended mechanism (pending sampling support)
 
-2. Claude Desktop receives the sampling request and runs a completion using the user's
-   Pro subscription
+The plan was for the MCP server to call `client.createMessage(request)` with the agent's
+system prompt and KB context, have Claude Desktop run the completion using the user's Pro
+subscription, and return the result — no API key needed. The MCP spec itself imposes no
+context size limit, so 15–20k tokens would have been fine.
 
-3. The completion result is returned to the MCP server, which then processes it
-   (e.g., passes the resume markdown to `generate_docx.js`)
+This is blocked. Feature request: anthropics/claude-code#1785.
 
-**Key consideration:** The sampling request competes with Claude Desktop's own context window.
-CareerForge KB files can be 10–20k tokens. Before building, validate that:
-- Claude Desktop supports sampling with large context
-- The KB context can be chunked if needed (e.g., send only relevant sections)
-- Latency is acceptable for the user experience
+### Updated architecture (works today — API key required)
 
-**Fallback:** If sampling has limitations, the MCP server can be extended to call the
-Anthropic API directly for the heavy agent tasks, with an API key as an optional configuration.
-This degrades gracefully: works with Pro subscription via sampling, works faster with API key.
+Since sampling is unavailable, the `run_agent` tool must call the Anthropic API directly.
+The MCP server manages the API key, passed once during setup. The agent `.md` system prompts
+are still loaded and reused — only the execution mechanism changes.
+
+```
+run_agent(agent_name, context)
+  → reads .claude/agents/{agent_name}.md (system prompt)
+  → calls Anthropic API directly: anthropic.messages.create(...)
+  → returns completion to Claude Desktop
+```
+
+**Three viable options for the API key requirement:**
+
+| Option | Mechanism | Tradeoff |
+|--------|-----------|----------|
+| **User's own API key** | Entered once at setup, stored in `.env` | User pays per-token; transparent |
+| **Smart context chunking** | Only inject the 3–5 most relevant KB sections per call | Reduces cost; adds retrieval logic |
+| **Hybrid: wait for sampling** | Build the MCP server now with API key; swap `run_agent` to use sampling when Claude Desktop supports it | Future-proof; clean abstraction |
+
+The hybrid option (build now with API key, swap to sampling later) is the recommended
+approach — it's additive and the abstraction in `run_agent` makes the swap a 5-line change.
+
+**Context size:** At 15–20k tokens input with Claude 3.5 Sonnet pricing (~$0.003/1k input
+tokens), a full KB call costs ~$0.05–0.06. Resume generation including output tokens runs
+~$0.10–0.15 total. Manageable for personal use.
 
 ---
 
@@ -170,14 +194,15 @@ This degrades gracefully: works with Pro subscription via sampling, works faster
 |-----------|-------------------|------------------------------|
 | **Implementation effort** | ~2 days (MCP server + setup wizard) | Hours (CLAUDE.md edits only) |
 | **Non-technical accessibility** | High — Claude Desktop is a polished native app | Medium — still requires terminal + Claude Code install |
-| **Agent logic changes** | None (reused via sampling) | None |
+| **Agent logic changes** | None (system prompts reused, execution mechanism changed) | None |
 | **Architecture cleanliness** | High — clear separation of concerns | Low — everything bundled in Claude Code |
 | **Routing** | Implicit via Claude Desktop tool selection | Explicit via CLAUDE.md dispatcher rules |
 | **Power user slash commands** | Still available in Claude Code as a parallel path | Full support, unchanged |
 | **Future extensibility** | Easy — add MCP tools, compose with other MCP servers | Harder — CLAUDE.md can get large |
-| **Background scanning** | Needs API key (runs without user in loop) | Needs API key (same constraint) |
+| **API key required?** | **Yes** (sampling not implemented; direct API calls needed) | No (uses Pro subscription via Claude Code) |
+| **Background scanning** | Needs API key (same constraint) | Needs API key (same constraint) |
 | **Distribution** | npm package, one command | Git clone + Claude Code install |
-| **Risk** | Sampling API must be tested; community unknown territory | Low risk — well-understood system |
+| **Risk** | API key friction; sampling timeline unknown | Low risk — well-understood system |
 
 **When to choose Path 1 over Path 2:**
 - When non-technical accessibility is the primary goal (not just power-user convenience)
