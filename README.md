@@ -10,6 +10,23 @@ CareerForge is a personal AI job search system powered by Claude Code. It automa
 
 **Walk into every interview prepared.** The Interview Prep agent researches the company, maps out the interview process and rounds, generates predicted questions per stage, and builds a personal story bank showing which of your own achievements best answers each question — all in one command.
 
+## Install as a Plugin (Recommended)
+
+If you already have [Claude Code](https://claude.ai/code) installed, this is the fastest path — no cloning, no package managers:
+
+```
+/plugin marketplace add michaelgarcia/careerforge
+/plugin install careerforge@careerforge
+```
+
+Then create a workspace directory, open Claude Code in it, and run `/cf-init`. CareerForge will scaffold the folder structure and walk you through the rest.
+
+---
+
+*Prefer to clone the full source? See [Getting Started](#getting-started) below.*
+
+---
+
 ## Getting Started
 
 ### Prerequisites

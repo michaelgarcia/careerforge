@@ -1,0 +1,12 @@
+{
+  "name": "careerforge",
+  "description": "CareerForge — AI-powered job search system for Claude Code",
+  "plugins": [
+    {
+      "name": "careerforge",
+      "description": "Full job search lifecycle: daily LinkedIn scanning, tailored resumes, cover letters, and interview prep. Nine specialized agents, thirteen slash commands.",
+      "version": "0.1.0",
+      "source": "https://raw.githubusercontent.com/michaelgarcia/careerforge/main"
+    }
+  ]
+}
