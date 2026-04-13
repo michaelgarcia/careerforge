@@ -23,7 +23,17 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-echo OK  Python
+for /f "tokens=2" %%v in ('python --version 2^>^&1') do set PY_VER=%%v
+for /f "tokens=1,2 delims=." %%a in ("%PY_VER%") do (set PY_MAJ=%%a & set PY_MIN=%%b)
+if %PY_MAJ% lss 3 goto py_old
+if %PY_MAJ% equ 3 if %PY_MIN% lss 11 goto py_old
+echo OK  Python %PY_VER%
+goto py_ok
+:py_old
+echo Python 3.11+ required (found %PY_VER%). Update at https://www.python.org
+pause
+exit /b 1
+:py_ok
 
 echo.
 echo Installing Node.js dependencies...

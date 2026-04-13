@@ -1,0 +1,31 @@
+# =============================================================================
+# CareerForge — Ingestion Progress Tracker
+# =============================================================================
+#
+# Auto-generated and maintained by the kb-builder agent.
+# Tracks which source files have been processed into the knowledge base.
+# Do not edit manually — the kb-builder uses this to resume interrupted sessions.
+#
+# STATUS VALUES:
+#   pending     — File discovered but not yet processed
+#   in_progress — Currently being processed (or interrupted mid-process)
+#   ingested    — Successfully processed and merged into candidate_profile.yaml
+#   modified    — File hash changed since last ingestion; will be re-processed
+#   skipped     — Deliberately excluded from processing
+#   error       — Could not be processed (corrupt, unsupported format, etc.)
+#   removed     — File was in sources/ during a previous run but is now gone
+# =============================================================================
+
+last_run: null
+
+files: []
+
+# Example entry (generated automatically — do not add manually):
+#
+# files:
+#   - path: "Resumes and mind maps/my_resume.pdf"
+#     status: ingested
+#     date_processed: "2026-01-15"
+#     size_bytes: 264000
+#     content_hash: "abc1234567890de"
+#     notes: ""

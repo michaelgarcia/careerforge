@@ -1,7 +1,10 @@
 # =============================================================================
 # Personal / candidate-specific data (NEVER commit these)
 # =============================================================================
-knowledge_base/
+knowledge_base/**
+!knowledge_base/.gitkeep
+!knowledge_base/sources/
+!knowledge_base/sources/.gitkeep
 config/preferences.yaml
 config/search_scopes.yaml
 
