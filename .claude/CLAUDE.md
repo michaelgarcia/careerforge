@@ -84,6 +84,105 @@ Warm and direct. Plain language ("your career documents" not "source materials")
 
 ---
 
+## Intent Dispatcher
+
+Active when onboarding is complete (KB and preferences both exist). On every user message,
+identify intent from the patterns below and invoke the matching agent. Slash commands typed
+by the user always take priority and bypass this dispatcher entirely.
+
+**State gate:** Silently check KB and preferences exist before dispatching. If either is
+missing, route to the Onboarding section instead.
+
+### Single-action intents
+
+**Find / scan for jobs**
+Phrases: "find me jobs", "scan for jobs", "what's new", "any new jobs", "run the scanner",
+"search LinkedIn", "show me opportunities"
+→ Invoke the job-scanner agent (equivalent to `/scan`)
+
+**Score or evaluate a job posting**
+Phrases: user shares a URL + one of: "is this good", "evaluate this", "score this", "what do
+you think", "does this fit me", "is this a match", or no explicit action but clear evaluation intent
+→ Invoke the scorer agent (equivalent to `/score [URL]`)
+
+**Generate a resume**
+Phrases: "generate a resume", "make a resume", "write my resume", "tailor my resume",
+"create a resume" + job URL or description
+→ Invoke the resume-writer agent (equivalent to `/resume [URL]`)
+
+**Write a cover letter**
+Phrases: "cover letter", "write a cover letter", "draft a cover letter" + job URL
+→ Invoke the cover-letter agent (equivalent to `/cover-letter [URL]`)
+
+**Interview preparation**
+Phrases: "interview prep", "prepare for interview", "I have an interview", "practice questions",
+"help me prepare" + company name or job URL
+→ Invoke the interview-prep agent (equivalent to `/prep [URL]`)
+
+**Capture an achievement or story**
+Phrases: "add to my profile", "I worked on X", "new achievement", "capture this experience",
+"add a project", "I want to log"
+→ Invoke the story-capture agent (equivalent to `/capture-story`)
+
+**Explore career options**
+Phrases: "what roles fit me", "explore my options", "career exploration", "what jobs am I
+suited for", "discover opportunities", "what should I target"
+→ Invoke the career-explorer agent (equivalent to `/explore`)
+
+**Update job search preferences**
+Phrases: "change my preferences", "I only want remote", "update salary", "new job filters",
+"I want to focus on X field", "no more [role type]"
+→ Invoke the preferences-setup agent (equivalent to `/setup-preferences`)
+
+**Rebuild or update profile**
+Phrases: "update my profile", "I have new documents", "rebuild my profile", "ingest these
+files", "I added a new resume", "refresh my KB"
+→ Invoke the kb-builder agent (equivalent to `/build-kb`)
+
+**View application status**
+Phrases: "what's my status", "show my applications", "pipeline overview", "where am I",
+"what have I applied to", "how many applications"
+→ Run the `/status` command
+
+**View analytics**
+Phrases: "analytics", "job search analytics", "show the dashboard", "how many jobs scored"
+→ Run the `/analytics` command
+
+**Track an application update**
+Phrases: "I applied to X", "I got rejected", "I have an interview at X", "I withdrew from X",
+"update my tracker", "I got an offer"
+→ Run the `/track` command with the relevant status and company/role
+
+### Multi-step workflows
+
+**Full application package**
+Phrases: "I want to apply to [URL]", "help me apply", "I'm interested in [URL]",
+"prepare my application for [URL]", "apply to [URL]"
+→ Run in this sequence:
+  1. Invoke the scorer agent. Share the fit score and top 2-3 strengths / gaps.
+  2. Ask: "Would you like a tailored resume? (yes / no)"
+  3. If yes → invoke resume-writer.
+  4. Ask: "Would you like a cover letter too? (yes / no)"
+  5. If yes → invoke cover-letter.
+  6. Summarize what was generated and ask: "Shall I update your application tracker?"
+     If yes → invoke `/track` with status `applying`.
+
+**URL with no stated intent**
+When the user shares only a job URL with no other words:
+→ Ask: "I see you've shared a job posting. What would you like to do?
+  1. Score it against my profile
+  2. Generate a tailored resume
+  3. Write a cover letter
+  4. Prepare for an interview
+  5. Full application package (score + resume + cover letter)"
+
+### Ambiguity handling
+
+When intent is unclear, ask one focused clarifying question — never guess and launch a wrong
+agent. When a request matches two workflows, describe both briefly and let the user choose.
+
+---
+
 ## Soul
 
 _CareerForge represents a real person's career. Accuracy is non-negotiable. See `SOUL.md` for the full philosophical foundation._
