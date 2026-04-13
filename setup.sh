@@ -22,7 +22,14 @@ if ! command -v python3 &>/dev/null && ! command -v python &>/dev/null; then
   exit 1
 fi
 PYTHON=$(command -v python3 || command -v python)
-echo "✓ Python $($PYTHON --version)"
+PY_VER=$($PYTHON -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+PY_MAJ=$($PYTHON -c "import sys; print(sys.version_info.major)")
+PY_MIN=$($PYTHON -c "import sys; print(sys.version_info.minor)")
+if [ "$PY_MAJ" -lt 3 ] || { [ "$PY_MAJ" -eq 3 ] && [ "$PY_MIN" -lt 11 ]; }; then
+  echo "Python 3.11+ required (found $PY_VER). Update at https://www.python.org"
+  exit 1
+fi
+echo "✓ Python $PY_VER"
 
 # Node deps
 echo ""
@@ -46,5 +53,4 @@ echo ""
 echo "=== Setup complete ==="
 echo ""
 echo "To start CareerForge:"
-echo "  Mac/Linux: double-click launch.command, or type 'claude' in this directory"
-echo "  Windows:   double-click launch.bat"
+echo "  Double-click launch.command, or type 'claude' in this directory"

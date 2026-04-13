@@ -60,7 +60,7 @@ hard_constraints:
 
   requires_sponsorship: false
 
-  dealbreakers: []
+  dealbreakers:
     # - "No defense/weapons industry"
     # - "No crypto/web3"
 
@@ -69,23 +69,23 @@ hard_constraints:
 # ============================================================
 soft_preferences:
 
-  preferred_domains: []
+  preferred_domains:
     # - "AI/ML"
     # - "Cloud Infrastructure"
 
-  preferred_company_stage: []
+  preferred_company_stage:
     # - "Growth (50-500 employees)"
     # - "Scale-up (500-5000)"
 
-  preferred_tech: []
+  preferred_tech:
     # - "Python"
     # - "Kubernetes"
 
-  work_style: []
+  work_style:
     # - "High autonomy"
     # - "Strong engineering culture"
 
-  career_goals: []
+  career_goals:
     # - "Technical depth over breadth"
     # - "Path to Staff+ engineering"
 
@@ -93,16 +93,16 @@ soft_preferences:
 # SEARCH KEYWORDS — used by the LinkedIn scanner
 # ============================================================
 search_config:
-  target_titles: []
+  target_titles:
     # - "Senior Software Engineer"
     # - "Staff Engineer"
     # - "ML Engineer"
 
-  keywords: []
+  keywords:
     # - "machine learning"
     # - "distributed systems"
 
-  target_companies: []
+  target_companies:
 
 # ============================================================
 # LINKEDIN SCANNER
