@@ -19,15 +19,15 @@ If you already have [Claude Code](https://claude.ai/code) installed, this is the
 /plugin install careerforge@careerforge
 ```
 
-Then create a workspace directory, open Claude Code in it, and run `/cf-init`. CareerForge will scaffold the folder structure and walk you through the rest.
+Then create a workspace directory, open Claude Code in it, and run `/cf-init`. CareerForge will scaffold the folder structure, fetch the runtime scripts from GitHub, install Python dependencies, and walk you through the rest.
+
+> **Scope note:** Plugin installation is **user-global** — agents and commands are installed to `~/.claude/` and become available in every Claude Code session on your machine, regardless of which directory you open. If you prefer a self-contained installation that is only active in a specific folder, use the [local clone path](#local-installation-folder-scoped) below.
 
 ---
 
-*Prefer to clone the full source? See [Getting Started](#getting-started) below.*
+## Local Installation (Folder-Scoped)
 
----
-
-## Getting Started
+Use this path if you want CareerForge active only in a specific directory — useful for keeping it off your global Claude Code setup, running multiple isolated workspaces, or testing without affecting your existing environment.
 
 ### Prerequisites
 
@@ -36,43 +36,41 @@ Then create a workspace directory, open Claude Code in it, and run `/cf-init`. C
 | [Claude Pro](https://claude.ai) | Any | Required for Claude Code |
 | [Claude Code](https://claude.ai/code) | Latest | The AI shell CareerForge runs in |
 | [Git](https://git-scm.com/downloads) | Any | For cloning the repository |
-| [Node.js](https://nodejs.org) | 18+ | For resume/cover letter `.docx` generation |
-| [Python](https://www.python.org) | 3.11+ | For the LinkedIn job scanner |
+| [Python](https://www.python.org) | 3.11+ | For all document generation and job scanning |
 
-### Step 1 — Get the code
+### Step 1 — Clone into your workspace folder
 
 ```bash
-git clone https://github.com/michaelgarcia/careerforge.git
-cd careerforge
+git clone https://github.com/michaelgarcia/careerforge.git my-job-search
+cd my-job-search
 ```
 
-### Step 2 — Run setup
+### Step 2 — Install Python dependencies
 
-The setup script installs all dependencies and confirms your environment is ready.
-
-**Windows** — double-click `setup.bat`
-
-**Mac / Linux** — open Terminal in the careerforge folder and run:
 ```bash
-bash setup.sh
+pip install python-docx markdown weasyprint pydantic httpx pyyaml beautifulsoup4
 ```
-
 
 ### Step 3 — Launch CareerForge
 
-**Windows** — double-click `launch.bat`
-
-**Mac / Linux** — double-click `launch.command`
-_(First time on Mac: right-click → Open to bypass Gatekeeper, then double-click works normally.)_
-
-Or from any terminal in the careerforge folder:
 ```bash
 claude
 ```
 
-### Step 4 — Get started
+CareerForge agents and commands are active only in this folder. Open Claude Code here and say **"I'm ready to get started"** to begin onboarding.
 
-Once Claude Code opens, just say:
+| | Plugin install | Local clone |
+|---|---|---|
+| **Scope** | All Claude Code sessions on this machine | This folder only |
+| **Prerequisites** | Claude Code + Python | Claude Code + Python + Git |
+| **Updates** | `/plugin update careerforge` | `git pull` |
+| **Multiple workspaces** | Yes — switch by changing directories | Yes — clone into separate folders |
+
+---
+
+## Getting Started (after installation)
+
+Once Claude Code opens, say:
 
 > **"I'm ready to get started"**
 

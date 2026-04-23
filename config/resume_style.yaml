@@ -7,7 +7,7 @@ formatting:
   body_size_pt: 11             # Body text size in points
   heading_size_pt: 13          # Section heading size
   name_size_pt: 18             # Candidate name size
-  line_spacing: 1.15           # 1.0 = single, 1.15 = slight spacing, 1.5 = 1.5x
+  line_spacing: 1.15           # 1.0 = single, 1.15 = slight spacing, 1.5 = 1.5x (informational only — not consumed by generate_docx.py)
 
   # Margins in inches
   margin_top: 0.75
