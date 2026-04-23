@@ -26,7 +26,33 @@ If `knowledge_base/sources/` does NOT exist, run the following bash command to c
 mkdir -p knowledge_base/sources knowledge_base/archive config postings output/resumes output/cover_letters output/interview_prep output/lead_reports output/analytics data
 ```
 
-**Step 3 — Write starter files**
+**Step 3 — Bootstrap scripts, tools, and Python dependencies**
+
+This step fetches the CareerForge runtime scripts from GitHub and installs all required Python packages. Skip this step entirely if `scripts/generate_docx.py` already exists in the current directory (the user is working inside a cloned repo).
+
+**3a — Fetch scripts and tools**
+
+Check whether `scripts/generate_docx.py` exists using Glob. If it does NOT exist:
+
+1. Verify git is available: `git --version`
+2. If git is available, run the sparse clone to fetch only the `scripts/` and `tools/` directories:
+
+```bash
+git clone --depth=1 --filter=blob:none --sparse https://github.com/michaelgarcia/careerforge _cf_bootstrap_tmp && cd _cf_bootstrap_tmp && git sparse-checkout set scripts tools && cd .. && cp -r _cf_bootstrap_tmp/scripts _cf_bootstrap_tmp/tools . && rm -rf _cf_bootstrap_tmp
+```
+
+3. If git is NOT available, display this message and continue (user can fetch scripts manually later):
+> "⚠️  git is not available — skipping script download. To enable resume and cover letter generation, manually copy the `scripts/` and `tools/` directories from https://github.com/michaelgarcia/careerforge into this folder."
+
+**3b — Install Python dependencies**
+
+Run the following command to install all required packages. Use `--quiet` to keep output clean. If it fails, show the exact error and ask the user to run it manually.
+
+```bash
+pip install --quiet python-docx markdown weasyprint pydantic httpx pyyaml beautifulsoup4
+```
+
+**Step 4 — Write starter files**
 
 Write the following files using the Write tool. Do not overwrite any file that already exists — check first with Glob.
 

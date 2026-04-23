@@ -116,15 +116,18 @@ From the knowledge base, pick 2-3 specific achievements that:
 
 ### Step 6: Generate .docx
 
-Create the cover letter as a .docx file using the `docx` npm package:
-- Clean, professional formatting matching the resume style
-- Candidate's contact info as a header
-- Date
-- Company name and address (if known)
-- "Dear [Hiring Manager / Hiring Team],"
-- Body paragraphs with proper spacing
-- "Sincerely," + candidate name
-- Single page
+**ALWAYS use the JSON template approach:**
+
+1. Write cover letter content as a JSON file to `/tmp/cover_letter_content_[timestamp].json` with the following keys: `personal` (`name`, `email`, `phone`, `location`), `date`, `recipient` (`name`, `title`, `company`, `address`), `salutation`, `paragraphs` (array of strings), `closing`, and `style` (`font`, `body_size_pt`).
+2. Run: `python scripts/generate_docx.py --input <json_path> --output <output_path> --type cover_letter`
+3. **Do NOT generate inline Python scripts with hardcoded content.** The template handles all formatting — sender block, recipient block, body paragraphs with correct spacing, and closing.
+4. Run: `python scripts/convert_to_pdf.py --input <output_path>` to generate a `.pdf` alongside the `.docx`. Both files are delivered to the user.
+
+The generated cover letter will:
+- Use a clean, professional font (Calibri by default, configurable via `style.font`)
+- Have 1-inch margins on all sides
+- Use 1.15× line spacing in body paragraphs
+- Be parseable by ATS systems
 
 Save to: `output/cover_letters/cover_letter_[company]_[role_short]_[YYYY-MM-DD].docx`
 
