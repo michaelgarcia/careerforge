@@ -152,6 +152,22 @@ After setup, talk to CareerForge in plain English:
 
 ---
 
+## Updating
+
+**Technical users:**
+```bash
+git pull
+```
+Re-run the setup script if release notes mention new dependencies (rare).
+
+**Non-technical users:**
+```
+/plugin update careerforge
+```
+This refreshes agents and commands. The `scripts/` and `tools/` directories (Python scripts for docx and LinkedIn scanning) are not touched by a plugin update — they only need refreshing if a release note explicitly says so, in which case delete your `scripts/` and `tools/` folders and re-run `/cf-init`.
+
+---
+
 ## Release a new plugin version
 
 To regenerate the distributable ZIP after making changes:
