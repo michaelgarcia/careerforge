@@ -6,7 +6,7 @@
 #   1. Homebrew    — package manager for macOS (https://brew.sh)
 #   2. Git         — for cloning repositories
 #   3. Python 3.11+ — all scripting (docx generation, LinkedIn scanning, scoring)
-#   4. Python packages — python-docx, httpx, pydantic, pyyaml, beautifulsoup4, markdown, weasyprint
+#   4. Python packages — installed from requirements.txt
 #   5. Claude Desktop — checked but not auto-installed (manual step)
 
 set -euo pipefail
@@ -134,16 +134,15 @@ fi
 
 if [ -n "$PYTHON_CMD" ]; then
     printf "  [4/5] %-30s ${YELLOW}[INSTALLING...]${NC}\n" "Python packages"
-    PACKAGES="python-docx httpx pydantic pyyaml beautifulsoup4 markdown weasyprint"
-    if $PYTHON_CMD -m pip install --quiet $PACKAGES 2>/dev/null; then
-        print_ok "4/5" "Python packages" "python-docx, httpx, pydantic, pyyaml, bs4, markdown, weasyprint"
+    if $PYTHON_CMD -m pip install --quiet -r requirements.txt 2>/dev/null; then
+        print_ok "4/5" "Python packages" "from requirements.txt"
     else
         # Try with --break-system-packages for newer Python on Mac
-        if $PYTHON_CMD -m pip install --quiet --break-system-packages $PACKAGES 2>/dev/null; then
-            print_ok "4/5" "Python packages" "python-docx, httpx, pydantic, pyyaml, bs4, markdown, weasyprint"
+        if $PYTHON_CMD -m pip install --quiet --break-system-packages -r requirements.txt 2>/dev/null; then
+            print_ok "4/5" "Python packages" "from requirements.txt"
         else
             print_fail "4/5" "Python packages" ""
-            echo "       Try manually: $PYTHON_CMD -m pip install $PACKAGES" >&2
+            echo "       Try manually: $PYTHON_CMD -m pip install -r requirements.txt" >&2
             echo "       If you see 'externally-managed-environment', add --break-system-packages" >&2
             ALL_OK=false
         fi

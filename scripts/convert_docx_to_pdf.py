@@ -7,7 +7,7 @@ Requirements:
   - docx2pdf package: pip install docx2pdf
 
 Usage:
-  python scripts/convert_to_pdf.py --input output/resumes/resume_acme_sre_2026-03-15.docx
+  python scripts/convert_docx_to_pdf.py --input output/resumes/resume_acme_sre_2026-03-15.docx
 """
 import argparse
 import sys

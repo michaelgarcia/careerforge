@@ -4,7 +4,7 @@
 # What this script installs:
 #   1. Git          — for cloning repositories
 #   2. Python 3.11+ — all scripting (docx generation, LinkedIn scanning, scoring)
-#   3. Python packages — python-docx, httpx, pydantic, pyyaml, beautifulsoup4, markdown, weasyprint
+#   3. Python packages — installed from requirements.txt
 #   4. Claude Desktop — checked but not auto-installed (manual step)
 #
 # Requires: Windows 10 21H2+ or Windows 11 (winget is built-in)
@@ -138,15 +138,14 @@ if ($pythonCmd) {
 
 if ($pythonCmd) {
     Write-Host "  [3/4] Python packages ................... [INSTALLING...]" -ForegroundColor Yellow
-    $packages = "python-docx httpx pydantic pyyaml beautifulsoup4 markdown weasyprint"
-    $result = & $pythonCmd -m pip install --quiet $packages.Split() 2>&1
+    $result = & $pythonCmd -m pip install --quiet -r requirements.txt 2>&1
     if ($LASTEXITCODE -eq 0) {
-        Print-Status "3/4" "Python packages" "OK" "python-docx, httpx, pydantic, pyyaml, bs4, markdown, weasyprint"
+        Print-Status "3/4" "Python packages" "OK" "from requirements.txt"
     } else {
         Print-Status "3/4" "Python packages" "FAIL"
         Write-Host "       Error output:" -ForegroundColor Red
         Write-Host "       $result" -ForegroundColor Red
-        Write-Host "       Try manually: $pythonCmd -m pip install python-docx httpx pydantic pyyaml beautifulsoup4 markdown weasyprint" -ForegroundColor Red
+        Write-Host "       Try manually: $pythonCmd -m pip install -r requirements.txt" -ForegroundColor Red
         $allOk = $false
     }
 } else {

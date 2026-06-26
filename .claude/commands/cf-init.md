@@ -49,8 +49,10 @@ git clone --depth=1 --filter=blob:none --sparse https://github.com/michaelgarcia
 Run the following command to install all required packages. Use `--quiet` to keep output clean. If it fails, show the exact error and ask the user to run it manually.
 
 ```bash
-pip install --quiet python-docx markdown weasyprint pydantic httpx pyyaml beautifulsoup4
+pip install --quiet python-docx markdown xhtml2pdf docx2pdf pydantic httpx pyyaml beautifulsoup4
 ```
+
+On Windows, also run `pip install --quiet pywin32` (needed by `docx2pdf` for Word COM automation; not required on macOS/Linux).
 
 **Step 4 — Write starter files**
 
