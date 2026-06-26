@@ -15,32 +15,35 @@ Each .pdf is written alongside its .md source (same directory, same base name).
 Original .md files are never modified.
 Exits with code 1 if any conversion fails.
 
-Requires: pip install markdown weasyprint
+Requires: pip install markdown xhtml2pdf
 """
 
 import argparse
 import sys
 from pathlib import Path
 
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
+
 try:
     import markdown
-    from weasyprint import HTML, CSS
+    from xhtml2pdf import pisa
 except ImportError as e:
     print(f'Error: Missing dependency — {e}', file=sys.stderr)
-    print('Install with: pip install markdown weasyprint', file=sys.stderr)
+    print('Install with: pip install markdown xhtml2pdf', file=sys.stderr)
     sys.exit(1)
 
 
-CSS_STYLES = CSS(string="""
+CSS_STYLES = """
 @page {
     size: A4;
     margin: 20mm 18mm;
 }
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    font-size: 14px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 11pt;
     line-height: 1.6;
-    padding: 20px 32px;
     color: #333;
 }
 table {
@@ -54,15 +57,15 @@ th, td {
     text-align: left;
 }
 tr:nth-child(even) td {
-    background: #f7f7f7;
+    background-color: #f7f7f7;
 }
 th {
-    background: #e8e8e8;
-    font-weight: 600;
+    background-color: #e8e8e8;
+    font-weight: bold;
 }
 blockquote {
     border-left: 4px solid #4a90d9;
-    background: #f0f6ff;
+    background-color: #f0f6ff;
     margin: 1em 0;
     padding: 0.6em 1em;
     color: #333;
@@ -71,26 +74,25 @@ blockquote p {
     margin: 0;
 }
 code {
-    background: #f4f4f4;
+    background-color: #f4f4f4;
     padding: 1px 4px;
     border-radius: 3px;
     font-size: 0.9em;
     font-family: "Courier New", Courier, monospace;
 }
 pre {
-    background: #f4f4f4;
+    background-color: #f4f4f4;
     padding: 12px;
     border-radius: 4px;
-    overflow-x: auto;
 }
 pre code {
     padding: 0;
-    background: none;
+    background-color: transparent;
 }
 h1, h2, h3 {
     margin-top: 1.4em;
 }
-""")
+"""
 
 MD_EXTENSIONS = ['tables', 'fenced_code', 'nl2br', 'sane_lists']
 
@@ -101,13 +103,19 @@ def convert_file(md_path: Path) -> bool:
         md_text = md_path.read_text(encoding='utf-8')
         html_body = markdown.markdown(md_text, extensions=MD_EXTENSIONS)
         html = (
-            '<html><head><meta charset="utf-8"></head>'
-            f'<body>{html_body}</body></html>'
+            '<html><head><meta charset="utf-8">'
+            f'<style>{CSS_STYLES}</style>'
+            f'</head><body>{html_body}</body></html>'
         )
-        HTML(string=html, base_url=str(md_path.parent)).write_pdf(
-            str(pdf_path),
-            stylesheets=[CSS_STYLES],
-        )
+        with open(pdf_path, 'wb') as pdf_file:
+            result = pisa.CreatePDF(
+                src=html,
+                dest=pdf_file,
+                encoding='utf-8',
+                path=str(md_path.parent),
+            )
+        if result.err:
+            raise RuntimeError(f'{result.err} rendering error(s)')
         print(f'  ✓ {pdf_path.name}')
         return True
     except Exception as e:
