@@ -179,24 +179,30 @@ See `docs/linkedin-scanner.md` for the full reference (scope schema, script CLI 
 
 ### Utilities / Scripts
 
-#### `convert_md_to_pdf.js` — Markdown to PDF
+#### `convert_md_to_pdf.py` — Markdown to PDF
 
-Converts `.md` files to PDF for mobile reading. PDFs are written alongside the originals; source files are never modified.
+Converts `.md` files to PDF (e.g. for mobile reading of interview prep docs). PDFs are written alongside the originals; source files are never modified. Requires `markdown` and `xhtml2pdf` (see `requirements.txt`).
 
 ```bash
 # Convert all .md files in a directory
-node scripts/convert_md_to_pdf.js output/interview_prep/Google_PrincipalArchitectIV_2026-03-05/
+python scripts/convert_md_to_pdf.py output/interview_prep/Google_PrincipalArchitectIV_2026-03-05/
 
 # Convert a single file
-node scripts/convert_md_to_pdf.js output/interview_prep/Google_PrincipalArchitectIV_2026-03-05/00_interview_process.md
+python scripts/convert_md_to_pdf.py output/interview_prep/Google_PrincipalArchitectIV_2026-03-05/00_interview_process.md
 
 # Recurse into subdirectories
-node scripts/convert_md_to_pdf.js output/interview_prep/ --recursive
+python scripts/convert_md_to_pdf.py output/interview_prep/ --recursive
 ```
 
-Or via npm: `npm run convert -- <path>`
+Tables, blockquotes, and code blocks render with CSS styling via `xhtml2pdf` (pure Python, no native dependencies).
 
-Tables, blockquotes, and code blocks render with full CSS styling via headless Chromium (Puppeteer).
+#### `convert_docx_to_pdf.py` — Word document to PDF
+
+Converts a generated `.docx` resume or cover letter to PDF via Microsoft Word COM automation. Windows only; requires Word to be installed and the `docx2pdf` + `pywin32` packages. Used automatically by the resume-writer and cover-letter agents.
+
+```bash
+python scripts/convert_docx_to_pdf.py --input output/resumes/resume_acme_sre_2026-03-15.docx
+```
 
 #### `analytics.py` — LinkedIn Pipeline Analytics
 

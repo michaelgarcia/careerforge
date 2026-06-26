@@ -25,6 +25,9 @@ output/analytics/*
 # Job postings (transient, personal)
 postings/*
 !postings/.gitkeep
+!postings/journal/
+postings/journal/*
+!postings/journal/.gitkeep
 
 # =============================================================================
 # LinkedIn Scanner data (transient, generated)
