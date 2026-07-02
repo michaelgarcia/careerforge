@@ -20,6 +20,7 @@ output/lead_reports/*
 output/interview_prep/*
 output/career_exploration/*
 output/analytics/*
+output/company_trackers/*
 !output/**/.gitkeep
 
 # Job postings (transient, personal)

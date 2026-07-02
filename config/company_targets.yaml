@@ -1,0 +1,32 @@
+# Company Career Page Monitor — target list
+#
+# One entry per company. The `fetch_method` field is the dispatch key
+# scripts/company_scanner/sync.py uses to pick a fetcher:
+#   api        -> scripts/company_scanner/fetch_greenhouse.py (or future ATS-API fetchers)
+#   playwright -> scripts/company_scanner/fetch_google.py (Phase 2 only — not yet implemented)
+#
+# Adding a future company that's also on Greenhouse (or another API-backed ATS)
+# requires only a new entry here, no code changes.
+
+companies:
+  - name: anthropic
+    display_name: Anthropic
+    ats: greenhouse
+    fetch_method: api
+    board_token: anthropic
+    # team= query param values from the user's saved URLs map 1:1 to Greenhouse
+    # department IDs (verified directly: team=4079949008 -> department "Applied AI").
+    department_ids:
+      - 4079949008   # Applied AI (verified)
+      - 4002062008   # Sales (assumed — sync.py will warn loudly if this matches 0 jobs)
+      - 4050634008   # Technical Program Management (assumed — same warning applies)
+    enabled: true
+
+  - name: google
+    display_name: Google
+    ats: custom
+    fetch_method: playwright
+    urls:
+      - "https://www.google.com/about/careers/applications/jobs/results?location=United%20States&target_level=DIRECTOR_PLUS&target_level=ADVANCED&target_level=MID&degree=BACHELORS&degree=MASTERS&employment_type=FULL_TIME&q=%22forward%20deployed%20engineer%22"
+      - "https://www.google.com/about/careers/applications/jobs/results?location=United%20States&target_level=DIRECTOR_PLUS&target_level=ADVANCED&target_level=MID&degree=BACHELORS&degree=MASTERS&employment_type=FULL_TIME&q=%22Architect%22"
+    enabled: false   # Phase 2 — flip to true once fetch_google.py is implemented and calibrated
