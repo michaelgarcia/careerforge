@@ -29,16 +29,15 @@ page_length:
   max_pages: 2
 
 # Section ordering (top to bottom)
-# Reorder these based on what you want to lead with
+# Consumed by generate_docx.py — sections render in exactly this order.
+# 'header' is always rendered first regardless of position here.
 section_order:
   - "header"                   # Always first: name, title, contact
   - "summary"                  # Professional summary
-  - "skills"                   # Technical skills
   - "experience"               # Work experience
-  - "certifications"           # Certifications
+  - "certifications"           # Cloud and AI certifications
   - "education"                # Education
-  - "publications"             # Publications & speaking (omit if not relevant)
-  - "projects"                 # Notable projects (omit if covered by experience)
+  - "skills"                   # Technical skills (last)
 
 # Content preferences
 content:

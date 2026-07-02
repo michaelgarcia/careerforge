@@ -149,19 +149,26 @@ def _build_resume(doc: Document, content: dict) -> None:
     Populate doc with resume content.
 
     Expected content keys (all optional except where noted):
-      personal: { name*, title, email, phone, linkedin, location }
+      personal: { name*, title, email, phone, linkedin, website, location }
       summary: str
       skills: { category: [skill, ...] }
       experience: [{ company, title, dates, location, bullets: [...] }]
       education: [{ institution, degree, field, date, honors }]
       certifications: [{ name, issuer, date }]
+      certifications_summary: str  (one-line summary rendered after the cert list)
       publications: [{ title, venue, date, summary }]
       speaking: [{ title, event, date, description }]
       projects: [{ name, technologies, description, highlights: [...] }]
       awards: [{ name, issuer, description }]
       patents: [{ title, number, date, description }]
       style: { font, accent_color, body_size_pt, heading_size_pt, name_size_pt,
-               margin_top, margin_bottom, margin_left, margin_right }
+               margin_top, margin_bottom, margin_left, margin_right,
+               section_order: [section, ...],
+               section_titles: { section: "Custom Heading" } }
+
+    The header (name, title, contact) is always rendered first. All other
+    sections are rendered in the order given by style.section_order; section
+    headings can be overridden via style.section_titles.
     """
     s = content.get('style', {})
     font = s.get('font', 'Calibri')
@@ -172,7 +179,27 @@ def _build_resume(doc: Document, content: dict) -> None:
     accent_rgb = _hex_color(accent_hex)
     p = content.get('personal', {})
 
-    # ── Header ───────────────────────────────────────────────────────────────
+    # Section heading titles. Defaults can be overridden per-section via
+    # style.section_titles, e.g. {"certifications": "Cloud and AI Certifications"}.
+    default_titles = {
+        'summary': 'Professional Summary',
+        'skills': 'Technical Skills',
+        'experience': 'Professional Experience',
+        'certifications': 'Certifications',
+        'education': 'Education',
+        'publications': 'Publications',
+        'speaking': 'Speaking',
+        'projects': 'Projects',
+        'awards': 'Awards',
+        'patents': 'Patents',
+    }
+    title_overrides = s.get('section_titles') or {}
+
+    def _heading(section_key: str) -> None:
+        text = title_overrides.get(section_key, default_titles[section_key])
+        _section_heading(doc, text, font, heading, accent_rgb, accent_hex)
+
+    # ── Header (always rendered first) ─────────────────────────────────────────
 
     # Name — centered, bold, 18pt (default), space after 2pt (40 twips)
     para = _new_para(doc, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=2)
@@ -184,35 +211,37 @@ def _build_resume(doc: Document, content: dict) -> None:
         _run(para, p['title'], font_name=font, size_pt=body + 1, color=accent_rgb)
 
     # Contact line — centered, body-1pt, pipe-separated, space after 10pt (200 twips)
-    contact_parts = [p.get('email'), p.get('phone'), p.get('location'), p.get('linkedin')]
+    contact_parts = [p.get('email'), p.get('phone'), p.get('location'),
+                     p.get('linkedin'), p.get('website')]
     contact = '  |  '.join(x for x in contact_parts if x)
     if contact:
         para = _new_para(doc, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=10)
         _run(para, contact, font_name=font, size_pt=body - 1)
 
-    # ── Summary ──────────────────────────────────────────────────────────────
+    # ── Section renderers ──────────────────────────────────────────────────────
 
-    if content.get('summary'):
-        _section_heading(doc, 'Professional Summary', font, heading, accent_rgb, accent_hex)
-        # 6pt after (120 twips)
-        para = _new_para(doc, space_after=6)
+    def _render_summary() -> None:
+        if not content.get('summary'):
+            return
+        _heading('summary')
+        para = _new_para(doc, space_after=6)  # 120 twips
         _run(para, content['summary'], font_name=font, size_pt=body)
 
-    # ── Skills ───────────────────────────────────────────────────────────────
-
-    skills = content.get('skills') or {}
-    if skills:
-        _section_heading(doc, 'Technical Skills', font, heading, accent_rgb, accent_hex)
+    def _render_skills() -> None:
+        skills = content.get('skills') or {}
+        if not skills:
+            return
+        _heading('skills')
         for category, items in skills.items():
             para = _new_para(doc, space_after=3)  # 60 twips
             _run(para, f'{category}: ', font_name=font, size_pt=body, bold=True)
             _run(para, ', '.join(items), font_name=font, size_pt=body)
 
-    # ── Experience ───────────────────────────────────────────────────────────
-
-    experience = content.get('experience') or []
-    if experience:
-        _section_heading(doc, 'Professional Experience', font, heading, accent_rgb, accent_hex)
+    def _render_experience() -> None:
+        experience = content.get('experience') or []
+        if not experience:
+            return
+        _heading('experience')
         for role in experience:
             # Title — Company: bold title, regular company, 8pt before / 1pt after (160/20 twips)
             para = _new_para(doc, space_before=8, space_after=1)
@@ -232,12 +261,12 @@ def _build_resume(doc: Document, content: dict) -> None:
                 para = _new_para(doc, space_after=2, left_indent=18, first_line_indent=-9)
                 _run(para, f'•  {bullet}', font_name=font, size_pt=body)
 
-    # ── Certifications ───────────────────────────────────────────────────────
-    # Order matches resume_style.yaml section_order: certifications before education
-
-    certifications = content.get('certifications') or []
-    if certifications:
-        _section_heading(doc, 'Certifications', font, heading, accent_rgb, accent_hex)
+    def _render_certifications() -> None:
+        certifications = content.get('certifications') or []
+        cert_summary = content.get('certifications_summary')
+        if not certifications and not cert_summary:
+            return
+        _heading('certifications')
         for cert in certifications:
             para = _new_para(doc, space_after=2)
             _run(para, cert.get('name', ''), font_name=font, size_pt=body, bold=True)
@@ -245,12 +274,16 @@ def _build_resume(doc: Document, content: dict) -> None:
                 _run(para, f"  —  {cert['issuer']}", font_name=font, size_pt=body)
             if cert.get('date'):
                 _run(para, f"  ({cert['date']})", font_name=font, size_pt=body - 1, color=GRAY)
+        # Optional summary line for certs not listed individually (e.g. cloud certs)
+        if cert_summary:
+            para = _new_para(doc, space_before=2, space_after=2)
+            _run(para, cert_summary, font_name=font, size_pt=body - 1, italic=True)
 
-    # ── Education ────────────────────────────────────────────────────────────
-
-    education = content.get('education') or []
-    if education:
-        _section_heading(doc, 'Education', font, heading, accent_rgb, accent_hex)
+    def _render_education() -> None:
+        education = content.get('education') or []
+        if not education:
+            return
+        _heading('education')
         for edu in education:
             para = _new_para(doc, space_after=3)
             _run(para, f"{edu.get('degree', '')} in {edu.get('field', '')}",
@@ -260,14 +293,14 @@ def _build_resume(doc: Document, content: dict) -> None:
             if edu.get('date'):
                 _run(para, f"  ({edu['date']})", font_name=font, size_pt=body - 1, color=GRAY)
             if edu.get('honors'):
-                para = _new_para(doc, space_after=2, left_indent=18)
-                _run(para, edu['honors'], font_name=font, size_pt=body - 1, italic=True)
+                # Rendered inline on the same line — keeps education to a single line
+                _run(para, f"  —  {edu['honors']}", font_name=font, size_pt=body - 1, italic=True)
 
-    # ── Publications ─────────────────────────────────────────────────────────
-
-    publications = content.get('publications') or []
-    if publications:
-        _section_heading(doc, 'Publications', font, heading, accent_rgb, accent_hex)
+    def _render_publications() -> None:
+        publications = content.get('publications') or []
+        if not publications:
+            return
+        _heading('publications')
         for pub in publications:
             para = _new_para(doc, space_after=2)
             _run(para, pub.get('title', ''), font_name=font, size_pt=body, bold=True)
@@ -279,11 +312,11 @@ def _build_resume(doc: Document, content: dict) -> None:
                 para = _new_para(doc, space_after=2, left_indent=18)
                 _run(para, pub['summary'], font_name=font, size_pt=body - 1, italic=True)
 
-    # ── Speaking ─────────────────────────────────────────────────────────────
-
-    speaking = content.get('speaking') or []
-    if speaking:
-        _section_heading(doc, 'Speaking', font, heading, accent_rgb, accent_hex)
+    def _render_speaking() -> None:
+        speaking = content.get('speaking') or []
+        if not speaking:
+            return
+        _heading('speaking')
         for talk in speaking:
             para = _new_para(doc, space_after=2)
             _run(para, talk.get('title', ''), font_name=font, size_pt=body, bold=True)
@@ -295,11 +328,11 @@ def _build_resume(doc: Document, content: dict) -> None:
                 para = _new_para(doc, space_after=2, left_indent=18)
                 _run(para, talk['description'], font_name=font, size_pt=body - 1, italic=True)
 
-    # ── Projects ─────────────────────────────────────────────────────────────
-
-    projects = content.get('projects') or []
-    if projects:
-        _section_heading(doc, 'Projects', font, heading, accent_rgb, accent_hex)
+    def _render_projects() -> None:
+        projects = content.get('projects') or []
+        if not projects:
+            return
+        _heading('projects')
         for proj in projects:
             # Name (technologies): 5pt before / 1pt after (100/20 twips)
             para = _new_para(doc, space_before=5, space_after=1)
@@ -314,11 +347,11 @@ def _build_resume(doc: Document, content: dict) -> None:
                 para = _new_para(doc, space_after=2, left_indent=18, first_line_indent=-9)
                 _run(para, f'•  {highlight}', font_name=font, size_pt=body)
 
-    # ── Awards ───────────────────────────────────────────────────────────────
-
-    awards = content.get('awards') or []
-    if awards:
-        _section_heading(doc, 'Awards', font, heading, accent_rgb, accent_hex)
+    def _render_awards() -> None:
+        awards = content.get('awards') or []
+        if not awards:
+            return
+        _heading('awards')
         for award in awards:
             para = _new_para(doc, space_after=2)
             _run(para, award.get('name', ''), font_name=font, size_pt=body, bold=True)
@@ -328,11 +361,11 @@ def _build_resume(doc: Document, content: dict) -> None:
                 para = _new_para(doc, space_after=2, left_indent=18)
                 _run(para, award['description'], font_name=font, size_pt=body - 1, italic=True)
 
-    # ── Patents ──────────────────────────────────────────────────────────────
-
-    patents = content.get('patents') or []
-    if patents:
-        _section_heading(doc, 'Patents', font, heading, accent_rgb, accent_hex)
+    def _render_patents() -> None:
+        patents = content.get('patents') or []
+        if not patents:
+            return
+        _heading('patents')
         for patent in patents:
             para = _new_para(doc, space_after=2)
             _run(para, patent.get('title', ''), font_name=font, size_pt=body, bold=True)
@@ -343,6 +376,31 @@ def _build_resume(doc: Document, content: dict) -> None:
             if patent.get('description'):
                 para = _new_para(doc, space_after=2, left_indent=18)
                 _run(para, patent['description'], font_name=font, size_pt=body - 1, italic=True)
+
+    # ── Render sections in the order given by style.section_order ───────────────
+    # 'header' is rendered above unconditionally; it is ignored here if listed.
+    renderers = {
+        'summary': _render_summary,
+        'skills': _render_skills,
+        'experience': _render_experience,
+        'certifications': _render_certifications,
+        'education': _render_education,
+        'publications': _render_publications,
+        'speaking': _render_speaking,
+        'projects': _render_projects,
+        'awards': _render_awards,
+        'patents': _render_patents,
+    }
+    section_order = s.get('section_order') or [
+        'summary', 'skills', 'experience', 'certifications', 'education',
+        'publications', 'speaking', 'projects', 'awards', 'patents',
+    ]
+    for section in section_order:
+        if section == 'header':
+            continue
+        render = renderers.get(section)
+        if render:
+            render()
 
 
 # ── Cover letter builder ─────────────────────────────────────────────────────
