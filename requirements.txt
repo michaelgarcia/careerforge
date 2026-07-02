@@ -7,3 +7,4 @@ markdown>=3.5
 xhtml2pdf>=0.2.16
 docx2pdf>=0.1.8
 pywin32>=311; sys_platform == "win32"
+openpyxl>=3.1
