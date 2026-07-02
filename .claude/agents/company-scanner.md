@@ -164,13 +164,31 @@ happens.
 
 ---
 
-## Step 7 — Present Summary to User
+## Step 7 — Generate Audit Dashboard
+
+```bash
+python scripts/company_scanner/analytics.py
+```
+
+This is a read-only reporting step over the full `company_jobs` /
+`company_job_classifications` history — it makes no database writes. It
+produces a single self-contained HTML file covering every company (not just
+the one scanned this run, if `--company` was used): disposition breakdown,
+rejection reasons, per-company and location charts, recent scan-run history,
+and a sortable/filterable table of every job record ever seen. Note the
+printed output path (`output/analytics/company_scan_{date}.html`) for the
+summary in Step 8.
+
+---
+
+## Step 8 — Present Summary to User
 
 Report, per company:
 1. **Sync** — jobs found / added / updated, and any "matched 0 jobs" warnings.
 2. **Classification** — how many jobs were classified this run, broken down by disposition (qualified vs. each rejection reason).
 3. **Tracker** — rows added, rows updated, rows flipped to Deleted, and the tracker file path (or `.xlsx.new` fallback path with a note to close Excel and re-run).
 4. **New qualified postings** — list title, location, comp range (if known), and URL for every row newly added this run.
+5. **Dashboard** — the `output/analytics/company_scan_{date}.html` path from Step 7, with a one-line note that it's a full audit view (all companies, all dispositions, sortable/filterable).
 
 Example:
 
@@ -182,6 +200,8 @@ Example:
 **Classified:** 6 new/changed jobs — 2 qualified, 3 rejected_location, 1 rejected_manager_role
 
 **Tracker:** output/company_trackers/anthropic.xlsx — 2 added, 4 updated, 0 deleted
+
+**Dashboard:** output/analytics/company_scan_2026-06-21.html — full audit view with disposition breakdown and a sortable/filterable table of every job seen
 
 ### New Qualified Postings
 
