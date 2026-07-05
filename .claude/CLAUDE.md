@@ -136,7 +136,7 @@ Multi-agent job search system for a single candidate. Nine specialized agents co
 - `postings/applications.csv` — Application event log (append-only, gitignored). One row per status transition.
 - `postings/journal/` — Per-company markdown journals (gitignored). Free-form notes: recruiter contacts, conversation history, next steps.
 - `output/` — All generated deliverables (resumes, cover letters, reports)
-- `scripts/generate_docx.py` — Python helper for .docx generation (python-docx)
+- `scripts/generate_docx.py` — Python helper for .docx generation (python-docx). **This is the single canonical script for all resume and cover letter generation** — it takes a JSON content file and renders resumes or cover letters via `--type resume|cover_letter`. Never create ad-hoc generation scripts or leave one-off generator scripts in `output/`; all document generation must go through this script.
 - `scripts/setup_windows.ps1`, `scripts/setup_mac.sh` — Dependency installers
 - `scripts/launch_windows.bat`, `scripts/launch_mac.command` — Launch shortcuts
 - `scripts/linkedin/` — LinkedIn scanning orchestration (init_db, sync, pre_filter, export, score, report)
