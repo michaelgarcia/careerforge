@@ -9,8 +9,9 @@ small and fast.
 Every fact in the output traces back to the KB (personal.summary + a flat
 skill list) per the project's no-fabrication rule. The only feature-specific
 content not derived from the KB is the explicit filter criteria for this
-feature (Chicago/Remote-US, IC-only, $220k floor), which is hardcoded below
-because it's a property of this feature, not the candidate's profile.
+feature (Chicago/Remote-US, IC-only, $220k floor, technical roles only),
+which is hardcoded below because it's a property of this feature, not the
+candidate's profile.
 
 Usage:
     python scripts/company_scanner/generate_candidate_summary.py
@@ -40,6 +41,12 @@ FILTER_CRITERIA = """
 - **Role type:** Individual Contributor only. Any people-management role
   (titles/descriptions implying direct reports, team leadership, "Manager",
   "Head of", "Director" with org-leadership scope, etc.) is out of scope.
+- **Function scope:** Technical roles only — Solutions Architect, Forward
+  Deployed Engineer, Applied AI Engineer, ML/AI Engineer, Solutions
+  Engineer, technical Program/Product roles, and similar. Reject pure
+  Sales, Account Executive, Business Development, Marketing, Recruiting,
+  and other non-technical go-to-market roles even if they meet the
+  location/comp/IC criteria above.
 - **Compensation floor:** $220,000 total target compensation (OTE or base+
   bonus+equity combined, whichever the posting states). If a posting does
   not state comp, do not reject for missing data — leave comp fields blank
