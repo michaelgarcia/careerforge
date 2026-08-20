@@ -14,13 +14,11 @@ config/search_scopes.yaml
 # =============================================================================
 # Output files (regenerable, may contain personal data)
 # =============================================================================
-output/resumes/*
-output/cover_letters/*
-output/lead_reports/*
-output/interview_prep/*
-output/career_exploration/*
-output/analytics/*
-output/company_trackers/*
+# Blanket exclusion: no generated output ever belongs in the repo. An
+# enumerated per-subdirectory list silently missed new output types
+# (output/career_paths/) and anything written to output/ directly.
+output/**
+!output/**/
 !output/**/.gitkeep
 
 # Job postings (transient, personal)
