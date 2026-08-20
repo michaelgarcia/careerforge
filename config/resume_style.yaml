@@ -35,9 +35,9 @@ section_order:
   - "header"                   # Always first: name, title, contact
   - "summary"                  # Professional summary
   - "experience"               # Work experience
-  - "certifications"           # Cloud and AI certifications
+  - "skills"                   # Technical skills
+  - "certifications"           # AI and cloud certifications
   - "education"                # Education
-  - "skills"                   # Technical skills (last)
 
 # Content preferences
 content:

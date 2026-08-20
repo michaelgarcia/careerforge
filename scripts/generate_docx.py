@@ -169,6 +169,10 @@ def _build_resume(doc: Document, content: dict) -> None:
     The header (name, title, contact) is always rendered first. All other
     sections are rendered in the order given by style.section_order; section
     headings can be overridden via style.section_titles.
+
+    If style.section_order is omitted, the default order is
+    summary, experience, skills, certifications, education, ... — skills renders
+    after experience so the reader reaches the evidence before the keyword list.
     """
     s = content.get('style', {})
     font = s.get('font', 'Calibri')
@@ -391,8 +395,10 @@ def _build_resume(doc: Document, content: dict) -> None:
         'awards': _render_awards,
         'patents': _render_patents,
     }
+    # Default order. Skills renders AFTER experience: the reader should reach the
+    # evidence before the keyword list. Keep in sync with config/resume_style.yaml.
     section_order = s.get('section_order') or [
-        'summary', 'skills', 'experience', 'certifications', 'education',
+        'summary', 'experience', 'skills', 'certifications', 'education',
         'publications', 'speaking', 'projects', 'awards', 'patents',
     ]
     for section in section_order:
