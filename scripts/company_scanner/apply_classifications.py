@@ -10,6 +10,7 @@ Input format:
       {
         "job_id": "gh_1234567",
         "is_manager": false,
+        "management_scope": "none",
         "in_location_scope": true,
         "chicago_yn": false,
         "ote_low": 220000,
@@ -26,6 +27,12 @@ Input format:
 
 disposition must be one of: qualified, rejected_manager_role,
 rejected_location, rejected_comp_floor, rejected_other.
+
+management_scope must be one of: none, small team, org (or null). It records
+how much people-leadership a role carries, so the candidate can judge headcount
+per posting. It is descriptive only and never drives a rejection on its own —
+rejected_manager_role is reserved for roles whose mandate is running an
+engineering organization rather than directing AI or technical work.
 
 Usage:
     python scripts/company_scanner/apply_classifications.py --input /tmp/classifications.json
@@ -53,6 +60,10 @@ _VALID_DISPOSITIONS = {
     "rejected_other",
 }
 
+# Descriptive only — records how much people-leadership a qualified role carries.
+# Never drives a rejection on its own.
+_VALID_MANAGEMENT_SCOPES = {"none", "small team", "org"}
+
 
 def validate_record(record: dict) -> str | None:
     """Return an error message if the record is invalid, else None."""
@@ -67,6 +78,9 @@ def validate_record(record: dict) -> str | None:
         val = record.get(bool_field)
         if val is not None and not isinstance(val, bool):
             return f"Invalid {bool_field}: {val!r} (must be true/false/null)"
+    scope = record.get("management_scope")
+    if scope is not None and scope not in _VALID_MANAGEMENT_SCOPES:
+        return f"Invalid management_scope: {scope!r} (must be one of {_VALID_MANAGEMENT_SCOPES} or null)"
     return None
 
 
@@ -102,12 +116,13 @@ def apply_classifications(con: sqlite3.Connection, records: list[dict], dry_run:
         cur.execute(
             """
             INSERT INTO company_job_classifications
-                (job_id, is_manager, in_location_scope, chicago_yn,
+                (job_id, is_manager, management_scope, in_location_scope, chicago_yn,
                  ote_low, ote_high, base_low, base_high, equity_yn,
                  disposition, notes, classified_at, source_description_hash)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(job_id) DO UPDATE SET
                 is_manager=excluded.is_manager,
+                management_scope=excluded.management_scope,
                 in_location_scope=excluded.in_location_scope,
                 chicago_yn=excluded.chicago_yn,
                 ote_low=excluded.ote_low,
@@ -123,6 +138,7 @@ def apply_classifications(con: sqlite3.Connection, records: list[dict], dry_run:
             (
                 job_id,
                 record.get("is_manager"),
+                record.get("management_scope"),
                 record.get("in_location_scope"),
                 record.get("chicago_yn"),
                 record.get("ote_low"),

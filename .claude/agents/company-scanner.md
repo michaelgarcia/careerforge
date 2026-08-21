@@ -46,8 +46,9 @@ degraded mode — classification without candidate context produces unreliable
 manager/IC and scope judgments.
 
 The compact file also states this feature's fixed filter criteria (Chicago,
-IL OR Remote USA; Individual Contributor only; $220k+ comp floor). These
-criteria do not change per run — use them exactly as stated.
+IL OR Remote USA; IC roles plus AI and technical leadership roles; $220k+
+comp floor). These criteria do not change per run — use them exactly as
+stated.
 
 ---
 
@@ -101,7 +102,8 @@ Read each job JSON file listed in the manifest. For each job, judge:
 
 | Field | How to judge it |
 |---|---|
-| `is_manager` | true if the title/description implies direct reports or org-leadership scope (e.g., "Manager", "Head of", "Director" with team ownership). Pure technical leads/staff/principal ICs with no direct reports are `false`. |
+| `is_manager` | true if the title/description implies direct reports or org-leadership scope (e.g., "Manager", "Head of", "Director" with team ownership). Pure technical leads/staff/principal ICs with no direct reports are `false`. **Descriptive only — this no longer decides the disposition on its own.** |
+| `management_scope` | One of `"none"`, `"small team"`, `"org"`, or `null` if the posting gives no signal. How much people-leadership the role carries, so the candidate can judge headcount per posting. |
 | `in_location_scope` | true only if the posting is Chicago, IL or explicitly Remote-USA-eligible. Multi-country or non-US-only listings are `false`. |
 | `chicago_yn` | true only if Chicago, IL is explicitly one of the eligible locations. |
 | `ote_low` / `ote_high` | Parse any stated on-target-earnings range from the description prose. Leave both `null` if not stated — never guess. |
@@ -111,7 +113,21 @@ Read each job JSON file listed in the manifest. For each job, judge:
 | `notes` | One short sentence explaining the disposition. |
 
 **Disposition rules:**
-- `rejected_manager_role` if `is_manager` is true — this takes priority over other checks.
+- `rejected_manager_role` if the role's **mandate** is running an engineering
+  organization rather than directing AI or technical work: Engineering Manager,
+  Head of Engineering, Director of Engineering, and similar. This takes priority
+  over other checks.
+
+  **Having direct reports is not disqualifying.** AI and technical leadership
+  roles are in scope and should be `qualified` when they clear the other
+  criteria: Director of AI, Head of Applied AI, VP of AI, Head of AI Platform,
+  AI Strategy lead. Record the people-leadership load in `management_scope`
+  rather than rejecting on it, and treat a leadership role with no direct
+  reports as fully in scope rather than a lesser match.
+
+  When a leadership posting is genuinely ambiguous between the two, mark it
+  `qualified` and say why in `notes`. A borderline row the candidate can
+  dismiss costs far less than a silently dropped target role.
 - `rejected_location` if `in_location_scope` is false.
 - `rejected_comp_floor` only if a comp figure is **stated** and its low end is below $220,000 — never reject for missing comp data.
 - `rejected_other` for any other disqualifying reason you can clearly justify in `notes`.
@@ -128,6 +144,7 @@ Build a JSON array:
   {
     "job_id": "gh_1234567",
     "is_manager": false,
+    "management_scope": "none",
     "in_location_scope": true,
     "chicago_yn": false,
     "ote_low": 230000,

@@ -73,6 +73,9 @@ HEADERS = [
     "Chicago",
     "Location",
     "Date created",
+    # Appended rather than placed next to "Manager role" so existing tracker
+    # files keep their column alignment; _ensure_headers backfills the label.
+    "Management scope",
 ]
 COL_JOB_ID = 1
 COL_STATUS = 2
@@ -84,6 +87,7 @@ COL_EQUITY = 7
 COL_CHICAGO = 8
 COL_LOCATION = 9
 COL_DATE_CREATED = 10
+COL_MGMT_SCOPE = 11
 
 
 def _yn(value: int | None) -> str:
@@ -102,10 +106,21 @@ def _comp_range(low: int | None, high: int | None) -> str:
     return ""
 
 
+def _ensure_headers(ws) -> None:
+    """Backfill header labels for columns added after a tracker was first written.
+
+    Only fills empty header cells, so a header the user renamed is left alone.
+    """
+    for idx, header in enumerate(HEADERS, start=1):
+        if ws.cell(row=1, column=idx).value in (None, ""):
+            ws.cell(row=1, column=idx).value = header
+
+
 def _load_or_create(path: Path) -> tuple[Workbook, Any]:
     if path.exists():
         wb = load_workbook(path)
         ws = wb.active
+        _ensure_headers(ws)
     else:
         wb = Workbook()
         ws = wb.active
@@ -159,7 +174,7 @@ def write_tracker(con: sqlite3.Connection, company: str, output_dir: Path) -> tu
     cur.execute(
         """
         SELECT j.job_id, j.title, j.location_raw, j.still_listed, j.job_url,
-               c.is_manager, c.chicago_yn, c.ote_low, c.ote_high,
+               c.is_manager, c.management_scope, c.chicago_yn, c.ote_low, c.ote_high,
                c.base_low, c.base_high, c.equity_yn, c.disposition
         FROM company_jobs j
         JOIN company_job_classifications c ON j.job_id = c.job_id
@@ -195,6 +210,7 @@ def write_tracker(con: sqlite3.Connection, company: str, output_dir: Path) -> tu
                     _yn(job["chicago_yn"]),
                     job["location_raw"],
                     today,
+                    job["management_scope"] or "",
                 ])
                 row_index[job_id] = ws.max_row
                 if job.get("job_url"):
@@ -222,6 +238,7 @@ def write_tracker(con: sqlite3.Connection, company: str, output_dir: Path) -> tu
             ws.cell(row=existing_row, column=COL_EQUITY).value = _yn(job["equity_yn"])
             ws.cell(row=existing_row, column=COL_CHICAGO).value = _yn(job["chicago_yn"])
             ws.cell(row=existing_row, column=COL_LOCATION).value = job["location_raw"]
+            ws.cell(row=existing_row, column=COL_MGMT_SCOPE).value = job["management_scope"] or ""
             if job.get("job_url"):
                 cell = ws.cell(row=existing_row, column=COL_JOB_ID)
                 cell.hyperlink = job["job_url"]

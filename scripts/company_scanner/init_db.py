@@ -59,6 +59,7 @@ def init_db(db_path: Path = DB_PATH) -> None:
         CREATE TABLE IF NOT EXISTS company_job_classifications (
             job_id             TEXT PRIMARY KEY REFERENCES company_jobs(job_id),
             is_manager         INTEGER,
+            management_scope   TEXT,
             in_location_scope  INTEGER,
             chicago_yn         INTEGER,
             ote_low            INTEGER,
@@ -81,6 +82,11 @@ def init_db(db_path: Path = DB_PATH) -> None:
     existing_cols = {row[1] for row in cur.execute("PRAGMA table_info(company_jobs)")}
     if "last_seen_run" not in existing_cols:
         cur.execute("ALTER TABLE company_jobs ADD COLUMN last_seen_run INTEGER")
+
+    # Migration: add management_scope if this table predates the column.
+    classif_cols = {row[1] for row in cur.execute("PRAGMA table_info(company_job_classifications)")}
+    if "management_scope" not in classif_cols:
+        cur.execute("ALTER TABLE company_job_classifications ADD COLUMN management_scope TEXT")
 
     con.commit()
     con.close()
