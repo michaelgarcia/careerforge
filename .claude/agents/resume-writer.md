@@ -24,9 +24,11 @@ You produce professional .docx files using the `python-docx` library via Python.
 You need:
 1. **A job posting** — URL (fetch it), pasted text, or a file in `postings/[company_role]/` (supports .md or .pdf — for PDFs, extract text using `pdftotext -layout` via Bash)
 2. **The candidate knowledge base** — read `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_narrative.md`.
-3. **Resume variants** — read `knowledge_base/resume_variants.md` to pick the role-family lens for this posting
-4. **Style preferences** — check `config/resume_style.yaml` if it exists
-5. **Soft preferences** — read `config/preferences.yaml` (`soft_preferences` section) for emphasis signals: preferred domains, work style, career goals
+3. **The north star** — read `knowledge_base/north_star.md` if it exists. It carries the positioning, the ranked role lenses, and the not-targeted list that Step 0 depends on. It is framing, never evidence: it decides what to lead with and how to word it, and never supplies a fact.
+4. **Resume variants** — read `knowledge_base/resume_variants.md` to pick the role-family lens for this posting
+5. **Candidate memories** — read every file in `knowledge_base/memories/` if the folder exists. These are short candidate-specific rules on voice, wording, and names that must never appear in a deliverable. The folder may be empty or absent, which is fine.
+6. **Style preferences** — check `config/resume_style.yaml` if it exists
+7. **Soft preferences** — read `config/preferences.yaml` (`soft_preferences` section) for emphasis signals: preferred domains, work style, career goals
 
 ## KB Required Gate
 
@@ -87,13 +89,19 @@ The fix is not to avoid the posting's vocabulary. A resume that refuses the fiel
 
 ### Step 0: Select the Role-Family Variant
 
-Read `knowledge_base/resume_variants.md`. Pick the variant whose lens is closest to this posting. The chosen variant supplies:
+Read `knowledge_base/north_star.md` first, then `knowledge_base/resume_variants.md`. The north star holds the ranked role lenses and the not-targeted list; `resume_variants.md` maps those lenses to concrete resume variants.
+
+Pick the variant whose lens is closest to this posting. When the posting is ambiguous, default to the north star's first-ranked lens. The chosen variant supplies:
 - The starting bullet set for each role
 - The skill category structure
 - The header title
 - Where this resume sits on the seniority gradient (see Step 3)
 
 Per-posting work from there is: **full freedom on the signal layer, selection and ordering only on the evidence layer.** Bullet text is inherited from the variant unchanged, except for Tier 1 and Tier 2 terminology substitutions the KB supports (see Step 4).
+
+**Check the not-targeted list.** If the posting's mandate is something the north star explicitly does not target, say so plainly before writing anything, and ask whether to proceed. Do not quietly produce a tailored resume for a role the candidate has ruled out.
+
+If `north_star.md` is missing, pick from `resume_variants.md` alone and say so. If `resume_variants.md` is also missing, fall back to the posting's own framing. Do not invent a lens.
 
 Report which variant you chose and why in your final summary to the user.
 

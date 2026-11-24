@@ -43,7 +43,10 @@ Read these files before doing anything else:
 |------|-----|
 | `knowledge_base/candidate_profile.yaml` | Skills, experience, education, certifications, seniority — core fit analysis |
 | `knowledge_base/candidate_narrative.md` | Long-form career context for understanding candidate depth |
+| `knowledge_base/north_star.md` | Ranked role lenses, the not-targeted list, and the forward trajectory. Read it if it exists |
 | `config/preferences.yaml` | Compensation floor, location preferences, preferred domains, career goals |
+
+These paths are gitignored, and the Grep tool returns "No matches found" inside them with no warning that files were skipped. Search them with `rg --no-ignore` via Bash instead.
 
 
 ---
@@ -61,7 +64,9 @@ Read all three KB files. Build a mental model of:
 
 ### Step 2: Synthesize Candidate Archetypes
 
-Before identifying roles, cluster the candidate's profile into 2–3 "candidate archetypes" that anchor the role discovery. Examples:
+**If `knowledge_base/north_star.md` exists, start from its role lenses rather than re-deriving archetypes from scratch.** The lenses are already ranked, already grounded in specific achievements, and already reflect decisions the candidate has made about direction. Use them as the archetypes, keep their ranking, and respect the not-targeted list when choosing which roles to research. Note in the report that the archetypes came from the north star. You may add one archetype the north star does not cover if the evidence clearly supports it, but say explicitly that it is an addition.
+
+Only when the north star is missing, cluster the candidate's profile into 2–3 "candidate archetypes" that anchor the role discovery. Examples:
 
 - "Senior AI/ML Architect" — high technical depth in ML systems, some leadership
 - "Technical AI Leader" — balanced builder + leader, manages teams and roadmap

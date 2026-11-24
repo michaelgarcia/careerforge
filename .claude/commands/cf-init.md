@@ -23,7 +23,7 @@ Then stop — do not recreate anything.
 If `knowledge_base/sources/` does NOT exist, run the following bash command to create all required directories:
 
 ```bash
-mkdir -p knowledge_base/sources knowledge_base/archive config postings output/resumes output/cover_letters output/interview_prep output/lead_reports output/analytics data
+mkdir -p knowledge_base/sources knowledge_base/archive knowledge_base/memories config postings output/resumes output/cover_letters output/interview_prep output/lead_reports output/analytics data
 ```
 
 **Step 3 — Bootstrap scripts, tools, and Python dependencies**
@@ -190,9 +190,13 @@ After creating all files and directories, respond with:
 >
 > 3. Say **"set up my job preferences"** — I'll ask a few questions to configure your filters (location, salary, role types).
 >
-> 4. After that, just talk to me naturally:
+> 4. Run **`/north-star`** — I'll read your profile, propose a reading of your career, and ask you a few questions to turn it into your positioning statement, ranked role lenses, and forward trajectory. Every resume and cover letter is written through it.
+>
+> 5. After that, just talk to me naturally:
 >    - *"Find me jobs in machine learning"*
 >    - *"I want to apply to [URL]"*
 >    - *"I have an interview at AnyCompany next week"*
+>
+> **One more thing:** `knowledge_base/memories/` is yours. Drop a short file in there for any rule you want every agent to follow, for example a wording preference or a project name that must never appear in a deliverable. See `templates/memory.template.md` for the format. It is gitignored and never generated, so it stays exactly as you leave it.
 >
 > Your data stays entirely on your machine — nothing is synced or uploaded."

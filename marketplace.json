@@ -4,7 +4,7 @@
   "plugins": [
     {
       "name": "careerforge",
-      "description": "Full job search lifecycle: daily LinkedIn scanning, tailored resumes, cover letters, and interview prep. Nine specialized agents, thirteen slash commands.",
+      "description": "Full job search lifecycle: daily LinkedIn scanning, tailored resumes, cover letters, and interview prep. Eleven specialized agents, sixteen slash commands.",
       "version": "0.1.0",
       "source": "https://raw.githubusercontent.com/michaelgarcia/careerforge/refs/heads/main"
     }

@@ -136,6 +136,9 @@ After setup, talk to CareerForge in plain English:
 | `/status` | Overview of your job search pipeline, grouped by status |
 | `/scan [--bootstrap]` | Run the LinkedIn scanner: sync, filter, score, and report top matches |
 | `/explore` | Discover best-fit roles from your profile across the current job market |
+| `/north-star` | Define or refresh your positioning, ranked role lenses, and forward trajectory |
+| `/scan-companies` | Scan configured company career pages for new postings |
+| `/journal [company]` | Append a dated note to a company or application journal |
 | `/analytics` | Generate an interactive HTML analytics dashboard from the jobs database |
 
 ---
