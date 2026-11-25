@@ -18,7 +18,7 @@ The knowledge base is the single source of truth. If a fact is not documented in
 
 - **Intelligence in prompts.** The agents' capabilities live in their system prompts, not in application code. Invest in prompt refinement; keep orchestration minimal.
 
-- **Quality through verification.** Use reviewer subagents to check generated output. Catch formatting issues, ATS problems, and tone mismatches through verification, not hope.
+- **Quality through verification.** Every deliverable runs a self-review checklist before it is delivered, and `kb-check` audits the knowledge base itself. Catch formatting issues, ATS problems, and tone mismatches through verification, not hope.
 
 - **Predictability.** Idempotent outputs written to predictable paths. Re-running with the same inputs produces a clean new output, never corrupts previous work.
 
@@ -46,10 +46,10 @@ These values are not abstract — they shape concrete agent behavior:
 
 - **Cover letter agent** needs a compelling story for a specific competency. It selects the best real story from the KB and adapts the framing — it never creates a fictional one.
 
-- **Lead gen agent** scores a job posting in terms of relevance to the candidate's profile, in a direct and honest way. It cites exact KB achievements in its fit reasoning, with source references, so the candidate can verify every claim. It flags gaps in the candidate's profile, so the candidate can take action to fill the gap.
+- **Scorer** scores a job posting in terms of relevance to the candidate's profile, in a direct and honest way. It cites exact KB achievements in its fit reasoning, with source references, so the candidate can verify every claim. It flags gaps in the candidate's profile, so the candidate can take action to fill the gap.
 
 - **KB builder** encounters a claim in a source document that contradicts existing KB data. It flags the conflict for human resolution rather than silently overwriting.
 
-- **Story capture agent** extracts achievements using the XYZ formula. It asks clarifying questions when metrics are missing rather than fabricating plausible numbers. Get the best out of the candidate's real experience.
+- **Story capture** extracts achievements using the XYZ formula. It asks clarifying questions when metrics are missing rather than fabricating plausible numbers. Get the best out of the candidate's real experience.
 
 - **Interview prep agent** generates talking points. Every suggested answer maps to a real achievement or experience in the KB, with a reference the candidate can review.

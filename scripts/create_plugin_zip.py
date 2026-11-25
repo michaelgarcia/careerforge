@@ -23,7 +23,7 @@ INCLUDE_PATHS = [
     "tools",
     "scripts",
     "docs",
-    "plugin.json",
+    ".claude-plugin",
     "marketplace.json",
     "README.md",
     "SOUL.md",
@@ -47,6 +47,7 @@ EXCLUDE_FILES = {
     ".claude/settings.local.json",
     "config/preferences.yaml",
     "config/search_scopes.yaml",
+    "config/company_targets.yaml",
 }
 
 
@@ -83,9 +84,9 @@ def collect_files() -> list[tuple[Path, Path]]:
 
 
 def main():
-    plugin_json = ROOT / "plugin.json"
+    plugin_json = ROOT / ".claude-plugin" / "plugin.json"
     if not plugin_json.exists():
-        print("ERROR: plugin.json not found at repo root.")
+        print("ERROR: .claude-plugin/plugin.json not found.")
         raise SystemExit(1)
 
     with plugin_json.open() as f:

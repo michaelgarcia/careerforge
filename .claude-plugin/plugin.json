@@ -1,0 +1,22 @@
+{
+  "name": "careerforge",
+  "version": "0.1.0",
+  "description": "AI-powered job search system covering the full lifecycle: daily LinkedIn scanning, tailored resumes and cover letters, and deep interview preparation.",
+  "author": {
+    "name": "Michael Garcia"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/michaelgarcia/careerforge",
+  "agents": [
+    "./.claude/agents/career-explorer.md",
+    "./.claude/agents/company-scanner.md",
+    "./.claude/agents/cover-letter.md",
+    "./.claude/agents/interview-prep.md",
+    "./.claude/agents/job-scanner.md",
+    "./.claude/agents/kb-builder.md",
+    "./.claude/agents/resume-writer.md",
+    "./.claude/agents/scorer.md"
+  ],
+  "skills": "./.claude/skills/",
+  "hooks": "./.claude-plugin/hooks.json"
+}
