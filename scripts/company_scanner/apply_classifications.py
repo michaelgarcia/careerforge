@@ -12,14 +12,14 @@ Input format:
         "is_manager": false,
         "management_scope": "none",
         "in_location_scope": true,
-        "chicago_yn": false,
-        "ote_low": 220000,
-        "ote_high": 260000,
+        "chicago_yn": false,          # legacy name: home city (company_scanner.home_city)
+        "ote_low": 180000,
+        "ote_high": 210000,
         "base_low": null,
         "base_high": null,
         "equity_yn": true,
         "disposition": "qualified",
-        "notes": "Remote-US eligible IC role, OTE stated in posting.",
+        "notes": "Remote-eligible IC role, OTE stated in posting and clears the floor.",
         "description_hash": "<sha256 from the exported job JSON>"
       },
       ...
@@ -35,8 +35,8 @@ rejected_manager_role is reserved for roles whose mandate is running an
 engineering organization rather than directing AI or technical work.
 
 Usage:
-    python scripts/company_scanner/apply_classifications.py --input /tmp/classifications.json
-    python scripts/company_scanner/apply_classifications.py --input /tmp/classifications.json --dry-run
+    python scripts/company_scanner/apply_classifications.py --input output/.work/company_classifications.json
+    python scripts/company_scanner/apply_classifications.py --input output/.work/company_classifications.json --dry-run
 """
 
 from __future__ import annotations

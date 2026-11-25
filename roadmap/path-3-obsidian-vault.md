@@ -1,5 +1,7 @@
 # Path 3 — CareerForge as an Obsidian Vault
 
+> **Historical.** Written before the November 2026 restructure. Paths, agent and command counts, and file names here may be outdated; see `docs/usage.md` and `docs/history/2026-11-revamp-plan.md` for the current layout.
+
 ## Status: Future / Post v1
 
 This document captures the full specification for distributing CareerForge as an Obsidian

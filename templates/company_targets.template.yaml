@@ -1,0 +1,21 @@
+# Company Career Page Monitor — target list
+# Copy to config/company_targets.yaml (gitignored) and edit. /cf-init does this for you.
+#
+# One entry per company. The `fetch_method` field is the dispatch key
+# scripts/company_scanner/sync.py uses to pick a fetcher:
+#   api        -> scripts/company_scanner/fetch_greenhouse.py (or future ATS-API fetchers)
+#   playwright -> not yet implemented
+#
+# Adding a company that's on Greenhouse requires only a new entry here, no code changes.
+# Find its board token in the careers URL: boards.greenhouse.io/<board_token>.
+# Department IDs come from the `team=` query parameter on the company's filtered job list.
+
+companies:
+  - name: examplecorp
+    display_name: ExampleCorp
+    ats: greenhouse
+    fetch_method: api
+    board_token: examplecorp
+    department_ids:
+      - 1234567890   # e.g. Engineering (sync.py warns loudly if an ID matches 0 jobs)
+    enabled: false   # flip to true after setting a real board token

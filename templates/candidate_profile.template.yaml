@@ -1,3 +1,6 @@
+# Example profile. The schema (required vs. optional fields, provenance rules) is defined only in
+# docs/profile_schema.md. Keep this file conforming to it.
+
 personal:
   name: "Your Name"
   title: "Your Current Title"
@@ -37,13 +40,14 @@ experience:
     location: "City, State"
     summary: "Brief description of your role and responsibilities."
     achievements:
-      - description: "Accomplished [X] — what you achieved"
+      - id: "ach-companyname-example"
+        description: "Accomplished [X] — what you achieved"
         impact: "By doing [Z] — the actions you took"
         metrics: "As measured by [Y] — quantifiable results (e.g., 40% improvement, $2M revenue)"
         skills_used:
           - "Skill 1"
           - "Skill 2"
-        source: "sources/your_resume.pdf"
+        source: "Resumes and mind maps/your_resume.pdf"
 
 education:
   - institution: "University Name"
@@ -90,28 +94,3 @@ projects:
     url: "https://github.com/yourusername/project"
     highlights:
       - "Key accomplishment or feature"
-
-performance_history:
-  - year: ""
-    rating: ""
-    leadership_principles_rating: ""
-    manager_summary: ""
-    key_themes:
-      - ""
-    source: ""
-
-peer_endorsements:
-  - quote: ""
-    attribute: ""
-    relationship: "peer | manager | customer | skip-level"
-    year: ""
-    context: ""
-    source: ""
-
-growth_areas:
-  - theme: ""
-    frequency: "one-time | recurring"
-    years_cited:
-      - ""
-    context: ""
-    source: ""

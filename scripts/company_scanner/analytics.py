@@ -23,6 +23,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # adds scripts/
 
 from company_scanner.init_db import DB_PATH
 
+import yaml
+
+PREFS_PATH = _ROOT / "config" / "preferences.yaml"
+
+
+def _home_city_label() -> str:
+    """The home city named in preferences (company_scanner.home_city), or a generic label."""
+    try:
+        prefs = yaml.safe_load(PREFS_PATH.read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError):
+        return "Home city"
+    return str((prefs.get("company_scanner") or {}).get("home_city") or "").strip() or "Home city"
+
 OUTPUT_DIR = _ROOT / "output" / "analytics"
 
 _DISPOSITION_COLORS = {
@@ -100,7 +113,7 @@ def build_report(con: sqlite3.Connection) -> str:
     if loc_other_count:
         loc_top = list(loc_top) + [("Other", loc_other_count)]
 
-    # ── Manager vs IC / Chicago vs Remote-USA splits ───────────────────────
+    # ── Manager vs IC / home city vs remote splits ─────────────────────────
     manager_split = _q(
         cur,
         "SELECT is_manager, COUNT(*) FROM company_job_classifications GROUP BY is_manager",
@@ -113,9 +126,10 @@ def build_report(con: sqlite3.Connection) -> str:
         cur,
         "SELECT chicago_yn, COUNT(*) FROM company_job_classifications WHERE disposition='qualified' GROUP BY chicago_yn",
     )
-    chicago_counts = {row[0]: row[1] for row in chicago_split}
-    chicago_count = chicago_counts.get(1, 0)
-    remote_count = chicago_counts.get(0, 0)
+    home_counts = {row[0]: row[1] for row in chicago_split}  # chicago_yn = legacy column name for "home city"
+    home_city_count = home_counts.get(1, 0)
+    remote_count = home_counts.get(0, 0)
+    home_label = _home_city_label()
 
     # ── Sync run history (most recent 20) ──────────────────────────────────
     run_rows = _q(
@@ -297,8 +311,8 @@ def build_report(con: sqlite3.Connection) -> str:
 
 <h2>Location Scope (qualified jobs)</h2>
 <div class="overview-grid" style="grid-template-columns: repeat(2,1fr); max-width: 400px;">
-  <div class="card"><div class="stat">{chicago_count}</div><div class="label">Chicago, IL</div></div>
-  <div class="card"><div class="stat">{remote_count}</div><div class="label">Remote USA</div></div>
+  <div class="card"><div class="stat">{home_city_count}</div><div class="label">{home_label}</div></div>
+  <div class="card"><div class="stat">{remote_count}</div><div class="label">Remote</div></div>
 </div>
 
 <h2>Recent Scan Runs</h2>
@@ -378,7 +392,7 @@ new Tabulator("#recordsTable", {{
     {{ title: "Location", field: "location", headerFilter: "input", width: 150 }},
     {{ title: "Disposition", field: "disposition", headerFilter: "input", width: 160 }},
     {{ title: "Manager", field: "manager", headerFilter: "input", width: 90 }},
-    {{ title: "Chicago", field: "chicago", headerFilter: "input", width: 90 }},
+    {{ title: "Home city", field: "chicago", headerFilter: "input", width: 90 }},
     {{ title: "OTE", field: "ote", headerFilter: "input", width: 140 }},
     {{ title: "Base", field: "base", headerFilter: "input", width: 140 }},
     {{ title: "Equity", field: "equity", headerFilter: "input", width: 80 }},

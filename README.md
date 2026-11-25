@@ -27,9 +27,9 @@ No terminal required. Everything runs inside the Claude Desktop app.
    /plugin install careerforge@careerforge
    ```
 5. Run `/cf-init` — CareerForge will scaffold your workspace and install Python dependencies
-6. Say **"I'm ready to get started"** to begin building your profile
+6. Say **"I'm ready to get started"** (or just "hi") to begin building your profile
 
-> **Scope note:** Plugin installation is user-global — agents and commands become available in every Claude Code session on your machine. To keep it scoped to one folder, use the technical path below instead.
+> **Scope note:** Plugin installation is user-global — the skills and agents become available in every Claude Code session on your machine. To keep it scoped to one folder, use the technical path below instead.
 
 ### Backup path — Install via ZIP upload
 
@@ -96,14 +96,18 @@ Once Claude Code opens, say:
 
 > **"I'm ready to get started"**
 
-CareerForge will walk you through building your profile from your resume and career documents, setting up your job search filters, and running your first scan — all in one conversation.
+Every session starts with a quick check of your workspace, so CareerForge already knows what's there: no documents yet, documents but no profile, a profile that's out of date, or active interviews. It walks you through building your profile from your resume and career documents, setting up your job search filters, and running your first scan, all in one conversation.
 
-After setup, talk to CareerForge in plain English:
+After setup, just talk to CareerForge in plain English. You never need to know a command:
 
 - *"Find me jobs in machine learning"*
 - *"I want to apply to [paste URL]"*
 - *"I have an interview at AnyCompany next week"*
 - *"What's my application status?"*
+- *"Is my profile up to date?"*
+- *"They made me an offer, is it any good?"*
+
+See [docs/usage.md](docs/usage.md) for everything you can ask.
 
 ---
 
@@ -117,11 +121,32 @@ After setup, talk to CareerForge in plain English:
 
 ## Architecture
 
-![CareerForge Introduction](docs/CareerForge_Introduction.png)
+```mermaid
+flowchart LR
+  SRC["Your documents<br/>knowledge_base/sources/"] -->|build-kb| EV[("Profile + narrative<br/>evidence")]
+  CS["capture-story"] --> EV
+  EV -->|north-star| FR[("North star, variants, memories<br/>framing only")]
+  PR[("preferences.yaml")]
+  EV --> SK{{"Skills: score, resume, cover-letter,<br/>research-company, prep, scan, explore"}}
+  FR --> SK
+  PR --> SK
+  SK -->|specialized agents| OUT[("output/ and postings/")]
+  TR["track, journal, status"] --> OUT
+  HOOK["Session start check"] --> ST["start skill:<br/>state + routing"]
+  ST -.->|plain-language requests| SK
+```
+
+- **Evidence vs. framing.** Only your profile and narrative supply facts. The north star, resume variants and your memories decide emphasis and wording, never facts (`SOUL.md`).
+- **Skills are the entry points.** You talk; the `start` skill routes. Interview-style work runs in your conversation, and heavy work runs in one of 8 specialized agents with its own context.
+- **Shared rules live once.** `.claude/reference/` holds the scoring rubric, achievement format, output naming and more; every agent reads the same copy.
+
+Details: [docs/usage.md](docs/usage.md).
 
 ---
 
-## Slash Commands
+## Slash Commands (optional)
+
+You never need these: describe what you want in plain English and CareerForge routes it. They're shortcuts for when you already know what you want.
 
 | Command | What it does |
 |---------|-------------|
@@ -131,7 +156,7 @@ After setup, talk to CareerForge in plain English:
 | `/resume [URL]` | Generate a tailored resume for a job posting |
 | `/cover-letter [URL]` | Generate a tailored cover letter for a job posting |
 | `/score [URL]` | Score a job posting against your profile and preferences |
-| `/prep [URL]` | Full interview prep pipeline (company research, questions, story bank) |
+| `/prep [URL]` | Interview loop prep: rounds and interviewers, questions per round, story bank (`/prep [URL] comp` for offer research) |
 | `/track [update]` | Update the application tracker (e.g. "I submitted to Stripe") |
 | `/status` | Overview of your job search pipeline, grouped by status |
 | `/scan [--bootstrap]` | Run the LinkedIn scanner: sync, filter, score, and report top matches |
@@ -140,6 +165,9 @@ After setup, talk to CareerForge in plain English:
 | `/scan-companies` | Scan configured company career pages for new postings |
 | `/journal [company]` | Append a dated note to a company or application journal |
 | `/analytics` | Generate an interactive HTML analytics dashboard from the jobs database |
+| `/research-company [name or URL]` | Research a company (mission, news, culture) and save it for reuse |
+| `/kb-check` | Read-only health check: unprocessed sources, missing metrics, stale files |
+| `/start` | Where things stand right now, and what you can do next |
 
 ---
 
@@ -167,7 +195,7 @@ Re-run the setup script if release notes mention new dependencies (rare).
 ```
 /plugin update careerforge
 ```
-This refreshes agents and commands. The `scripts/` and `tools/` directories (Python scripts for docx and LinkedIn scanning) are not touched by a plugin update — they only need refreshing if a release note explicitly says so, in which case delete your `scripts/` and `tools/` folders and re-run `/cf-init`.
+This refreshes the skills and agents. The files `/cf-init` copied into your workspace (scripts, tools, templates, project instructions and shared rules) are not touched by a plugin update. When a release note says they changed, run `/cf-init update`: it refreshes only those files and never touches your profile, preferences, postings or outputs.
 
 ---
 

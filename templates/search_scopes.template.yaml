@@ -12,27 +12,26 @@
 #
 # Use "geo_searches" with numeric geoIds instead. geoId is enforced by LinkedIn.
 #
-# How to find a geoId:
+# How to find a geoId (or run: cd tools && python -m linkedin_job_search.cli geo "Austin, Texas"):
 #   python -c "
 #   import sys; sys.path.insert(0, 'tools')
 #   from linkedin_job_search.client import LinkedInJobSearch
-#   c = LinkedInJobSearch(); print(c.resolve_geo_id('Chicago, Illinois')); c.close()
+#   c = LinkedInJobSearch(); print(c.resolve_geo_id('Austin, Texas')); c.close()
 #   "
 #
 # Common geoIds:
 #   103644278  — United States (country-level; use with work_model: remote)
-#   103112676  — Chicago, Illinois, United States
 #   102571732  — New York, New York, United States
 #   102448103  — Los Angeles, California, United States
 #   101743403  — Austin, Texas, United States
 #   103743442  — Houston, Texas, United States
 #   90000084   — San Francisco Bay Area
 #
-# Pattern for "remote US + Chicago local" (the most common setup):
+# Pattern for "remote US + your local city" (the most common setup):
 #   geo_searches:
 #     - geo_id: "103644278"   # United States — remote jobs only
 #       work_model: remote
-#     - geo_id: "103112676"   # Chicago, IL — all work models (on-site, hybrid, remote)
+#     - geo_id: "101743403"   # Austin, TX (your city) — all work models (on-site, hybrid, remote)
 #
 # ──────────────────────────────────────────────────────────────────────────────
 #
@@ -59,7 +58,7 @@ scopes:
     geo_searches:
       - geo_id: "103644278"   # United States — remote jobs only
         work_model: remote
-      - geo_id: "103112676"   # Chicago, IL — all work models
+      - geo_id: "101743403"   # Austin, TX (your city) — all work models
     experience_levels:
       - mid-senior
       - director

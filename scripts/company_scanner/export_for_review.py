@@ -13,7 +13,7 @@ Each job is written as one JSON file plus a manifest.json the agent reads
 to know what to classify and where to write its output.
 
 Usage:
-    python scripts/company_scanner/export_for_review.py [--output /tmp/dir/] [--company <name>]
+    python scripts/company_scanner/export_for_review.py [--output output/.work/company_scan/] [--company <name>]
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # adds scripts/
 
 from company_scanner.init_db import DB_PATH
 
-DEFAULT_OUTPUT = Path("/tmp/careerforge_company_scan")
+DEFAULT_OUTPUT = Path(__file__).resolve().parents[2] / "output" / ".work" / "company_scan"
 
 
 def _hash_description(text: str | None) -> str:

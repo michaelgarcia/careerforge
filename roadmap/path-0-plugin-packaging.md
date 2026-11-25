@@ -1,5 +1,7 @@
 # Path 0 — CareerForge as a Claude Code Plugin
 
+> **Historical.** Written before the November 2026 restructure. Paths, agent and command counts, and file names here may be outdated; see `docs/usage.md` and `docs/history/2026-11-revamp-plan.md` for the current layout.
+
 ## Status: Implemented in v0.1 (partially) / Submit to marketplace post-testing
 
 This document captures the full specification and rationale for distributing CareerForge as

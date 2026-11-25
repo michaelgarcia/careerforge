@@ -1,8 +1,12 @@
 {
   "permissions": {
     "allow": [
+      "Bash(git:*)",
+      "Bash(mv:*)",
+      "Bash(node:*)",
       "Bash(npm:*)",
-      "Bash(node:*)"
+      "Bash(curl:*)",
+      "Bash(powershell:*)"
     ],
     "deny": []
   }

@@ -20,8 +20,8 @@ Input format:
     ]
 
 Usage:
-    python scripts/linkedin/update_scores.py --input /tmp/scores.json
-    python scripts/linkedin/update_scores.py --input /tmp/scores.json --dry-run
+    python scripts/linkedin/update_scores.py --input output/.work/scores.json
+    python scripts/linkedin/update_scores.py --input output/.work/scores.json --dry-run
 """
 
 from __future__ import annotations

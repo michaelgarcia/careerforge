@@ -1,8 +1,8 @@
 # Company Scanner — Phase 1 Reference
 
-Tracks a small, named list of company career pages and maintains one Excel spreadsheet per company. Runs manually (one command), skips days without issue, and never loses your human edits (Reviewed / Applied status).
+Tracks a small, named list of company career pages and maintains one Excel spreadsheet per company. Runs on request ("scan my target companies", or `/scan-companies`), skips days without issue, and never loses your human edits (Reviewed / Applied status).
 
-Phase 1 covers **Anthropic only** via its Greenhouse ATS public API — no browser automation needed. Phase 2 (Google) extends the same pipeline with Playwright and will be documented separately.
+Phase 1 supports companies on the Greenhouse ATS public API — no browser automation needed. Phase 2 (Google) extends the same pipeline with Playwright and will be documented separately.
 
 ---
 
@@ -34,7 +34,7 @@ Greenhouse API
 
 The AI agent (Step 4) only handles fields that genuinely require judgment:
 - Is this role IC or manager?
-- Is the location Chicago or Remote-USA?
+- Is the location inside the candidate's location scope (home city or remote)?
 - What is the comp range (parsed from prose)?
 
 Everything else — fetching, deduplication, deletion detection, Excel formatting, the freeze/Deleted rules — is plain Python with no LLM calls.
@@ -47,29 +47,24 @@ Everything else — fetching, deduplication, deletion detection, Excel formattin
 
 | File | Purpose |
 |---|---|
-| `config/company_targets.yaml` | List of companies to monitor. The single place to add/remove companies, change department IDs, or disable a company. |
+| `config/company_targets.yaml` | List of companies to monitor (gitignored; start from `templates/company_targets.template.yaml`). The single place to add/remove companies, change department IDs, or disable a company. |
+| `config/preferences.yaml` → `company_scanner` | The filter criteria: `home_city`, `role_rule`, `function_scope`. Location and comp floor come from `hard_constraints`. Set them by saying "set up my job filters". |
 
-Current content — two companies, only Anthropic enabled:
+Example (from the template):
 
 ```yaml
 companies:
-  - name: anthropic
-    display_name: Anthropic
+  - name: examplecorp
+    display_name: ExampleCorp
     ats: greenhouse
     fetch_method: api
-    board_token: anthropic
+    board_token: examplecorp
     department_ids:
-      - 4079949008   # Applied AI (verified against live API)
-      - 4002062008   # Sales
-      - 4050634008   # Technical Program Management
+      - 1234567890   # from the team= parameter in the careers page URL
     enabled: true
-
-  - name: google
-    fetch_method: playwright
-    enabled: false   # Phase 2 — not yet implemented
 ```
 
-`department_ids` come from the `team=` query parameter in the Anthropic careers page URLs you saved. They map 1:1 to Greenhouse department IDs.
+`department_ids` come from the `team=` query parameter in the company's filtered careers page URL. They map 1:1 to Greenhouse department IDs.
 
 ### Scripts — `scripts/company_scanner/`
 
@@ -114,7 +109,7 @@ Shared with the LinkedIn scanner (different tables, same file). Three tables are
 | `job_id` | TEXT PK FK | Links to `company_jobs` |
 | `is_manager` | INTEGER | 0/1/NULL (NULL = not yet classified) |
 | `in_location_scope` | INTEGER | 0/1/NULL |
-| `chicago_yn` | INTEGER | 0/1/NULL — Chicago specifically, separate from general US-remote scope |
+| `chicago_yn` | INTEGER | 0/1/NULL — the home city (`company_scanner.home_city`) specifically, separate from remote scope. Legacy column name, kept so existing databases keep working. |
 | `ote_low` | INTEGER | Low end of OTE range in dollars, or NULL if not stated |
 | `ote_high` | INTEGER | High end of OTE range, or NULL if not stated |
 | `base_low` | INTEGER | Low end of base salary range, or NULL |
@@ -143,12 +138,12 @@ Shared with the LinkedIn scanner (different tables, same file). Three tables are
 The AI agent definition. Instructs the agent to:
 1. Read `knowledge_base/candidate_summary_compact.md` for classification context
 2. Run each pipeline script in order (sync → mark_deleted → export → classify → apply → write)
-3. Classify each exported job using the fixed filter criteria (Chicago/Remote-US, IC-only, $220k+)
+3. Classify each exported job using the fixed filter criteria in the compact candidate summary (location scope, role types, comp floor)
 4. Present a per-company summary with new qualified postings listed
 
-### Command — `.claude/commands/scan-companies.md`
+### Skill — `.claude/skills/scan-companies/SKILL.md`
 
-The `/scan-companies` slash command. Calls the company-scanner agent with any arguments you pass (`--company`, `--dry-run`).
+Triggered by plain language ("any new openings at Anthropic?", "scan my target companies") or the `/scan-companies` shortcut. Runs the company-scanner agent with any arguments you pass (`--company`, `--dry-run`).
 
 ### Output — `output/company_trackers/`
 
@@ -177,13 +172,13 @@ python scripts/company_scanner/init_db.py
 python scripts/company_scanner/generate_candidate_summary.py
 ```
 
-If `generate_candidate_summary.py` exits with an error about a missing profile, run `/build-kb` first.
+If `generate_candidate_summary.py` exits with an error, it says what is missing: a built profile ("build my profile") or the `company_scanner` preferences ("set up my job filters"). The agent regenerates the compact summary whenever preferences or the profile are newer than it.
 
 ---
 
-### Option A — Recommended: Use the `/scan-companies` command
+### Option A — Recommended: just ask
 
-This is the intended daily-use path. Type in a new conversation:
+This is the intended daily-use path. Say "scan my target companies" (or "any new openings at Anthropic?"), or type the shortcut:
 
 ```
 /scan-companies
@@ -224,14 +219,14 @@ python scripts/company_scanner/mark_deleted.py --company anthropic
 ```bash
 python scripts/company_scanner/export_for_review.py \
   --company anthropic \
-  --output /tmp/careerforge_company_scan/
+  --output output/.work/company_scan/
 ```
 
 Read `manifest.json` to see what was exported:
 
 ```bash
 # On Windows:
-python -c "import json; m=json.load(open(r'C:/Users/<you>/AppData/Local/Temp/careerforge_company_scan/manifest.json')); [print(e) for e in m]"
+python -c "import json; m=json.load(open('output/.work/company_scan/manifest.json')); [print(e) for e in m]"
 ```
 
 If the manifest is empty, there are no new or changed jobs — skip to Step 5.
@@ -253,7 +248,7 @@ The agent does this automatically when using `/scan-companies`. If running manua
     "base_high": null,
     "equity_yn": true,
     "disposition": "qualified",
-    "notes": "Remote-US IC role, OTE stated and clears the floor.",
+    "notes": "Remote-eligible IC role, OTE stated and clears the floor.",
     "description_hash": "<copied from the exported job JSON>"
   }
 ]
@@ -265,10 +260,10 @@ The agent does this automatically when using `/scan-companies`. If running manua
 
 ```bash
 python scripts/company_scanner/apply_classifications.py \
-  --input /tmp/careerforge_company_classifications.json
+  --input output/.work/company_classifications.json
 # Validate without writing:
 python scripts/company_scanner/apply_classifications.py \
-  --input /tmp/careerforge_company_classifications.json \
+  --input output/.work/company_classifications.json \
   --dry-run
 ```
 
@@ -364,7 +359,7 @@ The Excel file (`output/company_trackers/anthropic.xlsx`) has 10 columns:
 | OTE compensation range | No | Parsed from description prose by AI. Blank if not stated — posting is not rejected for missing comp. |
 | Base Salary Range | No | Same. |
 | Equity | No | `Yes` / `No` / blank. |
-| Chicago | No | `Yes` / `No` — whether Chicago specifically is listed as an eligible location. |
+| Home city | No | `Yes` / `No` — whether your home city (`company_scanner.home_city`) is listed as an eligible location. Trackers created before this change keep the old header label until regenerated. |
 | Location | No | Raw location string(s) from the ATS, refreshed every run. |
 | Date created | **Yes** | Set to today's date when the row is first inserted. Immutable — never overwritten. |
 
@@ -380,14 +375,6 @@ Applied is terminal — automation never changes it.
 
 ---
 
-## 6. Current State
+## 6. First run
 
-The database currently contains:
-
-- **104 Anthropic jobs** fetched across 3 departments (Applied AI, Sales, Technical Program Management)
-- **3 test classifications** (hand-crafted to verify the pipeline, not from the AI agent): 1 `qualified`, 1 `rejected_location`, 1 `rejected_manager_role`
-- **1 row in `anthropic.xlsx`** from the test-qualified job — this is test data
-
-When you run `/scan-companies` for the first time with your real candidate context, the AI agent will classify all 104 currently-unclassified jobs (the 3 test rows will be skipped since their descriptions haven't changed). The tracker will then populate with only the genuinely qualifying rows.
-
-> **Note:** The `knowledge_base/candidate_summary_compact.md` file doesn't exist yet because this workspace doesn't have a built knowledge base. The first run of `/scan-companies` will try to generate it and stop if the KB is missing. Run `/build-kb` first if you haven't already.
+The first scan classifies every job that has no classification yet, then writes only the qualified ones to the tracker. Make sure your profile is built and the `company_scanner` block in `config/preferences.yaml` is filled in first; the agent will tell you if either is missing.
