@@ -32,7 +32,7 @@ Tier 2 — Scoring & Reporting (LLM, via /scan)
 │   (exports unscored jobs as markdown files)             │
 │          │                                              │
 │          ▼                                              │
-│   job-scanner agent  (claude-haiku-4-5-20251001)        │
+│   job-scanner agent  (model: haiku)                       │
 │   reads candidate_profile.yaml + candidate_narrative.md │
 │   scores each job on 6 dimensions                       │
 │          │                                              │
@@ -121,7 +121,7 @@ scopes:
     geo_searches:                    # List of {geo_id, work_model?} pairs
       - geo_id: "103644278"          # United States — remote jobs only
         work_model: remote
-      - geo_id: "103112676"          # Chicago, IL — all work models
+      - geo_id: "101743403"          # Austin, TX (example city) — all work models
     experience_levels:               # internship | entry-level | associate |
       - mid-senior                   # mid-senior | director | executive
       - director
@@ -150,17 +150,19 @@ scopes:
 |---|---|---|
 | Old: `location="Remote"` | `location=Remote` | Toronto, India, Spain, NJ, CA, Phoenix — random global results |
 | New: US geoId + remote | `geoId=103644278&f_WT=2` | 9/10 results: "United States" ✅ |
-| New: Chicago geoId | `geoId=103112676` | 9/10 results: "Chicago, IL" ✅ |
+| New: city geoId | `geoId=<city>` | 9/10 results in that city ✅ |
 
 **Consequence of using text locations:** The pre-filter was rejecting ~60% of all collected jobs as location mismatches — a waste of API calls, tokens, and LLM scoring budget.
 
 ### Finding geoIds
 
+From a terminal: `cd tools && python -m linkedin_job_search.cli geo "Austin, Texas"`, or in Python:
+
 ```python
 import sys; sys.path.insert(0, 'tools')
 from linkedin_job_search.client import LinkedInJobSearch
 c = LinkedInJobSearch()
-print(c.resolve_geo_id('Chicago, Illinois'))
+print(c.resolve_geo_id('Austin, Texas'))
 c.close()
 ```
 
@@ -169,7 +171,6 @@ c.close()
 | Location | geoId |
 |---|---|
 | United States | `103644278` |
-| Chicago, Illinois | `103112676` |
 | New York, New York | `102571732` |
 | Los Angeles, California | `102448103` |
 | Austin, Texas | `101743403` |
@@ -181,10 +182,10 @@ c.close()
 geo_searches:
   - geo_id: "103644278"   # United States — remote jobs only
     work_model: remote
-  - geo_id: "103112676"   # Chicago, IL — on-site and hybrid accepted
+  - geo_id: "101743403"   # Austin, TX (your city) — on-site and hybrid accepted
 ```
 
-This runs two LinkedIn searches per scope: one filtering to US remote roles, one filtering to Chicago-area roles of any work model. Results are merged and deduplicated before DB insert.
+This runs two LinkedIn searches per scope: one filtering to US remote roles, one filtering to roles in your city, any work model. Results are merged and deduplicated before DB insert.
 
 ---
 
@@ -257,14 +258,14 @@ python scripts/linkedin/pre_filter.py --reset            # clear flags and re-ru
 Exports unscored, non-filtered jobs as markdown files for LLM scoring.
 ```bash
 python scripts/linkedin/export_for_scoring.py
-python scripts/linkedin/export_for_scoring.py --output /tmp/jobs/ --days 7 --limit 30
+python scripts/linkedin/export_for_scoring.py --output output/.work/scoring/ --days 7 --limit 30
 ```
 
 ### `scripts/linkedin/update_scores.py`
 Writes LLM scores from a JSON file back to the `job_scores` table.
 ```bash
-python scripts/linkedin/update_scores.py --input /tmp/scores.json
-python scripts/linkedin/update_scores.py --input /tmp/scores.json --dry-run
+python scripts/linkedin/update_scores.py --input output/.work/scores.json
+python scripts/linkedin/update_scores.py --input output/.work/scores.json --dry-run
 ```
 
 ### `scripts/linkedin/report.py`
@@ -281,7 +282,7 @@ Generates an interactive HTML analytics dashboard from the jobs database. No ext
 
 ```bash
 python scripts/linkedin/analytics.py                     # writes to output/analytics/
-python scripts/linkedin/analytics.py --output /tmp/report.html  # custom path
+python scripts/linkedin/analytics.py --output output/.work/report.html  # custom path
 ```
 
 Or via the `/analytics` Claude Code command.
@@ -300,25 +301,27 @@ Or via the `/analytics` Claude Code command.
 ## Job-Scanner Agent
 
 **File:** `.claude/agents/job-scanner.md`
-**Model:** `claude-haiku-4-5-20251001` — fast, low cost, well-suited to repetitive structured scoring.
+**Model:** `haiku` (alias, so it follows model updates) — fast, low cost, well-suited to repetitive structured scoring.
 
-**KB files loaded:**
-- `knowledge_base/candidate_profile.yaml` — skills, roles, achievements (required for scoring)
-- `knowledge_base/candidate_narrative.md` — career narrative (required for context)
+**Files loaded:**
+- `knowledge_base/candidate_profile.yaml` and `candidate_narrative.md` — the evidence scores are based on
+- `knowledge_base/north_star.md` — ranked role lenses and the not-targeted list (if it exists)
+- every file in `knowledge_base/memories/` — wording of notes and the report
 - `config/preferences.yaml` — constraints, threshold, batch size
+- `.claude/reference/scoring-rubric.md` — the single rubric shared with `/score`
 
-**NOT loaded:** `candidate_reviews.yaml`, `candidate_feedback_narrative.md` (not needed for scoring — saves tokens).
-
-**Scoring rubric (6 dimensions, each 0-100):**
+**Scoring rubric:** defined once in `.claude/reference/scoring-rubric.md` and shared with `/score`, so a posting gets the same score however it arrives. Six dimensions, each 0-100:
 
 | Dimension | Weight | What it measures |
 |---|---|---|
-| `skill_match` | 25% | Technical skills overlap |
-| `preference_match` | 25% | Location, remote, comp, role type alignment |
-| `experience_alignment` | 12.5% | Seniority fit |
-| `domain_fit` | 12.5% | Industry/domain match to preferred domains |
-| `growth_potential` | 12.5% | Career goal alignment |
-| `company_quality` | 12.5% | Company reputation, scale, culture signal |
+| `skill_match` | 30% | Technical skills overlap, weighted toward the north star's lead lens |
+| `experience_alignment` | 20% | Seniority and scope fit; capped at 40 if 2+ minimum qualifications fail |
+| `preference_match` | 20% | Soft preferences: domains, stage, work style, remote/hybrid |
+| `domain_fit` | 10% | Industry/domain match to preferred domains |
+| `growth_potential` | 10% | Movement toward career goals |
+| `company_quality` | 10% | Company quality band (target companies score highest) |
+
+Postings on the north star's not-targeted list are reported as NOT TARGETED and recommended SKIP.
 
 **Tier thresholds:**
 - `tier1`: ≥ 75 — pursue immediately
@@ -348,22 +351,15 @@ Reports are saved to `output/lead_reports/linkedin_scan_YYYY-MM-DD.md`.
 
 ## Utilities
 
-### `scripts/convert_md_to_pdf.js` — Markdown to PDF
+### `scripts/convert_md_to_pdf.py` — Markdown to PDF
 
-Converts `.md` files to PDF on demand. Useful for converting scan reports and interview prep guides for mobile reading. Requires the `md-to-pdf` npm package. PDFs are written alongside the originals; source files are never modified.
+Converts `.md` files to PDF on demand, e.g. scan reports and interview prep for mobile reading. Pure Python (`markdown` + `xhtml2pdf`, see `requirements.txt`). PDFs are written alongside the originals; source files are never modified.
 
 ```bash
-# Convert a single scan report to PDF
-node scripts/convert_md_to_pdf.js output/lead_reports/linkedin_scan_2026-03-15.md
-
-# Convert all .md files in a directory
-node scripts/convert_md_to_pdf.js output/lead_reports/
-
-# Recurse into subdirectories
-node scripts/convert_md_to_pdf.js output/ --recursive
+python scripts/convert_md_to_pdf.py output/lead_reports/linkedin_scan_2026-03-15.md
+python scripts/convert_md_to_pdf.py output/lead_reports/
+python scripts/convert_md_to_pdf.py output/ --recursive
 ```
-
-Or via npm: `npm run convert -- <path>`
 
 ---
 
@@ -442,7 +438,7 @@ sqlite3 data/jobs.db "DELETE FROM job_scores WHERE hard_filtered=0"
 - `search_runs.jobs_skipped` counts how many duplicates were absorbed each run
 - `jobs.source_scope` records which scope **first** found a job (first writer wins)
 - **Bootstrap:** Run `sync.py --days 30` once to populate historical data. Subsequent daily runs use `/scan` (defaults to `--days 1`). SQLite dedup absorbs all overlap — no special handling needed.
-- **Cross-scope dedup:** If `ai_architect_remote` and `applied_ai_chicago` both find the same job, it is stored once with `source_scope = ai_architect_remote` (whichever ran first).
+- **Cross-scope dedup:** If `ai_architect_remote` and `applied_ai_local` both find the same job, it is stored once with `source_scope = ai_architect_remote` (whichever ran first).
 
 ---
 

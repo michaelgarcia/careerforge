@@ -228,7 +228,7 @@ class LinkedInJobSearch:
 
         locations: list[GeoLocation] = []
         for item in data:
-            # LinkedIn returns id as a plain numeric string (e.g. "103112676")
+            # LinkedIn returns id as a plain numeric string (e.g. "103644278")
             geo_id = str(item.get("id", "")).strip()
             display_name = item.get("displayName", "")
             if geo_id and display_name:

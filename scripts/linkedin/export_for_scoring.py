@@ -1,9 +1,9 @@
 """Export unscored, non-filtered jobs as markdown files for LLM scoring.
 
 Usage:
-    python scripts/linkedin/export_for_scoring.py [--output /tmp/jobs/] [--days 7] [--limit 30]
+    python scripts/linkedin/export_for_scoring.py [--output output/.work/scoring/] [--days 7] [--limit 30]
 
-    --output DIR   Directory to write markdown files (default: /tmp/careerforge_scoring/)
+    --output DIR   Directory to write markdown files (default: output/.work/scoring/)
     --days N       Include jobs collected within last N days (default: from preferences)
     --limit N      Maximum jobs to export (default: from preferences max_score_per_run)
 """
@@ -29,7 +29,7 @@ from linkedin.map_preferences import (
     load_preferences,
 )
 
-DEFAULT_OUTPUT = Path("/tmp/careerforge_scoring")
+DEFAULT_OUTPUT = Path(__file__).resolve().parents[2] / "output" / ".work" / "scoring"
 
 
 def export_jobs(

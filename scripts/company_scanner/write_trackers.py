@@ -7,7 +7,7 @@ source of truth; the spreadsheet is a generated, re-creatable view.
 
 Tracker columns (in order):
     Job ID | Posting status | Manager role | Title | OTE compensation range |
-    Base Salary Range | Equity | Chicago | Location | Date created
+    Base Salary Range | Equity | Home city | Location | Date created
 
 Rules:
   - disposition != "qualified" -> never written to the sheet, regardless of
@@ -15,7 +15,7 @@ Rules:
   - qualified job_id not yet in the sheet -> insert row, Posting status="New",
     Date created=today. Date created is then immutable.
   - qualified job_id already in the sheet, still listed -> refresh Title /
-    Manager role / OTE / Base / Equity / Chicago / Location. Posting status
+    Manager role / OTE / Base / Equity / Home city / Location. Posting status
     and Date created are human-owned and never overwritten here.
   - job_id in the sheet whose job is no longer listed (still_listed=0):
       - status == "Applied"      -> leave the entire row untouched (terminal)
@@ -70,7 +70,7 @@ HEADERS = [
     "OTE compensation range",
     "Base Salary Range",
     "Equity",
-    "Chicago",
+    "Home city",  # company_scanner.home_city in preferences; DB column chicago_yn (legacy name)
     "Location",
     "Date created",
     # Appended rather than placed next to "Manager role" so existing tracker
@@ -84,7 +84,7 @@ COL_TITLE = 4
 COL_OTE = 5
 COL_BASE = 6
 COL_EQUITY = 7
-COL_CHICAGO = 8
+COL_HOME_CITY = 8
 COL_LOCATION = 9
 COL_DATE_CREATED = 10
 COL_MGMT_SCOPE = 11
@@ -236,7 +236,7 @@ def write_tracker(con: sqlite3.Connection, company: str, output_dir: Path) -> tu
             ws.cell(row=existing_row, column=COL_OTE).value = _comp_range(job["ote_low"], job["ote_high"])
             ws.cell(row=existing_row, column=COL_BASE).value = _comp_range(job["base_low"], job["base_high"])
             ws.cell(row=existing_row, column=COL_EQUITY).value = _yn(job["equity_yn"])
-            ws.cell(row=existing_row, column=COL_CHICAGO).value = _yn(job["chicago_yn"])
+            ws.cell(row=existing_row, column=COL_HOME_CITY).value = _yn(job["chicago_yn"])
             ws.cell(row=existing_row, column=COL_LOCATION).value = job["location_raw"]
             ws.cell(row=existing_row, column=COL_MGMT_SCOPE).value = job["management_scope"] or ""
             if job.get("job_url"):

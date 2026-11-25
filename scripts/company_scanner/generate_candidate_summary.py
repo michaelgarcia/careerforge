@@ -7,11 +7,11 @@ candidate_profile.yaml / candidate_narrative.md so the agent's context stays
 small and fast.
 
 Every fact in the output traces back to the KB (personal.summary + a flat
-skill list) per the project's no-fabrication rule. The only feature-specific
-content not derived from the KB is the explicit filter criteria for this
-feature (Chicago/Remote-US, IC-only, $220k floor, technical roles only),
-which is hardcoded below because it's a property of this feature, not the
-candidate's profile.
+skill list) per the project's no-fabrication rule. The filter criteria come
+from config/preferences.yaml (gitignored): location from
+hard_constraints.location, the comp floor from
+hard_constraints.minimum_compensation_usd, and the role and function rules from
+the company_scanner block.
 
 Usage:
     python scripts/company_scanner/generate_candidate_summary.py
@@ -27,36 +27,55 @@ import yaml
 _ROOT = Path(__file__).resolve().parents[2]
 KB_DIR = _ROOT / "knowledge_base"
 PROFILE_PATH = KB_DIR / "candidate_profile.yaml"
-NARRATIVE_PATH = KB_DIR / "candidate_narrative.md"
+PREFS_PATH = _ROOT / "config" / "preferences.yaml"
 OUTPUT_PATH = KB_DIR / "candidate_summary_compact.md"
 
 MAX_SKILLS = 12
 
-# Feature-specific filter criteria — not derived from the KB, fixed for this
-# feature. If these ever need to vary, move them into config/company_targets.yaml.
-FILTER_CRITERIA = """
-## Filter Criteria (this feature only)
+def _location_rule(location: dict, home_city: str) -> str:
+    acceptable = [str(x) for x in (location.get("acceptable_locations") or [])]
+    remote_scope = "United States" if "United States" in acceptable else ""
+    cities = [x for x in acceptable if x != "United States"]
+    if home_city and home_city not in cities:
+        cities.insert(0, home_city)
+    parts = cities[:]
+    if location.get("remote_only"):
+        parts = [f"Remote {remote_scope or 'only'}".strip()]
+    elif remote_scope:
+        parts.append("Remote USA")
+    if not parts:
+        return "Any location."
+    return " OR ".join(parts) + ". Anything else is out of scope."
 
-- **Location:** Chicago, IL OR Remote USA. Anything else is out of scope.
-- **Role type:** Individual Contributor roles, plus leadership roles whose
-  mandate is AI or technical strategy (Director of AI, Head of Applied AI,
-  VP of AI, Head of AI Platform, AI Strategy lead). Reject roles whose
-  mandate is running an engineering organization rather than directing AI
-  or technical work: Engineering Manager, Head of Engineering, Director of
-  Engineering, and similar. Direct reports are not by themselves
-  disqualifying — the mandate decides. Prefer scope over headcount, and
-  treat a leadership role with no direct reports as fully in scope.
-- **Function scope:** Technical roles only — Solutions Architect, Forward
-  Deployed Engineer, Applied AI Engineer, ML/AI Engineer, Solutions
-  Engineer, technical Program/Product roles, AI leadership roles, and
-  similar. Reject pure Sales, Account Executive, Business Development,
-  Marketing, Recruiting, and other non-technical go-to-market roles even
-  if they meet the location/comp/role-type criteria above.
-- **Compensation floor:** $220,000 total target compensation (OTE or base+
-  bonus+equity combined, whichever the posting states). If a posting does
-  not state comp, do not reject for missing data — leave comp fields blank
-  and judge fit on location/role-type alone.
-"""
+
+def _filter_criteria(prefs: dict) -> str:
+    hc = prefs.get("hard_constraints") or {}
+    cs = prefs.get("company_scanner") or {}
+    home_city = str(cs.get("home_city") or "").strip()
+    floor = hc.get("minimum_compensation_usd") or 0
+    role_rule = " ".join(str(cs.get("role_rule") or "").split()) or "Any role type."
+    function_scope = " ".join(str(cs.get("function_scope") or "").split()) or "Any function."
+    comp = (
+        f"${floor:,.0f} total target compensation (OTE or base+bonus+equity "
+        "combined, whichever the posting states). If a posting does not state comp, "
+        "do not reject for missing data — leave comp fields blank and judge fit on "
+        "location/role-type alone."
+        if floor
+        else "None set. Never reject on compensation."
+    )
+    lines = [
+        "## Filter Criteria (this feature only)",
+        "",
+        f"- **Location:** {_location_rule(hc.get('location') or {}, home_city)}",
+    ]
+    if home_city:
+        lines.append(f"- **Home city** (the `chicago_yn` field — legacy name): true only if {home_city} is explicitly an eligible location.")
+    lines += [
+        f"- **Role type:** {role_rule}",
+        f"- **Function scope:** {function_scope}",
+        f"- **Compensation floor:** {comp}",
+    ]
+    return "\n".join(lines)
 
 
 def _flat_skills(profile: dict) -> list[str]:
@@ -91,12 +110,22 @@ def generate() -> None:
         )
         sys.exit(1)
 
+    if not PREFS_PATH.exists():
+        print(
+            f"Error: {PREFS_PATH} does not exist. Set up your job search preferences "
+            f"first (say \"set up my job filters\").",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    with open(PREFS_PATH, encoding="utf-8") as f:
+        prefs = yaml.safe_load(f) or {}
+
     skills = _flat_skills(profile)
 
     lines = [
         "# Candidate Summary (Compact)",
         "",
-        "_Generated from `candidate_profile.yaml`. Scoped for company-scanner "
+        "_Generated from `candidate_profile.yaml` and `config/preferences.yaml`. Scoped for company-scanner "
         "classification only — resume and cover letter generation must still "
         "use the full knowledge base, not this file._",
         "",
@@ -108,7 +137,7 @@ def generate() -> None:
         "",
         *(f"- {s}" for s in skills),
         "",
-        FILTER_CRITERIA.strip(),
+        _filter_criteria(prefs),
         "",
     ]
 

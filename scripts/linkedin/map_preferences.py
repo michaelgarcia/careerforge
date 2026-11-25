@@ -9,6 +9,7 @@ Usage (standalone — prints the generated scope as YAML):
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -41,11 +42,12 @@ def build_from_preferences_scope(prefs: dict) -> dict[str, Any]:
     # --- locations ---
     # Use geo_searches with numeric geoIds for reliable LinkedIn location filtering.
     # LinkedIn's text location parameter is not enforced; geoId is.
-    # Known geoIds: 103644278=United States, 103112676=Chicago IL
-    _GEO_ID_MAP = {
-        "United States": "103644278",
-        "Chicago, IL": "103112676",
-    }
+    # "United States" is built in; cities come from linkedin_scanner.geo_ids in
+    # preferences (find one with: cd tools && python -m linkedin_job_search.cli geo "City, ST").
+    _GEO_ID_MAP = {"United States": "103644278"}
+    _GEO_ID_MAP.update(
+        {str(k): str(v) for k, v in ((prefs.get("linkedin_scanner") or {}).get("geo_ids") or {}).items()}
+    )
     loc_cfg = hc.get("location", {})
     work_model = None
     if loc_cfg.get("remote_only"):
@@ -62,7 +64,13 @@ def build_from_preferences_scope(prefs: dict) -> dict[str, Any]:
                 if loc == "United States":
                     entry["work_model"] = "remote"
                 geo_searches.append(entry)
-            # If no geoId known, skip (pre_filter handles location enforcement)
+            else:
+                # No geoId: skip the search (pre_filter still enforces location), but say so.
+                print(
+                    f"Warning: no LinkedIn geoId for {loc!r}; add it under linkedin_scanner.geo_ids "
+                    f'in config/preferences.yaml (find it with: cd tools && python -m linkedin_job_search.cli geo "{loc}")',
+                    file=sys.stderr,
+                )
 
     # --- experience levels ---
     role_types = prefs.get("linkedin_scanner", {}).get("role_types") or hc.get("role_types") or []
