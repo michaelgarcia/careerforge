@@ -12,7 +12,10 @@ import sqlite3
 import sys
 from pathlib import Path
 
-DB_PATH = Path(__file__).resolve().parents[2] / "data" / "jobs.db"
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # adds scripts/ to path
+from paths import USER_DATA  # noqa: E402
+
+DB_PATH = USER_DATA / "data" / "jobs.db"
 
 
 def init_db(db_path: Path = DB_PATH) -> None:

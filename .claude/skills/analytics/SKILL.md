@@ -6,7 +6,7 @@ description: >
 ---
 Generate a LinkedIn pipeline analytics dashboard from the jobs database.
 
-Run `python scripts/linkedin/analytics.py` to generate an interactive HTML report at `output/analytics/analytics_YYYY-MM-DD.html`. The report includes:
+Run `python scripts/linkedin/analytics.py` to generate an interactive HTML report at `user_data/output/analytics/analytics_YYYY-MM-DD.html`. The report includes:
 - Pipeline overview (total collected → hard-filtered → scored → top matches)
 - Score distribution histogram
 - Scope performance comparison (jobs collected vs. scored per search scope)

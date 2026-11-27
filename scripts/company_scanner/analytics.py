@@ -1,6 +1,6 @@
 """Generate a static HTML audit dashboard from the company-scanner database.
 
-Produces output/analytics/company_scan_{date}.html: a disposition/rejection
+Produces user_data/output/analytics/company_scan_{date}.html: a disposition/rejection
 breakdown, per-company and location charts, a sync-run history table, and a
 sortable/filterable table of every job ever seen (Tabulator.js from CDN — no
 extra Python dependencies, same approach as scripts/linkedin/analytics.py).
@@ -18,14 +18,14 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # adds scripts/ to path
+from paths import USER_DATA  # noqa: E402
 
 from company_scanner.init_db import DB_PATH
 
 import yaml
 
-PREFS_PATH = _ROOT / "config" / "preferences.yaml"
+PREFS_PATH = USER_DATA / "config" / "preferences.yaml"
 
 
 def _home_city_label() -> str:
@@ -36,7 +36,7 @@ def _home_city_label() -> str:
         return "Home city"
     return str((prefs.get("company_scanner") or {}).get("home_city") or "").strip() or "Home city"
 
-OUTPUT_DIR = _ROOT / "output" / "analytics"
+OUTPUT_DIR = USER_DATA / "output" / "analytics"
 
 _DISPOSITION_COLORS = {
     "qualified": "#22c55e",

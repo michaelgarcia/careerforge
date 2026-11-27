@@ -8,7 +8,7 @@ small and fast.
 
 Every fact in the output traces back to the KB (personal.summary + a flat
 skill list) per the project's no-fabrication rule. The filter criteria come
-from config/preferences.yaml (gitignored): location from
+from user_data/config/preferences.yaml (gitignored): location from
 hard_constraints.location, the comp floor from
 hard_constraints.minimum_compensation_usd, and the role and function rules from
 the company_scanner block.
@@ -24,10 +24,12 @@ from pathlib import Path
 
 import yaml
 
-_ROOT = Path(__file__).resolve().parents[2]
-KB_DIR = _ROOT / "knowledge_base"
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # adds scripts/ to path
+from paths import USER_DATA  # noqa: E402
+
+KB_DIR = USER_DATA / "knowledge_base"
 PROFILE_PATH = KB_DIR / "candidate_profile.yaml"
-PREFS_PATH = _ROOT / "config" / "preferences.yaml"
+PREFS_PATH = USER_DATA / "config" / "preferences.yaml"
 OUTPUT_PATH = KB_DIR / "candidate_summary_compact.md"
 
 MAX_SKILLS = 12
@@ -125,7 +127,7 @@ def generate() -> None:
     lines = [
         "# Candidate Summary (Compact)",
         "",
-        "_Generated from `candidate_profile.yaml` and `config/preferences.yaml`. Scoped for company-scanner "
+        "_Generated from `candidate_profile.yaml` and `user_data/config/preferences.yaml`. Scoped for company-scanner "
         "classification only — resume and cover letter generation must still "
         "use the full knowledge base, not this file._",
         "",

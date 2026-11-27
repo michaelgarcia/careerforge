@@ -181,7 +181,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--config",
         type=str,
         default=None,
-        help="Path to config.ini file (default: config.ini in project root).",
+        help="Path to config.ini file (default: user_data/config/config.ini).",
     )
     fetch_parser.add_argument(
         "--output",

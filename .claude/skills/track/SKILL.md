@@ -2,7 +2,7 @@
 name: track
 description: >
   Record an application status change (saved, applied, recruiter screen, loop, offer, rejection,
-  withdrawal...) in postings/applications.csv, plus any narrative in the company journal. Use for
+  withdrawal...) in user_data/postings/applications.csv, plus any narrative in the company journal. Use for
   "I applied to X", "I got rejected by Y", "I'm in the loop at X", "the recruiter called and...".
 argument-hint: "[what happened, in your own words]"
 ---
@@ -25,7 +25,7 @@ Examples of valid inputs:
 - **Narrative context present?** → Recruiter names, conversation details, interview impressions, next steps, or any context beyond just a status label
 
 **Step 2 — If status change:**
-1. Read `postings/applications.csv`
+1. Read `user_data/postings/applications.csv`
 2. Find the last row matching this application's slug (match on company + role keywords)
 3. If no match, create a new slug in the format `{company-kebab}-{role-short-kebab}`
 4. Determine `previous_status` from the last matching row (empty if first event)
@@ -33,7 +33,7 @@ Examples of valid inputs:
 6. Confirm the CSV row written
 
 **Step 3 — If narrative context:**
-1. Also run `/journal {company}` logic inline: append a dated entry to `postings/journal/{company-slug}.md`
+1. Also run `/journal {company}` logic inline: append a dated entry to `user_data/postings/journal/{company-slug}.md`
 2. The journal entry should capture: who was spoken to, what was said, key outcomes, next steps
 3. If recruiter/HM name or contact info appears, add to the `## Contacts` section if not already present
 4. Update the `## Active Applications` section based on the CSV state after Step 2

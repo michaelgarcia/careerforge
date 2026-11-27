@@ -13,7 +13,7 @@ The single definition of how achievements are stored in the KB and phrased in de
 | `impact` | Z | What was done: the approach, technology or method |
 
 - No number in the source? Record `metrics: "(unquantified)"` and flag it as a gap for story capture. Never invent or estimate a number on the candidate's behalf.
-- Every achievement carries a `source` (a path relative to `knowledge_base/sources/`, or `"unverified"`).
+- Every achievement carries a `source` (a path relative to `user_data/knowledge_base/sources/`, or `"unverified"`).
 
 ## Leadership scope
 

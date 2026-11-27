@@ -2,7 +2,7 @@
 
 Your career north star: the positioning statement, ranked role lenses, and forward trajectory that anchor every resume, cover letter, and job score.
 
-Run `/north-star` to build this from your knowledge base plus a guided interview. Copy this file to `knowledge_base/north_star.md` only if you prefer to write it by hand.
+Run `/north-star` to build this from your knowledge base plus a guided interview. Copy this file to `user_data/knowledge_base/north_star.md` only if you prefer to write it by hand.
 
 **This file is framing, not evidence.** It decides what to lead with, how to word it, and which roles to pursue. It never supplies a fact. Every claim inside it must trace to `candidate_profile.yaml` or `candidate_narrative.md`.
 
@@ -27,7 +27,7 @@ Run `/north-star` to build this from your knowledge base plus a guided interview
      2. The proof of range: the eras, waves, domains, or industries where the pattern repeated.
      3. The altitude arc: how the proof changed as your seniority grew. Preempts "are they senior enough?"
      4. The full loop: which distinct activities you own end to end. Preempts "which part do they actually own?"
-     Write in the candidate's voice, following knowledge_base/memories/ style rules. -->
+     Write in the candidate's voice, following user_data/knowledge_base/memories/ style rules. -->
 
 ## Structure of the argument
 
@@ -57,7 +57,7 @@ Run `/north-star` to build this from your knowledge base plus a guided interview
 
 ## Where this goes
 
-<!-- The forward trajectory. One short block per live path. For each: a one or two sentence thesis, the gates with rough timing, and what kills it. Keep detailed research (compensation tables, target company lists) in output/ where it can be regenerated. -->
+<!-- The forward trajectory. One short block per live path. For each: a one or two sentence thesis, the gates with rough timing, and what kills it. Keep detailed research (compensation tables, target company lists) in user_data/output/ where it can be regenerated. -->
 
 ### Path A — <name>
 
@@ -71,7 +71,7 @@ Run `/north-star` to build this from your knowledge base plus a guided interview
 
 ## How to apply
 
-<!-- The operating rules. Which filter to run resume bullets and scored jobs through, how to pick a lens per posting, where exact metrics are allowed versus rounded figures, and a pointer to knowledge_base/memories/ for wording. -->
+<!-- The operating rules. Which filter to run resume bullets and scored jobs through, how to pick a lens per posting, where exact metrics are allowed versus rounded figures, and a pointer to user_data/knowledge_base/memories/ for wording. -->
 
 ## Revision history
 

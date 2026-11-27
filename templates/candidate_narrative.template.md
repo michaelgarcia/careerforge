@@ -2,7 +2,7 @@
 
 This file contains the long-form narrative version of your professional background, optimized for LLM consumption. The KB Builder agent generates this from your source materials.
 
-To get started, either write this manually or say "build my profile" after adding source materials to `knowledge_base/sources/`.
+To get started, either write this manually or say "build my profile" after adding source materials to `user_data/knowledge_base/sources/`.
 
 ---
 

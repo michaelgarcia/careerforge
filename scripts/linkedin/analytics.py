@@ -1,6 +1,6 @@
 """Generate a static HTML analytics report from the LinkedIn jobs database.
 
-Produces output/analytics/analytics_{date}.html with Chart.js charts
+Produces user_data/output/analytics/analytics_{date}.html with Chart.js charts
 (loaded from CDN — no extra dependencies).
 
 Usage:
@@ -16,12 +16,12 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from paths import USER_DATA  # noqa: E402
 
 from linkedin.init_db import DB_PATH
 
-OUTPUT_DIR = _ROOT / "output" / "analytics"
+OUTPUT_DIR = USER_DATA / "output" / "analytics"
 
 
 def _q(cur: sqlite3.Cursor, sql: str, params: tuple = ()) -> list:

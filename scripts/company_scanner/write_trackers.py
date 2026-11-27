@@ -50,6 +50,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # adds scripts/ to path
+from paths import USER_DATA  # noqa: E402
 
 from company_scanner.init_db import DB_PATH
 
@@ -60,7 +61,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parents[2] / "output" / "company_trackers"
+DEFAULT_OUTPUT_DIR = USER_DATA / "output" / "company_trackers"
 
 HEADERS = [
     "Job ID",

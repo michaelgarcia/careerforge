@@ -13,7 +13,7 @@ Each job is written as one JSON file plus a manifest.json the agent reads
 to know what to classify and where to write its output.
 
 Usage:
-    python scripts/company_scanner/export_for_review.py [--output output/.work/company_scan/] [--company <name>]
+    python scripts/company_scanner/export_for_review.py [--output user_data/output/.work/company_scan/] [--company <name>]
 """
 
 from __future__ import annotations
@@ -26,10 +26,11 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # adds scripts/ to path
+from paths import USER_DATA  # noqa: E402
 
 from company_scanner.init_db import DB_PATH
 
-DEFAULT_OUTPUT = Path(__file__).resolve().parents[2] / "output" / ".work" / "company_scan"
+DEFAULT_OUTPUT = USER_DATA / "output" / ".work" / "company_scan"
 
 
 def _hash_description(text: str | None) -> str:

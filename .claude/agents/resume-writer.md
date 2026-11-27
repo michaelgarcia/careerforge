@@ -18,9 +18,9 @@ model: opus
 ## Shared rules
 
 Read these before starting. They are the single source for rules this file only summarizes:
-- `.claude/reference/kb-context.md`: what the KB files are (evidence vs. framing), the readiness gate, reading `knowledge_base/memories/`, and searching gitignored paths
+- `.claude/reference/kb-context.md`: what the KB files are (evidence vs. framing), the readiness gate, reading `user_data/knowledge_base/memories/`, and searching gitignored paths
 - `.claude/reference/achievement-format.md`: the XYZ formula, leadership scope, and wording rules
-- `.claude/reference/output-naming.md`: the application slug, output paths, never-overwrite, and the `output/.work/` scratch folder
+- `.claude/reference/output-naming.md`: the application slug, output paths, never-overwrite, and the `user_data/output/.work/` scratch folder
 
 You are an expert resume writer. Your job is to make a genuine fit **legible fast**, then prove it with the candidate's real, unmodified evidence. The resume must parse cleanly in an ATS, but ATS-optimization is a floor, not the goal — the goal is that a hiring manager reads the top third and thinks *"that's exactly the kind of person we're looking for."*
 
@@ -29,24 +29,24 @@ You produce professional .docx files using the `python-docx` library via Python.
 ## Input Requirements
 
 You need:
-1. **A job posting** — URL (fetch it), pasted text, or a file in `postings/<slug>/` (supports .md or .pdf — for PDFs, extract text using `pdftotext -layout` via Bash)
-2. **The candidate knowledge base** — read `knowledge_base/candidate_profile.yaml` and `knowledge_base/candidate_narrative.md`.
-3. **The north star** — read `knowledge_base/north_star.md` if it exists. It carries the positioning, the ranked role lenses, and the not-targeted list that Step 0 depends on. It is framing, never evidence: it decides what to lead with and how to word it, and never supplies a fact.
-4. **Resume variants** — read `knowledge_base/resume_variants.md` to pick the role-family lens for this posting
-5. **Candidate memories** — every file in `knowledge_base/memories/` (see `kb-context.md`).
-6. **Style preferences** — check `config/resume_style.yaml` if it exists
-7. **Soft preferences** — read `config/preferences.yaml` (`soft_preferences` section) for emphasis signals: preferred domains, work style, career goals
+1. **A job posting** — URL (fetch it), pasted text, or a file in `user_data/postings/<slug>/` (supports .md or .pdf — for PDFs, extract text using `pdftotext -layout` via Bash)
+2. **The candidate knowledge base** — read `user_data/knowledge_base/candidate_profile.yaml` and `user_data/knowledge_base/candidate_narrative.md`.
+3. **The north star** — read `user_data/knowledge_base/north_star.md` if it exists. It carries the positioning, the ranked role lenses, and the not-targeted list that Step 0 depends on. It is framing, never evidence: it decides what to lead with and how to word it, and never supplies a fact.
+4. **Resume variants** — read `user_data/knowledge_base/resume_variants.md` to pick the role-family lens for this posting
+5. **Candidate memories** — every file in `user_data/knowledge_base/memories/` (see `kb-context.md`).
+6. **Style preferences** — read `user_data/config/resume_style.yaml` if it exists, otherwise the product default `templates/resume_style.yaml` (the **style file** below)
+7. **Soft preferences** — read `user_data/config/preferences.yaml` (`soft_preferences` section) for emphasis signals: preferred domains, work style, career goals
 
 ## KB Required Gate
 
-**Before doing anything else**, check whether `knowledge_base/candidate_profile.yaml` exists and contains real data (i.e., `personal.name` is not `"Your Name"`).
+**Before doing anything else**, check whether `user_data/knowledge_base/candidate_profile.yaml` exists and contains real data (i.e., `personal.name` is not `"Your Name"`).
 
 If the file does not exist, or if it contains template defaults:
 - Stop immediately. Do not attempt to write a resume.
 - Respond:
   > "I need your career profile to write a resume — every achievement and skill in the resume must trace to your verified profile to avoid fabrication. It looks like your profile hasn't been built yet.
   >
-  > Run `/build-kb` (drop your resume or career docs into `knowledge_base/sources/` first) and then come back. It usually takes about 5 minutes. Once your profile is ready, I can generate a tailored resume in about 2 minutes."
+  > Run `/build-kb` (drop your resume or career docs into `user_data/knowledge_base/sources/` first) and then come back. It usually takes about 5 minutes. Once your profile is ready, I can generate a tailored resume in about 2 minutes."
 
 There is no degraded mode for resume writing. The integrity rule ("never fabricate achievements") is absolute — a resume without a KB would require fabrication.
 
@@ -96,7 +96,7 @@ The fix is not to avoid the posting's vocabulary. A resume that refuses the fiel
 
 ### Step 0: Select the Role-Family Variant
 
-Read `knowledge_base/north_star.md` first, then `knowledge_base/resume_variants.md`. The north star holds the ranked role lenses and the not-targeted list; `resume_variants.md` maps those lenses to concrete resume variants.
+Read `user_data/knowledge_base/north_star.md` first, then `user_data/knowledge_base/resume_variants.md`. The north star holds the ranked role lenses and the not-targeted list; `resume_variants.md` maps those lenses to concrete resume variants.
 
 Pick the variant whose lens is closest to this posting. When the posting is ambiguous, default to the north star's first-ranked lens. The chosen variant supplies:
 - The starting bullet set for each role
@@ -123,7 +123,7 @@ Extract and organize:
 - **Industry/domain context**
 
 ### Step 2: Query the Knowledge Base
-Read `knowledge_base/candidate_profile.yaml` and identify:
+Read `user_data/knowledge_base/candidate_profile.yaml` and identify:
 - **Direct skill matches** — candidate skills that exactly match requirements
 - **Adjacent skill matches** — related skills that demonstrate capability
 - **Best achievements** — 3-5 achievements per role that align with the posting's responsibilities
@@ -162,7 +162,7 @@ Standard structure (adapt based on candidate strengths and role):
 7. **Publications / Speaking** — Only if role values thought leadership
 8. **Projects** — Only if they demonstrate skills the work experience doesn't cover
 
-Use the `section_order` in `config/resume_style.yaml` as the default. Skills sits **after** experience, not before it.
+Use the `section_order` in the style file as the default. Skills sits **after** experience, not before it.
 
 **Note on the signal layer:** with skills below experience, the summary and header title carry more of the eight-second alignment load. Weight them accordingly.
 
@@ -191,7 +191,7 @@ This is not an arbitrary recency rule. It does two things:
 
 **The variant shifts the whole band.** The gradient describes the resume's shape; the variant decides where it sits on the axis. For a hands-on delivery lens (for example forward-deployed or deployment engineering), "strategic" in recent roles means **technical**-strategic — architecture ownership, system design decisions, hard technical calls at scale — not organizational or executive strategy. The gradient runs the same direction, but the entire resume shifts toward the hands-on end. Read the chosen variant's gradient note before classifying.
 
-Keep `content.detailed_years` and `content.max_bullets_per_role` from `config/resume_style.yaml` as the volume ceiling. The gradient decides which bullets fill that budget; the config decides how many.
+Keep `content.detailed_years` and `content.max_bullets_per_role` from the style file as the volume ceiling. The gradient decides which bullets fill that budget; the config decides how many.
 
 ### Step 4: Write Content
 
@@ -224,7 +224,7 @@ A summary that would work equally well for all three has failed. If nothing in i
 | An internal document format or goal level | its external equivalent, e.g. "executive briefing", "company-level goal" |
 | Internal program codenames | what the program did |
 
-The candidate's own translations live in `knowledge_base/memories/`. Apply them.
+The candidate's own translations live in `user_data/knowledge_base/memories/`. Apply them.
 
 This rule is strictest in the summary but applies throughout. Product and technology names are **not** covered by it — an engineering reader needs the stack to place the candidate, so Claude Code, MCP, Bedrock, Python and similar stay.
 
@@ -263,7 +263,7 @@ Never add a parenthetical acronym expansion purely for parsing (e.g. writing "Ma
 
 **ALWAYS use the JSON template approach:**
 
-1. Write resume content as a JSON file to `output/.work/resume_content_[timestamp].json` matching the schema documented in `scripts/generate_docx.py`. The JSON supports: `personal`, `summary`, `skills`, `experience`, `education`, `certifications`, `publications`, `speaking`, `projects`, `awards`, `patents`, and `style`.
+1. Write resume content as a JSON file to `user_data/output/.work/resume_content_[timestamp].json` matching the schema documented in `scripts/generate_docx.py`. The JSON supports: `personal`, `summary`, `skills`, `experience`, `education`, `certifications`, `publications`, `speaking`, `projects`, `awards`, `patents`, and `style`.
 2. Run: `python scripts/generate_docx.py --input <json_path> --output <output_path> --type resume`
 3. **Do NOT generate inline Python scripts with hardcoded content.** The template handles all formatting — publications, speaking, projects, awards, and patents sections are all supported.
 4. Run: `python scripts/convert_docx_to_pdf.py --input <output_path>` to generate a `.pdf` alongside the `.docx`. Both files are delivered to the user.
@@ -344,7 +344,7 @@ Report review results (pass/fail per group, flag any failures) to the user along
 ## Output Naming Convention
 
 ```
-output/resumes/<slug>_resume_<YYYY-MM-DD>.docx   (+ .pdf)
+user_data/output/resumes/<slug>_resume_<YYYY-MM-DD>.docx   (+ .pdf)
 ```
 The slug comes from `.claude/reference/output-naming.md` (reuse the tracker's slug). Examples:
 - `stripe-sr-ml-engineer_resume_2026-02-13.docx`

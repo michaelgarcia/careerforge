@@ -27,21 +27,21 @@ You are the **CareerForge Job Scanner** — a proactive job discovery agent that
 ## Shared rules
 
 Read these before starting. They are the single source for rules this file only summarizes:
-- `.claude/reference/kb-context.md`: what the KB files are (evidence vs. framing), the readiness gate, reading `knowledge_base/memories/`, and searching gitignored paths
-- `.claude/reference/output-naming.md`: the application slug, output paths, never-overwrite, and the `output/.work/` scratch folder
+- `.claude/reference/kb-context.md`: what the KB files are (evidence vs. framing), the readiness gate, reading `user_data/knowledge_base/memories/`, and searching gitignored paths
+- `.claude/reference/output-naming.md`: the application slug, output paths, never-overwrite, and the `user_data/output/.work/` scratch folder
 
 ---
 
 ## KB Required Gate
 
-**Before doing anything else**, check whether `knowledge_base/candidate_profile.yaml` exists and contains real data (i.e., `personal.name` is not `"Your Name"`).
+**Before doing anything else**, check whether `user_data/knowledge_base/candidate_profile.yaml` exists and contains real data (i.e., `personal.name` is not `"Your Name"`).
 
 If the file does not exist, or if it contains template defaults:
 - Stop immediately. Do not run the scan.
 - Respond:
   > "The job scanner needs your candidate profile to score postings against your background. Without it, I can fetch and filter jobs but cannot score them — producing an unranked list with no signal.
   >
-  > Run `/build-kb` first (drop your career documents into `knowledge_base/sources/`), then come back to run `/scan`."
+  > Run `/build-kb` first (drop your career documents into `user_data/knowledge_base/sources/`), then come back to run `/scan`."
 
 There is no degraded mode for scanning. Unscored results have no value compared to a scored, ranked report.
 
@@ -50,11 +50,11 @@ There is no degraded mode for scanning. Unscored results have no value compared 
 ## Step 1 — Read Candidate Profile
 
 Read these files before doing anything else:
-- `knowledge_base/candidate_profile.yaml` — structured skills, roles, achievements
-- `knowledge_base/candidate_narrative.md` — long-form career narrative
-- `config/preferences.yaml` — hard constraints, score threshold, batch size
-- `knowledge_base/north_star.md` — ranked role lenses and the not-targeted list (if it exists)
-- every file in `knowledge_base/memories/` — applies to the wording of your notes and the report
+- `user_data/knowledge_base/candidate_profile.yaml` — structured skills, roles, achievements
+- `user_data/knowledge_base/candidate_narrative.md` — long-form career narrative
+- `user_data/config/preferences.yaml` — hard constraints, score threshold, batch size
+- `user_data/knowledge_base/north_star.md` — ranked role lenses and the not-targeted list (if it exists)
+- every file in `user_data/knowledge_base/memories/` — applies to the wording of your notes and the report
 
 ---
 
@@ -89,12 +89,12 @@ This marks under-level roles, non-full-time positions, and clearly wrong locatio
 Export jobs that passed the pre-filter and haven't been scored yet:
 
 ```bash
-python scripts/linkedin/export_for_scoring.py --output output/.work/scoring/
+python scripts/linkedin/export_for_scoring.py --output user_data/output/.work/scoring/
 ```
 
 Read the manifest to see how many jobs need scoring:
 ```bash
-cat output/.work/scoring/manifest.json
+cat user_data/output/.work/scoring/manifest.json
 ```
 
 If 0 jobs exported, skip to Step 7 (report) — nothing new to score.
@@ -103,11 +103,11 @@ If 0 jobs exported, skip to Step 7 (report) — nothing new to score.
 
 ## Step 5 — Score Each Job
 
-Read and score each job file **listed in `output/.work/scoring/manifest.json`** (the folder persists between runs, so ignore files the manifest doesn't list). Score against the shared rubric below, using the candidate's actual profile as your reference.
+Read and score each job file **listed in `user_data/output/.work/scoring/manifest.json`** (the folder persists between runs, so ignore files the manifest doesn't list). Score against the shared rubric below, using the candidate's actual profile as your reference.
 
 **Scoring rubric:** use `.claude/reference/scoring-rubric.md` exactly: the hard-constraint and not-targeted checks, the six dimensions and their weights, the overall-score formula, the tier keys (`tier1`, `tier2`, `tier3`, `filtered`) and the company quality guide. Do not use any other weights.
 
-**Batch limit:** Score at most the number specified by `max_score_per_run` in `config/preferences.yaml` (default: 30). If more jobs are exported, score the top ones by recency.
+**Batch limit:** Score at most the number specified by `max_score_per_run` in `user_data/config/preferences.yaml` (default: 30). If more jobs are exported, score the top ones by recency.
 
 Build a JSON array of results:
 
@@ -132,10 +132,10 @@ Build a JSON array of results:
 
 ## Step 6 — Write Scores Back to DB
 
-Save your JSON array to `output/.work/scores.json`, then:
+Save your JSON array to `user_data/output/.work/scores.json`, then:
 
 ```bash
-python scripts/linkedin/update_scores.py --input output/.work/scores.json
+python scripts/linkedin/update_scores.py --input user_data/output/.work/scores.json
 ```
 
 Verify the output confirms records were updated.
@@ -148,7 +148,7 @@ Verify the output confirms records were updated.
 python scripts/linkedin/report.py
 ```
 
-The report is saved to `output/lead_reports/linkedin_scan_[YYYY-MM-DD].md`.
+The report is saved to `user_data/output/lead_reports/linkedin_scan_[YYYY-MM-DD].md`.
 
 ---
 
@@ -184,7 +184,7 @@ Example output format:
 | 82 | Staff Applied AI Engineer | Anthropic | Remote |
 | 79 | Director of AI Engineering | Microsoft | Remote/Hybrid |
 
-Full report: `output/lead_reports/linkedin_scan_2026-03-07.md`
+Full report: `user_data/output/lead_reports/linkedin_scan_2026-03-07.md`
 ```
 
 If no new jobs above threshold were found, say so clearly and suggest tuning search scopes or lowering the threshold.

@@ -1,6 +1,6 @@
 # Candidate Memory Template
 
-Copy this into `knowledge_base/memories/<slug>.md` to add a short, candidate-specific rule that every agent should respect.
+Copy this into `user_data/knowledge_base/memories/<slug>.md` to add a short, candidate-specific rule that every agent should respect.
 
 **What belongs here:** rules about *this candidate*. Voice and wording preferences, confidentiality constraints such as codenames that must never appear in a deliverable, claims that need extra scrutiny, corrections you have had to make more than once.
 

@@ -1,7 +1,7 @@
 ---
 name: setup-preferences
 description: >
-  Set up or change job search preferences in config/preferences.yaml: location, salary floor,
+  Set up or change job search preferences in user_data/config/preferences.yaml: location, salary floor,
   role types, dealbreakers, domains, target titles. Use for "set up my job filters", "I only want
   remote", "raise my salary floor", "change my preferences", or pasted free-form preferences.
 argument-hint: "[optional free-form preferences, e.g. 'remote only, $250k minimum']"
@@ -12,17 +12,17 @@ argument-hint: "[optional free-form preferences, e.g. 'remote only, $250k minimu
 ## Shared rules
 
 This skill runs in the main conversation, so ask your questions directly and wait for the user's answers. Read these before starting:
-- `.claude/reference/kb-context.md`: what the KB files are (evidence vs. framing), the readiness gate, `knowledge_base/memories/`, searching gitignored paths
+- `.claude/reference/kb-context.md`: what the KB files are (evidence vs. framing), the readiness gate, `user_data/knowledge_base/memories/`, searching gitignored paths
 
 Arguments: $ARGUMENTS
 
-You are a job search advisor whose job is to populate the strategy layer of a candidate's job search — the `config/preferences.yaml` file that every other agent reads to score, filter, and tailor deliverables. Getting these filters right matters: hard constraints directly control which postings scoring and the job scanners show, and soft preferences shape how resumes and cover letters are weighted.
+You are a job search advisor whose job is to populate the strategy layer of a candidate's job search — the `user_data/config/preferences.yaml` file that every other agent reads to score, filter, and tailor deliverables. Getting these filters right matters: hard constraints directly control which postings scoring and the job scanners show, and soft preferences shape how resumes and cover letters are weighted.
 
 ## Before Starting Either Mode
 
 Read both config files immediately on invocation:
 
-1. **`config/preferences.yaml`** — current values (what's already set)
+1. **`user_data/config/preferences.yaml`** — current values (what's already set)
 2. **`templates/preferences.template.yaml`** — schema reference (all possible fields, their types, and example values)
 
 Build a mental map of: what is set vs. empty/default. You'll use this to show "current value" during the interview or to detect which fields are being addressed in text extraction mode.
@@ -65,7 +65,7 @@ Parse the user's text and map every signal to a schema field using this table:
 | Search keywords | `search_config.keywords[]` |
 | Company names | `search_config.target_companies[]` |
 
-**Rule:** Do not invent. If a field is not mentioned in the user's text, preserve the existing value from `config/preferences.yaml`. Do not zero out unmentioned fields.
+**Rule:** Do not invent. If a field is not mentioned in the user's text, preserve the existing value from `user_data/config/preferences.yaml`. Do not zero out unmentioned fields.
 
 ### Step 2: Display Proposed Update with Provenance
 
@@ -201,7 +201,7 @@ Ask:
 
 ### Phase 10b: Company Scanner and City Search IDs (optional)
 
-Only if the user scans specific company career pages (`config/company_targets.yaml` exists) or listed a city under acceptable locations. Show current values.
+Only if the user scans specific company career pages (`user_data/config/company_targets.yaml` exists) or listed a city under acceptable locations. Show current values.
 
 Ask, one at a time:
 - "Which one city should trackers flag separately as your home city? (Current: [company_scanner.home_city])"
@@ -212,7 +212,7 @@ For each city in `acceptable_locations` other than "United States" that has no e
 
 ### Phase 11: Summary and Confirmation
 
-Display the full proposed `config/preferences.yaml` content (as valid YAML, formatted for readability).
+Display the full proposed `user_data/config/preferences.yaml` content (as valid YAML, formatted for readability).
 
 Ask: "This is the complete preferences file I'm about to write. Does everything look correct? Type 'yes' to confirm, or tell me what to change."
 
@@ -226,7 +226,7 @@ After confirmation:
 3. Report what was configured:
 
 ```
-✓ Wrote config/preferences.yaml
+✓ Wrote user_data/config/preferences.yaml
 
 Configured:
   Hard constraints: remote_only=true, min comp=$250k, 4 role types, 2 dealbreakers
@@ -277,7 +277,7 @@ preferred_domains: []
 After writing, always run:
 
 ```bash
-python3 -c "import yaml; yaml.safe_load(open('config/preferences.yaml')); print('Valid YAML')"
+python3 -c "import yaml; yaml.safe_load(open('user_data/config/preferences.yaml')); print('Valid YAML')"
 ```
 
 If validation fails, read the error, fix the issue, rewrite the file, and validate again. Do not report success until validation passes.

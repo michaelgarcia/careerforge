@@ -12,7 +12,7 @@ argument-hint: "[optional transcript or brain dump]"
 ## Shared rules
 
 This skill runs in the main conversation, so ask your questions directly and wait for the user's answers. Read these before starting:
-- `.claude/reference/kb-context.md`: what the KB files are (evidence vs. framing), the readiness gate, `knowledge_base/memories/`, searching gitignored paths
+- `.claude/reference/kb-context.md`: what the KB files are (evidence vs. framing), the readiness gate, `user_data/knowledge_base/memories/`, searching gitignored paths
 - `.claude/reference/achievement-format.md`: the XYZ formula, leadership scope, wording rules
 
 Input from the user, if any: $ARGUMENTS
@@ -115,9 +115,9 @@ From the extracted information, generate 1-3 XYZ-formatted achievement bullets:
 
 After the user confirms the extracted story:
 
-1. **Save the source file first.** Write the confirmed story to `knowledge_base/sources/Stories/<YYYY-MM-DD>-<project-slug>.md`: a header with the date, company and role, then the Q&A (or the pasted transcript, verbatim), then the confirmed extraction. Append `-2`, `-3` if the name exists. This file is the provenance for everything below.
-2. **Register it as ingested** in `knowledge_base/ingestion_progress.yaml` so `/build-kb` doesn't ingest it twice. Add an entry with `path: "Stories/<file>.md"`, `status: ingested`, today's `date_processed`, `size_bytes`, `content_hash` (from `sha256sum "<path>" | cut -c1-16`) and `notes: "captured by capture-story"`. If the progress file still uses an older layout (for example `sources_processed:` with `file:` keys), add the entry in that layout with the same keys; `/build-kb` converts the whole file later.
-3. **Read** `knowledge_base/candidate_profile.yaml` and **find the matching experience entry** by company and role title.
+1. **Save the source file first.** Write the confirmed story to `user_data/knowledge_base/sources/Stories/<YYYY-MM-DD>-<project-slug>.md`: a header with the date, company and role, then the Q&A (or the pasted transcript, verbatim), then the confirmed extraction. Append `-2`, `-3` if the name exists. This file is the provenance for everything below.
+2. **Register it as ingested** in `user_data/knowledge_base/ingestion_progress.yaml` so `/build-kb` doesn't ingest it twice. Add an entry with `path: "Stories/<file>.md"`, `status: ingested`, today's `date_processed`, `size_bytes`, `content_hash` (from `sha256sum "<path>" | cut -c1-16`) and `notes: "captured by capture-story"`. If the progress file still uses an older layout (for example `sources_processed:` with `file:` keys), add the entry in that layout with the same keys; `/build-kb` converts the whole file later.
+3. **Read** `user_data/knowledge_base/candidate_profile.yaml` and **find the matching experience entry** by company and role title.
    - If no matching role exists, ask the user: "I don't see a role at [company] as [title] in your profile. Should I create a new experience entry, or does this belong under an existing role?"
 4. **Add the new achievements** to that role's `achievements` array, following `docs/profile_schema.md`:
    ```yaml
@@ -134,12 +134,12 @@ After the user confirms the extracted story:
      source: "Stories/<YYYY-MM-DD>-<project-slug>.md"
    ```
 5. **Add any new skills** mentioned to the appropriate skills categories if not already present.
-6. **Update** `knowledge_base/candidate_narrative.md` — add or expand the relevant section with the new story details. Integrate naturally into the existing narrative rather than appending a disconnected block. Apply every rule in `knowledge_base/memories/` to the prose you write (codenames, internal terms, voice).
-7. **Append to** `knowledge_base/source_index.md`:
+6. **Update** `user_data/knowledge_base/candidate_narrative.md` — add or expand the relevant section with the new story details. Integrate naturally into the existing narrative rather than appending a disconnected block. Apply every rule in `user_data/knowledge_base/memories/` to the prose you write (codenames, internal terms, voice).
+7. **Append to** `user_data/knowledge_base/source_index.md`:
    ```
    | Stories/<YYYY-MM-DD>-<project-slug>.md | Story capture (interview or transcript) | YYYY-MM-DD | [project_name]: [N] achievements, [skills list] |
    ```
-8. **Validate YAML** after writing: `python -c "import sys,yaml; yaml.safe_load(sys.stdin); print('Valid YAML')" < knowledge_base/candidate_profile.yaml`
+8. **Validate YAML** after writing: `python -c "import sys,yaml; yaml.safe_load(sys.stdin); print('Valid YAML')" < user_data/knowledge_base/candidate_profile.yaml`
 
 ## Quality Checks
 

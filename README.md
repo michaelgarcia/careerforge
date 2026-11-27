@@ -4,95 +4,24 @@ Job searching manually is slow, inconsistent, and doesn't scale. CareerForge is 
 
 ---
 
-## Step 0 — Install Claude Desktop (everyone)
+## Install
 
-Download and install the Claude Desktop app from **https://claude.com/download**. This gives you access to Claude Code, which CareerForge runs inside.
+You need two free apps: **Claude Desktop** and **Git**. No terminal is required.
 
-> **Claude.ai Projects (Cowork) is not supported.** Cowork cannot execute scripts, access the filesystem, or generate files — none of CareerForge's core features work there. You must use Claude Code, which is available inside the Claude Desktop app.
+1. **Install Claude Desktop** from **https://claude.com/download**. CareerForge runs in its **Code** tab.
+   > Claude.ai Projects (Cowork) is not supported: it can't run scripts or write files, and CareerForge needs both.
+2. **Install Git** from **https://git-scm.com/downloads** (Windows: "Git for Windows"; on a Mac, typing `git` in Terminal offers to install it).
+3. **Get CareerForge.** In Claude Desktop, open the **Code** tab, choose any folder (for example `Documents`), and say:
+   > "Clone https://github.com/michaelgarcia/careerforge into a folder called CareerForge."
 
----
-
-## You are a non-technical user (Claude Desktop only)
-
-No terminal required. Everything runs inside the Claude Desktop app.
-
-### Primary path — Install via Marketplace
-
-1. Open Claude Desktop and start a Claude Code session
-2. Create an empty folder anywhere on your computer (e.g. `My Job Search`)
-3. Open that folder in Claude Code
-4. Run these two commands:
-   ```
-   /plugin marketplace add https://raw.githubusercontent.com/michaelgarcia/careerforge/refs/heads/main/marketplace.json
-   /plugin install careerforge@careerforge
-   ```
-5. Run `/cf-init` — CareerForge will scaffold your workspace and install Python dependencies
-6. Say **"I'm ready to get started"** (or just "hi") to begin building your profile
-
-> **Scope note:** Plugin installation is user-global — the skills and agents become available in every Claude Code session on your machine. To keep it scoped to one folder, use the technical path below instead.
-
-### Backup path — Install via ZIP upload
-
-Use this if the marketplace command doesn't work.
-
-1. Download the latest `careerforge-x.x.x.zip` from [GitHub Releases](https://github.com/michaelgarcia/careerforge/releases)
-2. In Claude Code, run: `/plugin add /path/to/careerforge-x.x.x.zip`
-   (Or use the **Upload Plugin** button in the Claude Desktop UI)
-3. Continue from step 5 above (`/cf-init`)
-
----
-
-## You are a technical user (Claude Code and Terminal)
-
-Starting point: Claude Desktop installed (Step 0), nothing else required.
-
-### Step 1 — Get the repo
-
-**Option A — Git clone (preferred):**
-```bash
-git clone https://github.com/michaelgarcia/careerforge.git my-job-search
-cd my-job-search
-```
-
-**Option B — No Git installed yet:**
-Download the ZIP from https://github.com/michaelgarcia/careerforge/archive/refs/heads/main.zip, unzip it, and `cd` into the folder. Then run the setup script — it will install Git for you.
-
-### Step 2 — Run the setup script
-
-The setup script installs Git, Python 3.11+, and all Python packages. It prints the result of each step clearly and gives you a manual fallback URL if anything fails.
-
-**Windows** (PowerShell):
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\setup_windows.ps1
-```
-
-**Mac/Linux** (Bash):
-```bash
-chmod +x scripts/setup_mac.sh
-./scripts/setup_mac.sh
-```
-
-The script will show `[OK]`, `[INSTALLED]`, or `[FAILED]` for each step with instructions to resolve any failures manually.
-
-### Step 3 — Launch CareerForge
-
-**Windows:**
-```
-scripts\launch_windows.bat
-```
-
-**Mac:**
-```bash
-./scripts/launch_mac.command
-```
-
-Both scripts open Claude Code in the repo root. Say **"I'm ready to get started"** to begin onboarding.
+   Comfortable with a terminal? `git clone https://github.com/michaelgarcia/careerforge.git CareerForge` does the same.
+4. **Start a new session in the `CareerForge` folder** and say **"hi"**. The first time, CareerForge offers a one-minute setup: it creates your private `user_data/` folder and installs the Python packages it needs (it installs Python too, with your OK, if it's missing).
 
 ---
 
 ## First-time setup (after installation)
 
-Once Claude Code opens, say:
+In a session in the CareerForge folder, say:
 
 > **"I'm ready to get started"**
 
@@ -123,14 +52,14 @@ See [docs/usage.md](docs/usage.md) for everything you can ask.
 
 ```mermaid
 flowchart LR
-  SRC["Your documents<br/>knowledge_base/sources/"] -->|build-kb| EV[("Profile + narrative<br/>evidence")]
+  SRC["Your documents<br/>user_data/knowledge_base/sources/"] -->|build-kb| EV[("Profile + narrative<br/>evidence")]
   CS["capture-story"] --> EV
   EV -->|north-star| FR[("North star, variants, memories<br/>framing only")]
   PR[("preferences.yaml")]
   EV --> SK{{"Skills: score, resume, cover-letter,<br/>research-company, prep, scan, explore"}}
   FR --> SK
   PR --> SK
-  SK -->|specialized agents| OUT[("output/ and postings/")]
+  SK -->|specialized agents| OUT[("user_data/output/ and user_data/postings/")]
   TR["track, journal, status"] --> OUT
   HOOK["Session start check"] --> ST["start skill:<br/>state + routing"]
   ST -.->|plain-language requests| SK
@@ -150,7 +79,7 @@ You never need these: describe what you want in plain English and CareerForge ro
 
 | Command | What it does |
 |---------|-------------|
-| `/build-kb` | Ingest all sources in `knowledge_base/sources/` and build your profile |
+| `/build-kb` | Ingest all sources in `user_data/knowledge_base/sources/` and build your profile |
 | `/setup-preferences` | Configure job search filters interactively or from free-form text |
 | `/capture-story [transcript]` | Capture a new achievement (interactive or extraction mode) |
 | `/resume [URL]` | Generate a tailored resume for a job posting |
@@ -168,6 +97,8 @@ You never need these: describe what you want in plain English and CareerForge ro
 | `/research-company [name or URL]` | Research a company (mission, news, culture) and save it for reuse |
 | `/kb-check` | Read-only health check: unprocessed sources, missing metrics, stale files |
 | `/start` | Where things stand right now, and what you can do next |
+| `/setup` | One-time setup: create `user_data/`, install Python packages, copy data from the old layout |
+| `/update` | Back up `user_data/`, then update CareerForge from GitHub safely |
 
 ---
 
@@ -183,28 +114,22 @@ You never need these: describe what you want in plain English and CareerForge ro
 
 ---
 
+## Your data stays yours
+
+Everything personal (your documents, profile, preferences, applications, generated resumes, the jobs database) lives in **one folder, `user_data/`**. It is gitignored and has no files from the repo inside it, so it is never uploaded and an update has nothing there to change. The rest of the folder is the product, and it's the same for everyone.
+
+- **Back up or move it:** `user_data/` is the only folder worth copying. Power users can keep it in OneDrive, iCloud or Dropbox by making `user_data` a folder link (Windows: `mklink /J user_data "<synced folder>"`; macOS: `ln -s "<synced folder>" user_data`).
+- **Never delete the CareerForge folder and clone it again to fix a problem.** That deletes `user_data/` too. Ask CareerForge to fix it, or restore from a backup (below).
+
 ## Updating
 
-**Technical users:**
-```bash
-git pull
-```
-Re-run the setup script if release notes mention new dependencies (rare).
+Say **"update CareerForge"**. It:
 
-**Non-technical users:**
-```
-/plugin update careerforge
-```
-This refreshes the skills and agents. The files `/cf-init` copied into your workspace (scripts, tools, templates, project instructions and shared rules) are not touched by a plugin update. When a release note says they changed, run `/cf-init update`: it refreshes only those files and never touches your profile, preferences, postings or outputs.
+1. backs up `user_data/` to `~/CareerForge-backups/` (outside the repo; the newest 3 are kept),
+2. shows what's new, plus any **Action needed** notes from [CHANGELOG.md](CHANGELOG.md),
+3. updates with a fast-forward that refuses to overwrite any of your files,
+4. installs new Python packages if needed, then asks you to start a new session.
 
----
+To restore a backup, unzip it into the CareerForge folder: it recreates `user_data/` exactly as it was.
 
-## Release a new plugin version
-
-To regenerate the distributable ZIP after making changes:
-
-```bash
-python scripts/create_plugin_zip.py
-```
-
-Output: `careerforge-{version}.zip` in the repo root, ready for upload or release attachment.
+**Upgrading from an install before November 2026?** Your data was in `knowledge_base/`, `config/`, `postings/`, `output/` and `data/`. After updating, start a new session: CareerForge copies it into `user_data/`, verifies every file, and leaves the old folders for you to delete.

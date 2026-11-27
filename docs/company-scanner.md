@@ -47,8 +47,8 @@ Everything else — fetching, deduplication, deletion detection, Excel formattin
 
 | File | Purpose |
 |---|---|
-| `config/company_targets.yaml` | List of companies to monitor (gitignored; start from `templates/company_targets.template.yaml`). The single place to add/remove companies, change department IDs, or disable a company. |
-| `config/preferences.yaml` → `company_scanner` | The filter criteria: `home_city`, `role_rule`, `function_scope`. Location and comp floor come from `hard_constraints`. Set them by saying "set up my job filters". |
+| `user_data/config/company_targets.yaml` | List of companies to monitor (gitignored; start from `templates/company_targets.template.yaml`). The single place to add/remove companies, change department IDs, or disable a company. |
+| `user_data/config/preferences.yaml` → `company_scanner` | The filter criteria: `home_city`, `role_rule`, `function_scope`. Location and comp floor come from `hard_constraints`. Set them by saying "set up my job filters". |
 
 Example (from the template):
 
@@ -77,9 +77,9 @@ companies:
 | `export_for_review.py` | **Step 3.** Exports jobs that have no classification yet, or whose description changed since last classified (tracked via SHA-256 hash). Writes one JSON file per job + a `manifest.json`. |
 | `apply_classifications.py` | **Step 5.** Reads the AI agent's JSON output, validates it, upserts into `company_job_classifications`. Never touches Excel. |
 | `write_trackers.py` | **Step 6.** The only script that touches `.xlsx` files. Fully deterministic — reads SQLite, applies the upsert/freeze/Deleted rules, saves the tracker. |
-| `generate_candidate_summary.py` | One-time setup helper. Generates `knowledge_base/candidate_summary_compact.md` from your full KB. This file is the condensed candidate context the AI agent reads — it keeps the agent's context small so classification is fast. |
+| `generate_candidate_summary.py` | One-time setup helper. Generates `user_data/knowledge_base/candidate_summary_compact.md` from your full KB. This file is the condensed candidate context the AI agent reads — it keeps the agent's context small so classification is fast. |
 
-### Database — `data/jobs.db`
+### Database — `user_data/data/jobs.db`
 
 Shared with the LinkedIn scanner (different tables, same file). Three tables are used by the company scanner:
 
@@ -136,7 +136,7 @@ Shared with the LinkedIn scanner (different tables, same file). Three tables are
 ### Agent — `.claude/agents/company-scanner.md`
 
 The AI agent definition. Instructs the agent to:
-1. Read `knowledge_base/candidate_summary_compact.md` for classification context
+1. Read `user_data/knowledge_base/candidate_summary_compact.md` for classification context
 2. Run each pipeline script in order (sync → mark_deleted → export → classify → apply → write)
 3. Classify each exported job using the fixed filter criteria in the compact candidate summary (location scope, role types, comp floor)
 4. Present a per-company summary with new qualified postings listed
@@ -145,11 +145,11 @@ The AI agent definition. Instructs the agent to:
 
 Triggered by plain language ("any new openings at Anthropic?", "scan my target companies") or the `/scan-companies` shortcut. Runs the company-scanner agent with any arguments you pass (`--company`, `--dry-run`).
 
-### Output — `output/company_trackers/`
+### Output — `user_data/output/company_trackers/`
 
-One `.xlsx` file per company. Not committed to git (gitignored). The tracker for Anthropic is at `output/company_trackers/anthropic.xlsx`.
+One `.xlsx` file per company. Not committed to git (gitignored). The tracker for Anthropic is at `user_data/output/company_trackers/anthropic.xlsx`.
 
-### Candidate Context — `knowledge_base/candidate_summary_compact.md`
+### Candidate Context — `user_data/knowledge_base/candidate_summary_compact.md`
 
 Generated once from your full KB by `generate_candidate_summary.py`. Scoped to classification only (NOT for resume/cover letter generation, which still needs the full KB). Gitignored.
 
@@ -219,14 +219,14 @@ python scripts/company_scanner/mark_deleted.py --company anthropic
 ```bash
 python scripts/company_scanner/export_for_review.py \
   --company anthropic \
-  --output output/.work/company_scan/
+  --output user_data/output/.work/company_scan/
 ```
 
 Read `manifest.json` to see what was exported:
 
 ```bash
 # On Windows:
-python -c "import json; m=json.load(open('output/.work/company_scan/manifest.json')); [print(e) for e in m]"
+python -c "import json; m=json.load(open('user_data/output/.work/company_scan/manifest.json')); [print(e) for e in m]"
 ```
 
 If the manifest is empty, there are no new or changed jobs — skip to Step 5.
@@ -260,10 +260,10 @@ The agent does this automatically when using `/scan-companies`. If running manua
 
 ```bash
 python scripts/company_scanner/apply_classifications.py \
-  --input output/.work/company_classifications.json
+  --input user_data/output/.work/company_classifications.json
 # Validate without writing:
 python scripts/company_scanner/apply_classifications.py \
-  --input output/.work/company_classifications.json \
+  --input user_data/output/.work/company_classifications.json \
   --dry-run
 ```
 
@@ -273,7 +273,7 @@ python scripts/company_scanner/apply_classifications.py \
 python scripts/company_scanner/write_trackers.py --company anthropic
 ```
 
-Output: `output/company_trackers/anthropic.xlsx`
+Output: `user_data/output/company_trackers/anthropic.xlsx`
 
 ---
 
@@ -282,7 +282,7 @@ Output: `output/company_trackers/anthropic.xlsx`
 ```bash
 python -c "
 import sqlite3
-con = sqlite3.connect('data/jobs.db')
+con = sqlite3.connect('user_data/data/jobs.db')
 cur = con.cursor()
 
 # All jobs found today
@@ -294,7 +294,7 @@ for r in cur.fetchall(): print(r)
 ```bash
 python -c "
 import sqlite3
-con = sqlite3.connect('data/jobs.db')
+con = sqlite3.connect('user_data/data/jobs.db')
 cur = con.cursor()
 
 # See all rejected jobs and why
@@ -306,7 +306,7 @@ for r in cur.fetchall(): print(r)
 ```bash
 python -c "
 import sqlite3
-con = sqlite3.connect('data/jobs.db')
+con = sqlite3.connect('user_data/data/jobs.db')
 cur = con.cursor()
 
 # Scan run history
@@ -348,7 +348,7 @@ Because the AI step outputs a JSON file and the mechanical `apply_classification
 
 ## 5. Tracker Column Reference
 
-The Excel file (`output/company_trackers/anthropic.xlsx`) has 10 columns:
+The Excel file (`user_data/output/company_trackers/anthropic.xlsx`) has 10 columns:
 
 | Column | Human-editable? | Notes |
 |---|---|---|
@@ -377,4 +377,4 @@ Applied is terminal — automation never changes it.
 
 ## 6. First run
 
-The first scan classifies every job that has no classification yet, then writes only the qualified ones to the tracker. Make sure your profile is built and the `company_scanner` block in `config/preferences.yaml` is filled in first; the agent will tell you if either is missing.
+The first scan classifies every job that has no classification yet, then writes only the qualified ones to the tracker. Make sure your profile is built and the `company_scanner` block in `user_data/config/preferences.yaml` is filled in first; the agent will tell you if either is missing.

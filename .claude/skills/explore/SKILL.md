@@ -11,6 +11,6 @@ background: false
 ---
 Analyze the candidate's profile and produce the career exploration report.
 
-Start from the north star's ranked role lenses when knowledge_base/north_star.md exists; synthesize 2-3 archetypes only if it is missing. Identify 5-8 role categories (core fit, lateral, growth), research each with real postings, compensation data and work-life balance data, ground every fit claim in specific KB achievements, and save the report per .claude/reference/output-naming.md.
+Start from the north star's ranked role lenses when user_data/knowledge_base/north_star.md exists; synthesize 2-3 archetypes only if it is missing. Identify 5-8 role categories (core fit, lateral, growth), research each with real postings, compensation data and work-life balance data, ground every fit claim in specific KB achievements, and save the report per .claude/reference/output-naming.md.
 
 Optional focus or constraints from the user: $ARGUMENTS

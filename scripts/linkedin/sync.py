@@ -1,6 +1,6 @@
 """Sync LinkedIn job postings to the local SQLite database.
 
-Loads enabled search scopes from config/search_scopes.yaml, runs each scope
+Loads enabled search scopes from user_data/config/search_scopes.yaml, runs each scope
 through the LinkedIn Guest API, and stores results with global deduplication.
 
 Usage:
@@ -42,6 +42,7 @@ from linkedin_job_search.models import (
 
 _SCRIPTS_LINKEDIN = Path(__file__).resolve().parent
 sys.path.insert(0, str(_SCRIPTS_LINKEDIN.parent))  # adds scripts/ to path
+from paths import USER_DATA  # noqa: E402
 
 from linkedin.init_db import DB_PATH, init_db
 from linkedin.map_preferences import (
@@ -50,7 +51,7 @@ from linkedin.map_preferences import (
     load_preferences,
 )
 
-SCOPES_PATH = _ROOT / "config" / "search_scopes.yaml"
+SCOPES_PATH = USER_DATA / "config" / "search_scopes.yaml"
 
 logging.basicConfig(
     level=logging.INFO,

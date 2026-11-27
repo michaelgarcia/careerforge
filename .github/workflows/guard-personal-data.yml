@@ -1,0 +1,22 @@
+name: Guard personal data
+
+# Personal data lives only in user_data/ (gitignored). A tracked file there, or
+# in the pre-2026-11 data folders, would be written over every user's own copy
+# on their next update. Fail any push or pull request that tracks one.
+
+on: [push, pull_request]
+
+jobs:
+  no-personal-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No tracked files in personal-data folders
+        run: |
+          tracked=$(git ls-files user_data knowledge_base config postings output data)
+          if [ -n "$tracked" ]; then
+            echo "These files must not be tracked (personal data folders):"
+            echo "$tracked"
+            exit 1
+          fi
+          echo "OK: no tracked files in personal-data folders."

@@ -1,5 +1,5 @@
 # Company Career Page Monitor — target list
-# Copy to config/company_targets.yaml (gitignored) and edit. /cf-init does this for you.
+# Copy to user_data/config/company_targets.yaml and edit. The setup skill does this for you.
 #
 # One entry per company. The `fetch_method` field is the dispatch key
 # scripts/company_scanner/sync.py uses to pick a fetcher:

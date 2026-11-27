@@ -35,8 +35,8 @@ rejected_manager_role is reserved for roles whose mandate is running an
 engineering organization rather than directing AI or technical work.
 
 Usage:
-    python scripts/company_scanner/apply_classifications.py --input output/.work/company_classifications.json
-    python scripts/company_scanner/apply_classifications.py --input output/.work/company_classifications.json --dry-run
+    python scripts/company_scanner/apply_classifications.py --input user_data/output/.work/company_classifications.json
+    python scripts/company_scanner/apply_classifications.py --input user_data/output/.work/company_classifications.json --dry-run
 """
 
 from __future__ import annotations

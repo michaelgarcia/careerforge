@@ -20,13 +20,13 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # adds scripts/ to path
+from paths import USER_DATA  # noqa: E402
 
 from linkedin.init_db import DB_PATH
 from linkedin.map_preferences import get_score_threshold, load_preferences
 
-OUTPUT_DIR = _ROOT / "output" / "lead_reports"
+OUTPUT_DIR = USER_DATA / "output" / "lead_reports"
 
 _TIER_EMOJI = {
     "tier1": "★★★",

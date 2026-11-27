@@ -4,8 +4,8 @@ The single rubric for every fit score: `/score` (scorer agent) and `/scan` (job-
 
 ## Before scoring
 
-1. **Hard constraints** from `config/preferences.yaml` (location, comp floor when stated, role type, sponsorship, dealbreakers) are absolute filters. A posting that fails one is **FILTERED OUT** with the reason. Never filter for comp that isn't disclosed; note "comp undisclosed" instead.
-2. **Not-targeted check:** if `knowledge_base/north_star.md` exists and the posting's mandate matches its not-targeted list, mark it **NOT TARGETED: <which entry>**. Still score it, but recommend SKIP and say why in one line.
+1. **Hard constraints** from `user_data/config/preferences.yaml` (location, comp floor when stated, role type, sponsorship, dealbreakers) are absolute filters. A posting that fails one is **FILTERED OUT** with the reason. Never filter for comp that isn't disclosed; note "comp undisclosed" instead.
+2. **Not-targeted check:** if `user_data/knowledge_base/north_star.md` exists and the posting's mandate matches its not-targeted list, mark it **NOT TARGETED: <which entry>**. Still score it, but recommend SKIP and say why in one line.
 
 ## Dimensions (each 0–100)
 

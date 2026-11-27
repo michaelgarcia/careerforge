@@ -4,7 +4,7 @@ description: >
   Define or refresh the candidate's career north star: positioning statement, narrative, ranked
   role lenses, not-targeted list and forward trajectory. Use for "what's my positioning?",
   "where am I headed?", "what am I aiming for?", "refresh my north star", or when
-  knowledge_base/north_star.md is missing or older than the profile.
+  user_data/knowledge_base/north_star.md is missing or older than the profile.
 argument-hint: "[refresh | lenses only | a brain dump of how you see your positioning]"
 ---
 
@@ -13,7 +13,7 @@ argument-hint: "[refresh | lenses only | a brain dump of how you see your positi
 ## Shared rules
 
 This skill runs in the main conversation, so ask your questions directly and wait for the user's answers. Read these before starting:
-- `.claude/reference/kb-context.md`: what the KB files are (evidence vs. framing), the readiness gate, `knowledge_base/memories/`, searching gitignored paths
+- `.claude/reference/kb-context.md`: what the KB files are (evidence vs. framing), the readiness gate, `user_data/knowledge_base/memories/`, searching gitignored paths
 
 Arguments: $ARGUMENTS
 
@@ -25,14 +25,14 @@ You help the candidate define the one document every other deliverable depends o
 
 ## KB Required Gate
 
-**Before doing anything else**, check whether `knowledge_base/candidate_profile.yaml` exists and contains real data (i.e., `personal.name` is not `"Your Name"`).
+**Before doing anything else**, check whether `user_data/knowledge_base/candidate_profile.yaml` exists and contains real data (i.e., `personal.name` is not `"Your Name"`).
 
 If the file does not exist, or if it contains template defaults:
 - Stop immediately. Do not attempt to define a north star.
 - Respond:
   > "Your north star is the positioning that every resume, cover letter, and job score is built on, and it has to be grounded in your actual record. Without your profile, I would be inventing a career for you rather than reading one.
   >
-  > Run `/build-kb` (drop your resume or career docs into `knowledge_base/sources/` first) and then come back. It usually takes about 5 minutes. Once your profile is ready, I can derive a positioning hypothesis from it and we can sharpen it together."
+  > Run `/build-kb` (drop your resume or career docs into `user_data/knowledge_base/sources/` first) and then come back. It usually takes about 5 minutes. Once your profile is ready, I can derive a positioning hypothesis from it and we can sharpen it together."
 
 There is no degraded mode. A north star derived from nothing is fabrication.
 
@@ -44,21 +44,21 @@ Read these before doing anything else:
 
 | File | Why |
 |------|-----|
-| `knowledge_base/candidate_profile.yaml` | The evidence: roles, achievements, metrics, patents, speaking record |
-| `knowledge_base/candidate_narrative.md` | The retrospective arc, where the recurring pattern is visible |
-| `knowledge_base/resume_variants.md` | Existing role-family lens taxonomy that must stay consistent |
-| `knowledge_base/memories/*.md` | Candidate-specific voice, wording, and confidentiality rules |
-| `config/preferences.yaml` | Stated goals, target titles, hard constraints |
-| `knowledge_base/north_star.md` | The current version, if one exists |
-| `output/career_paths/*.md` | Prior trajectory research, if present |
+| `user_data/knowledge_base/candidate_profile.yaml` | The evidence: roles, achievements, metrics, patents, speaking record |
+| `user_data/knowledge_base/candidate_narrative.md` | The retrospective arc, where the recurring pattern is visible |
+| `user_data/knowledge_base/resume_variants.md` | Existing role-family lens taxonomy that must stay consistent |
+| `user_data/knowledge_base/memories/*.md` | Candidate-specific voice, wording, and confidentiality rules |
+| `user_data/config/preferences.yaml` | Stated goals, target titles, hard constraints |
+| `user_data/knowledge_base/north_star.md` | The current version, if one exists |
+| `user_data/output/career_paths/*.md` | Prior trajectory research, if present |
 
 **IMPORTANT:** every one of these paths is gitignored, and the Grep tool inherits ripgrep's gitignore behavior, so it returns "No matches found" with no warning that files were skipped. Search them with Bash instead:
 
 ```bash
-rg --no-ignore -n -i "pattern" knowledge_base/
+rg --no-ignore -n -i "pattern" user_data/knowledge_base/
 ```
 
-Treat a zero-match Grep result inside a gitignored path as unproven, not as a negative. Missing optional files (`north_star.md`, `output/career_paths/`, an empty `memories/`) are fine. Note their absence and continue.
+Treat a zero-match Grep result inside a gitignored path as unproven, not as a negative. Missing optional files (`north_star.md`, `user_data/output/career_paths/`, an empty `memories/`) are fine. Note their absence and continue.
 
 ---
 
@@ -66,7 +66,7 @@ Treat a zero-match Grep result inside a gitignored path as unproven, not as a ne
 
 | Mode | Trigger | Behavior |
 |------|---------|----------|
-| **CREATE** | No `knowledge_base/north_star.md` exists | Full derive, then interview, then write v1 |
+| **CREATE** | No `user_data/knowledge_base/north_star.md` exists | Full derive, then interview, then write v1 |
 | **REFRESH** | `north_star.md` exists, or `$ARGUMENTS` contains "refresh" | Re-derive against current KB, diff against the existing file, propose a version bump |
 | **EXTRACT** | `$ARGUMENTS` contains a brain dump of how the candidate sees their positioning | Parse it first, map it to the file structure, then interview only to close the gaps it left |
 | **PARTIAL** | `$ARGUMENTS` names a section (e.g. "lenses only") | Revise only that section and its dependents; leave the rest byte-identical |
@@ -129,14 +129,14 @@ Apply corrections. Show the corrected sections. **Do not write anything to disk 
 
 ### Step 5 - Write and report
 
-Write `knowledge_base/north_star.md` in a single Write call. Never write section by section, and never leave a partial file.
+Write `user_data/knowledge_base/north_star.md` in a single Write call. Never write section by section, and never leave a partial file.
 
 On **REFRESH** or **PARTIAL**: bump the version, date it, and append a Revision History entry naming what changed and why. A north star that changes without a recorded reason is drift, and the reason is the most valuable part of the entry.
 
 Then report:
 
 ```
-Wrote knowledge_base/north_star.md (v{N}, {date})
+Wrote user_data/knowledge_base/north_star.md (v{N}, {date})
 
 Sections: {list}
 Role lenses: {ranked list}
@@ -172,13 +172,13 @@ Write these sections, in this order. Omit a section only when it has no content,
 | `## How to apply` | The operating rules: the filter for resume bullets and scored jobs, how to pick a lens per posting, where exact metrics are allowed. |
 | `## Revision history` | Newest first. What changed and why. |
 
-Keep detailed research (compensation tables, target company lists) in `output/career_paths/`. The north star holds the durable bet, not the supporting spreadsheet.
+Keep detailed research (compensation tables, target company lists) in `user_data/output/career_paths/`. The north star holds the durable bet, not the supporting spreadsheet.
 
 ---
 
 ## Consistency with resume_variants.md
 
-`knowledge_base/resume_variants.md` cites the north star by name as the authority for its lens taxonomy and for its not-targeted rule. Lens names you write must stay resolvable from it.
+`user_data/knowledge_base/resume_variants.md` cites the north star by name as the authority for its lens taxonomy and for its not-targeted rule. Lens names you write must stay resolvable from it.
 
 After drafting, check: does each lens referenced in `resume_variants.md` still exist in the north star under a recognizable name? Does the not-targeted list still cover what `resume_variants.md` says it covers?
 
@@ -194,5 +194,5 @@ If a lens is renamed, dropped, or added, **say so explicitly in the final report
 - **Never write without confirmation.** Write once, at the end, after an explicit yes.
 - **One question at a time.** Wait for the answer. This is an interview, not a form.
 - **Keep metrics out of the core statement** so it stays sayable in a room. Exact figures belong in the KB and the resume; public copy uses rounded, durable ones.
-- **Follow every rule in `knowledge_base/memories/`** for all prose you write into the file, including voice rules and any confidentiality constraint on names or codenames.
+- **Follow every rule in `user_data/knowledge_base/memories/`** for all prose you write into the file, including voice rules and any confidentiality constraint on names or codenames.
 - **Preserve what you are not changing.** In REFRESH and PARTIAL modes, sections outside the scope of the change stay byte-identical.

@@ -16,6 +16,10 @@
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
+      "Bash(git fetch:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git rev-list:*)",
+      "Bash(git merge --ff-only --no-overwrite-ignore:*)",
       "Bash(git --version)",
       "Bash(pdftotext:*)",
       "Bash(sqlite3:*)",
@@ -44,7 +48,14 @@
       "Bash(unlink:*)",
       "Bash(rmdir:*)",
       "Bash(sudo:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git clean:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git stash --all:*)",
+      "Bash(git stash -a:*)",
+      "Bash(git add -f:*)",
+      "Bash(git add --force:*)",
+      "Bash(git pull:*)"
     ]
   },
   "hooks": {
@@ -55,7 +66,7 @@
           {
             "type": "command",
             "timeout": 10,
-            "command": "cd \"$CLAUDE_PROJECT_DIR\" 2>/dev/null; echo \"[CareerForge state]\"; echo \"initialized=$([ -d knowledge_base ] && [ -d config ] && echo yes || echo no)\"; echo \"sources=$(find knowledge_base/sources -type f ! -name .gitkeep 2>/dev/null | wc -l | tr -d ' ')\"; echo \"profile=$(if [ ! -f knowledge_base/candidate_profile.yaml ]; then echo missing; elif grep -q 'Your Name' knowledge_base/candidate_profile.yaml; then echo template; else echo ready; fi)\"; echo \"sources_not_in_progress_file=$(if [ -s knowledge_base/ingestion_progress.yaml ]; then awk 'NR==FNR{np=np $0; next} index(np,$0)==0{c++} END{print c+0}' <(cat knowledge_base/ingestion_progress.yaml | tr -cd '[:alnum:]\n' | tr '[:upper:]' '[:lower:]') <(find knowledge_base/sources -type f ! -name .gitkeep -printf '%f\n' 2>/dev/null | tr -cd '[:alnum:]\n' | tr '[:upper:]' '[:lower:]'); else echo all; fi)\"; echo \"progress_unfinished=$(cat knowledge_base/ingestion_progress.yaml 2>/dev/null | grep -cE 'status: *(pending|modified|in_progress|error)')\"; echo \"sources_modified_since_last_build=$(if [ -f knowledge_base/ingestion_progress.yaml ]; then find knowledge_base/sources -type f ! -name .gitkeep -newer knowledge_base/ingestion_progress.yaml 2>/dev/null | wc -l | tr -d ' '; else echo n/a; fi)\"; echo \"north_star=$(if [ ! -f knowledge_base/north_star.md ]; then echo missing; elif [ knowledge_base/candidate_profile.yaml -nt knowledge_base/north_star.md ]; then echo older_than_profile; else echo current; fi)\"; echo \"preferences=$(if [ ! -f config/preferences.yaml ]; then echo missing; elif grep -Eq '^ *minimum_compensation_usd: *[1-9]' config/preferences.yaml || awk '/^ *target_titles:/{f=1;next} f&&/^ *[a-z_]+:/{f=0} f&&/^ *- *[^ #]/{found=1} END{exit !found}' config/preferences.yaml; then echo filled; else echo empty; fi)\"; echo \"tracker_rows=$(if [ -f postings/applications.csv ]; then echo $(( $(wc -l < postings/applications.csv) - 1 )); else echo 0; fi)\"; echo \"Interpret with the start skill before replying to the first message. Read postings/applications.csv yourself for active applications.\""
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" 2>/dev/null; echo \"[CareerForge state]\"; echo \"initialized=$([ -d user_data ] && echo yes || echo no)\"; echo \"python_deps=$( { python -c 'import docx, yaml, httpx, pydantic' || python3 -c 'import docx, yaml, httpx, pydantic'; } >/dev/null 2>&1 && echo ok || echo missing)\"; echo \"sources=$(find user_data/knowledge_base/sources -type f ! -name .gitkeep 2>/dev/null | wc -l | tr -d ' ')\"; echo \"profile=$(if [ ! -f user_data/knowledge_base/candidate_profile.yaml ]; then echo missing; elif grep -q 'Your Name' user_data/knowledge_base/candidate_profile.yaml; then echo template; else echo ready; fi)\"; echo \"sources_not_in_progress_file=$(if [ -s user_data/knowledge_base/ingestion_progress.yaml ]; then awk 'NR==FNR{np=np $0; next} index(np,$0)==0{c++} END{print c+0}' <(cat user_data/knowledge_base/ingestion_progress.yaml | tr -cd '[:alnum:]\n' | tr '[:upper:]' '[:lower:]') <(find user_data/knowledge_base/sources -type f ! -name .gitkeep -printf '%f\n' 2>/dev/null | tr -cd '[:alnum:]\n' | tr '[:upper:]' '[:lower:]'); else echo all; fi)\"; echo \"progress_unfinished=$(cat user_data/knowledge_base/ingestion_progress.yaml 2>/dev/null | grep -cE 'status: *(pending|modified|in_progress|error)')\"; echo \"sources_modified_since_last_build=$(if [ -f user_data/knowledge_base/ingestion_progress.yaml ]; then find user_data/knowledge_base/sources -type f ! -name .gitkeep -newer user_data/knowledge_base/ingestion_progress.yaml 2>/dev/null | wc -l | tr -d ' '; else echo n/a; fi)\"; echo \"north_star=$(if [ ! -f user_data/knowledge_base/north_star.md ]; then echo missing; elif [ user_data/knowledge_base/candidate_profile.yaml -nt user_data/knowledge_base/north_star.md ]; then echo older_than_profile; else echo current; fi)\"; echo \"preferences=$(if [ ! -f user_data/config/preferences.yaml ]; then echo missing; elif grep -Eq '^ *minimum_compensation_usd: *[1-9]' user_data/config/preferences.yaml || awk '/^ *target_titles:/{f=1;next} f&&/^ *[a-z_]+:/{f=0} f&&/^ *- *[^ #]/{found=1} END{exit !found}' user_data/config/preferences.yaml; then echo filled; else echo empty; fi)\"; echo \"tracker_rows=$(if [ -f user_data/postings/applications.csv ]; then echo $(( $(wc -l < user_data/postings/applications.csv) - 1 )); else echo 0; fi)\"; echo \"Interpret with the start skill before replying to the first message. Read user_data/postings/applications.csv yourself for active applications.\""
           }
         ]
       }

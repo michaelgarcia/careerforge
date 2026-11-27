@@ -6,7 +6,7 @@ import configparser
 from dataclasses import dataclass
 from pathlib import Path
 
-_DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[3] / "config.ini"
+_DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "user_data" / "config" / "config.ini"
 
 
 @dataclass(frozen=True)
@@ -25,8 +25,8 @@ def load_email_config(path: str | Path | None = None) -> EmailConfig:
     """Load email configuration from an INI file.
 
     Args:
-        path: Path to the config file. Defaults to ``config.ini`` at the
-              project root.
+        path: Path to the config file. Defaults to
+              ``user_data/config/config.ini``.
 
     Returns:
         Populated :class:`EmailConfig`.

@@ -1,5 +1,5 @@
 # Named search scopes for LinkedIn job discovery.
-# Copy to config/search_scopes.yaml and customize for the candidate.
+# Copy to user_data/config/search_scopes.yaml and customize for the candidate.
 # Run a single scope with:
 #   python scripts/linkedin/sync.py --scope <name> --dry-run
 #

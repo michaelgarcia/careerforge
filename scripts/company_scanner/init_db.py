@@ -1,7 +1,7 @@
 """Initialize the company-scanner tables in the shared SQLite jobs database.
 
 Adds company_jobs / company_job_classifications / company_scan_runs to the
-same data/jobs.db used by the LinkedIn scanner. Fully namespaced — does not
+same user_data/data/jobs.db used by the LinkedIn scanner. Fully namespaced — does not
 read or modify the LinkedIn scanner's jobs/job_scores/search_runs tables.
 
 Run once before first use:

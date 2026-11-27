@@ -1,43 +1,18 @@
 # =============================================================================
-# Personal / candidate-specific data (NEVER commit these)
+# Personal data: everything about the candidate lives in user_data/ (NEVER commit)
 # =============================================================================
-knowledge_base/**
-!knowledge_base/.gitkeep
-!knowledge_base/sources/
-!knowledge_base/sources/.gitkeep
-config/preferences.yaml
-config/search_scopes.yaml
-config/company_targets.yaml
+user_data/
 
 # Claude Code local settings (machine-specific permissions)
 .claude/settings.local.json
 
-# =============================================================================
-# Output files (regenerable, may contain personal data)
-# =============================================================================
-# Blanket exclusion: no generated output ever belongs in the repo. An
-# enumerated per-subdirectory list silently missed new output types
-# (output/career_paths/) and anything written to output/ directly.
-output/**
-!output/**/
-!output/**/.gitkeep
-
-# Job postings (transient, personal)
-postings/*
-!postings/.gitkeep
-!postings/journal/
-postings/journal/*
-!postings/journal/.gitkeep
-
-# =============================================================================
-# LinkedIn Scanner data (transient, generated)
-# =============================================================================
-data/
-
-# =============================================================================
-# Build artifacts
-# =============================================================================
-careerforge-*.zip
+# Pre-user_data layout (before 2026-11). These folders held personal data in
+# older installs; keep them ignored so a leftover copy can never be committed.
+/knowledge_base/
+/config/
+/postings/
+/output/
+/data/
 
 # =============================================================================
 # Claude Code internals

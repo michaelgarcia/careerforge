@@ -1,6 +1,6 @@
 """
-Application pipeline analytics — reads postings/applications.csv and generates
-a self-contained HTML dashboard at output/analytics/application_pipeline_YYYY-MM-DD.html
+Application pipeline analytics — reads user_data/postings/applications.csv and generates
+a self-contained HTML dashboard at user_data/output/analytics/application_pipeline_YYYY-MM-DD.html
 """
 
 import csv
@@ -10,9 +10,11 @@ from collections import defaultdict
 from datetime import date, datetime
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-CSV_PATH = ROOT / "postings" / "applications.csv"
-OUTPUT_DIR = ROOT / "output" / "analytics"
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # adds scripts/ to path
+from paths import USER_DATA  # noqa: E402
+
+CSV_PATH = USER_DATA / "postings" / "applications.csv"
+OUTPUT_DIR = USER_DATA / "output" / "analytics"
 
 STATUS_ORDER = [
     "discovered", "saved", "researching", "applying", "applied",

@@ -1,4 +1,4 @@
-"""Sync job postings from all enabled companies in config/company_targets.yaml.
+"""Sync job postings from all enabled companies in user_data/config/company_targets.yaml.
 
 Dispatches each company to the right fetcher based on its `fetch_method`:
     api        -> fetch_greenhouse.sync_company (Greenhouse public board API)
@@ -18,13 +18,13 @@ from pathlib import Path
 
 import yaml
 
-_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # adds scripts/ to path
+from paths import USER_DATA  # noqa: E402
 
 from company_scanner import fetch_greenhouse
 from company_scanner.init_db import DB_PATH, init_db
 
-TARGETS_PATH = _ROOT / "config" / "company_targets.yaml"
+TARGETS_PATH = USER_DATA / "config" / "company_targets.yaml"
 
 logging.basicConfig(
     level=logging.INFO,

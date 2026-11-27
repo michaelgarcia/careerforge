@@ -5,7 +5,7 @@ description: >
   and recommend apply or skip. Use when the user links or pastes a posting and asks "is this a
   good fit?", "should I apply?", "score this", or "how do these compare?". Works without a
   profile in job-quality mode.
-argument-hint: "[posting URL(s), pasted text, or postings/<slug>]"
+argument-hint: "[posting URL(s), pasted text, or user_data/postings/<slug>]"
 context: fork
 agent: scorer
 background: false

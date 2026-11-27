@@ -17,15 +17,16 @@ If a `[CareerForge state]` block is in context (from the SessionStart hook), use
 
 | Signal | Values | How |
 |---|---|---|
-| `initialized` | yes / no | `knowledge_base/` and `config/` both exist |
-| `sources` | count | files under `knowledge_base/sources/`, excluding `.gitkeep` |
-| `profile` | ready / template / missing | `knowledge_base/candidate_profile.yaml`; it is the `template` if it contains `Your Name` |
-| `sources_not_in_progress_file` | count / `all` | sources whose file name doesn't appear in `knowledge_base/ingestion_progress.yaml`. Compare lowercase letters and digits only, because entries may be stored as `path:` or `file:` with punctuation altered. `all` means the progress file is missing or empty. |
+| `initialized` | yes / no | `user_data/` exists |
+| `python_deps` | ok / missing | `python -c "import docx, yaml, httpx, pydantic"` succeeds |
+| `sources` | count | files under `user_data/knowledge_base/sources/`, excluding `.gitkeep` |
+| `profile` | ready / template / missing | `user_data/knowledge_base/candidate_profile.yaml`; it is the `template` if it contains `Your Name` |
+| `sources_not_in_progress_file` | count / `all` | sources whose file name doesn't appear in `user_data/knowledge_base/ingestion_progress.yaml`. Compare lowercase letters and digits only, because entries may be stored as `path:` or `file:` with punctuation altered. `all` means the progress file is missing or empty. |
 | `progress_unfinished` | count | entries with status `pending`, `modified`, `in_progress` or `error` |
 | `sources_modified_since_last_build` | count | sources newer than `ingestion_progress.yaml` (`find … -newer`) |
 | `north_star` | current / older_than_profile / missing | compare modification times with the profile |
-| `preferences` | filled / empty / missing | `config/preferences.yaml` is **filled** when `minimum_compensation_usd` is above 0 or `target_titles` has at least one uncommented item |
-| active pipeline | list | **Always read `postings/applications.csv` yourself.** Group rows by `slug` and take each slug's last row in file order. A slug is active when that row's status is `recruiter_screen`, `hm_screen`, `technical_screen`, `in_loop`, `loop_completed`, `offer_pending`, `offered` or `negotiating`. Its age is today minus that row's `timestamp`. |
+| `preferences` | filled / empty / missing | `user_data/config/preferences.yaml` is **filled** when `minimum_compensation_usd` is above 0 or `target_titles` has at least one uncommented item |
+| active pipeline | list | **Always read `user_data/postings/applications.csv` yourself.** Group rows by `slug` and take each slug's last row in file order. A slug is active when that row's status is `recruiter_screen`, `hm_screen`, `technical_screen`, `in_loop`, `loop_completed`, `offer_pending`, `offered` or `negotiating`. Its age is today minus that row's `timestamp`. |
 
 ## 2. Pick the base state
 
@@ -33,8 +34,8 @@ Exactly one applies:
 
 | Base | When | Opening |
 |---|---|---|
-| **S0** Not set up | `initialized=no` | "This folder isn't set up for CareerForge yet. Want me to set it up? Type `/cf-init` and it takes about a minute." (`/cf-init` only runs when typed.) |
-| **S1** Nothing yet | `profile` is missing or template, and `sources=0` | "No career material yet. Drop your resume, LinkedIn PDF, reviews or project write-ups into `knowledge_base/sources/` and I'll build your profile (best results). If you have a specific job or interview right now, I can start there without a profile." |
+| **S0** Not set up | `initialized=no` or `python_deps=missing` | "CareerForge needs a one-time setup on this computer (about a minute): your private `user_data/` folder and a few Python packages. Want me to do it now?" On yes, run the `setup` skill. If old top-level data folders exist (`knowledge_base/candidate_profile.yaml` at the repo root), say instead: "Your data is in the old layout. I'll copy it into `user_data/` (nothing is moved or deleted). OK?" |
+| **S1** Nothing yet | `profile` is missing or template, and `sources=0` | "No career material yet. Drop your resume, LinkedIn PDF, reviews or project write-ups into `user_data/knowledge_base/sources/` and I'll build your profile (best results). If you have a specific job or interview right now, I can start there without a profile." |
 | **S2** Sources, no profile | `profile` is missing or template, and `sources>0` | "I can see N file(s) in your sources but no profile yet. Want me to build it now?" If the sources span more than one folder, add: "…or start with just your resume folder (about 2 minutes) and add the rest later." |
 | **S5** Profile ready | `profile=ready` | No base line of its own. Use the add-ons below; if none apply, the **ready line**. |
 

@@ -1,4 +1,4 @@
-"""Map config/preferences.yaml fields to LinkedIn search parameters.
+"""Map user_data/config/preferences.yaml fields to LinkedIn search parameters.
 
 Used by sync.py at runtime to build a synthetic 'from_preferences' scope
 and to inject target_companies into the 'target_companies' scope.
@@ -15,7 +15,10 @@ from typing import Any
 
 import yaml
 
-PREFS_PATH = Path(__file__).resolve().parents[2] / "config" / "preferences.yaml"
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # adds scripts/ to path
+from paths import USER_DATA  # noqa: E402
+
+PREFS_PATH = USER_DATA / "config" / "preferences.yaml"
 
 # Mapping from preferences role_types → LinkedIn experience_level names
 _ROLE_TO_EXP_LEVEL: dict[str, list[str]] = {
@@ -68,7 +71,7 @@ def build_from_preferences_scope(prefs: dict) -> dict[str, Any]:
                 # No geoId: skip the search (pre_filter still enforces location), but say so.
                 print(
                     f"Warning: no LinkedIn geoId for {loc!r}; add it under linkedin_scanner.geo_ids "
-                    f'in config/preferences.yaml (find it with: cd tools && python -m linkedin_job_search.cli geo "{loc}")',
+                    f'in user_data/config/preferences.yaml (find it with: cd tools && python -m linkedin_job_search.cli geo "{loc}")',
                     file=sys.stderr,
                 )
 
@@ -94,7 +97,7 @@ def build_from_preferences_scope(prefs: dict) -> dict[str, Any]:
 
     scope: dict[str, Any] = {
         "name": "from_preferences",
-        "description": "Auto-generated scope from config/preferences.yaml",
+        "description": "Auto-generated scope from user_data/config/preferences.yaml",
         "keywords": keywords_str,
         "geo_searches": geo_searches,
         "experience_levels": exp_levels,

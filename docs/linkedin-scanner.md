@@ -13,13 +13,13 @@ The LinkedIn Scanner is a two-tier automated job discovery pipeline integrated i
 ```
 Tier 1 — Data Collection (pure Python, no LLM)
 ┌─────────────────────────────────────────────────────────┐
-│  config/search_scopes.yaml  config/preferences.yaml     │
+│  user_data/config/search_scopes.yaml  user_data/config/preferences.yaml     │
 │          │                         │                    │
 │          ▼                         ▼                    │
 │   scripts/linkedin/sync.py  ← map_preferences.py       │
 │          │                                              │
 │          ▼                                              │
-│   data/jobs.db  (SQLite, global dedup via PRIMARY KEY)  │
+│   user_data/data/jobs.db  (SQLite, global dedup via PRIMARY KEY)  │
 │          │                                              │
 │          ▼                                              │
 │   scripts/linkedin/pre_filter.py                        │
@@ -42,7 +42,7 @@ Tier 2 — Scoring & Reporting (LLM, via /scan)
 │          │                                              │
 │          ▼                                              │
 │   scripts/linkedin/report.py                            │
-│   output/lead_reports/linkedin_scan_YYYY-MM-DD.md       │
+│   user_data/output/lead_reports/linkedin_scan_YYYY-MM-DD.md       │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -65,7 +65,7 @@ Copied from the standalone `linkedin-job-search` library. Scripts add `tools/` t
 
 ---
 
-## SQLite Schema (`data/jobs.db`)
+## SQLite Schema (`user_data/data/jobs.db`)
 
 Initialised by `scripts/linkedin/init_db.py`. Git-ignored — local only.
 
@@ -111,7 +111,7 @@ Logs every sync run. Used for auditing and provenance (`first_seen_run`).
 
 ---
 
-## `config/search_scopes.yaml` — Schema Reference
+## `user_data/config/search_scopes.yaml` — Schema Reference
 
 ```yaml
 scopes:
@@ -191,7 +191,7 @@ This runs two LinkedIn searches per scope: one filtering to US remote roles, one
 
 ## Preferences Mapping
 
-`map_preferences.py` translates `config/preferences.yaml` fields to LinkedIn search parameters:
+`map_preferences.py` translates `user_data/config/preferences.yaml` fields to LinkedIn search parameters:
 
 | `preferences.yaml` field | Maps to |
 |---|---|
@@ -223,7 +223,7 @@ This runs two LinkedIn searches per scope: one filtering to US remote roles, one
 ## Script Reference
 
 ### `scripts/linkedin/init_db.py`
-Initialises `data/jobs.db` with the full schema. Safe to re-run.
+Initialises `user_data/data/jobs.db` with the full schema. Safe to re-run.
 ```bash
 python scripts/linkedin/init_db.py
 ```
@@ -258,14 +258,14 @@ python scripts/linkedin/pre_filter.py --reset            # clear flags and re-ru
 Exports unscored, non-filtered jobs as markdown files for LLM scoring.
 ```bash
 python scripts/linkedin/export_for_scoring.py
-python scripts/linkedin/export_for_scoring.py --output output/.work/scoring/ --days 7 --limit 30
+python scripts/linkedin/export_for_scoring.py --output user_data/output/.work/scoring/ --days 7 --limit 30
 ```
 
 ### `scripts/linkedin/update_scores.py`
 Writes LLM scores from a JSON file back to the `job_scores` table.
 ```bash
-python scripts/linkedin/update_scores.py --input output/.work/scores.json
-python scripts/linkedin/update_scores.py --input output/.work/scores.json --dry-run
+python scripts/linkedin/update_scores.py --input user_data/output/.work/scores.json
+python scripts/linkedin/update_scores.py --input user_data/output/.work/scores.json --dry-run
 ```
 
 ### `scripts/linkedin/report.py`
@@ -281,13 +281,13 @@ python scripts/linkedin/report.py --limit 30             # more jobs in report
 Generates an interactive HTML analytics dashboard from the jobs database. No extra dependencies — charts are rendered with Chart.js loaded from CDN.
 
 ```bash
-python scripts/linkedin/analytics.py                     # writes to output/analytics/
-python scripts/linkedin/analytics.py --output output/.work/report.html  # custom path
+python scripts/linkedin/analytics.py                     # writes to user_data/output/analytics/
+python scripts/linkedin/analytics.py --output user_data/output/.work/report.html  # custom path
 ```
 
 Or via the `/analytics` Claude Code command.
 
-**Output:** `output/analytics/analytics_YYYY-MM-DD.html` — open in any browser, no server required.
+**Output:** `user_data/output/analytics/analytics_YYYY-MM-DD.html` — open in any browser, no server required.
 
 **Dashboard includes:**
 - **Pipeline overview** — total jobs collected → hard-filtered → scored → Tier 1 matches, with threshold tile
@@ -304,10 +304,10 @@ Or via the `/analytics` Claude Code command.
 **Model:** `haiku` (alias, so it follows model updates) — fast, low cost, well-suited to repetitive structured scoring.
 
 **Files loaded:**
-- `knowledge_base/candidate_profile.yaml` and `candidate_narrative.md` — the evidence scores are based on
-- `knowledge_base/north_star.md` — ranked role lenses and the not-targeted list (if it exists)
-- every file in `knowledge_base/memories/` — wording of notes and the report
-- `config/preferences.yaml` — constraints, threshold, batch size
+- `user_data/knowledge_base/candidate_profile.yaml` and `candidate_narrative.md` — the evidence scores are based on
+- `user_data/knowledge_base/north_star.md` — ranked role lenses and the not-targeted list (if it exists)
+- every file in `user_data/knowledge_base/memories/` — wording of notes and the report
+- `user_data/config/preferences.yaml` — constraints, threshold, batch size
 - `.claude/reference/scoring-rubric.md` — the single rubric shared with `/score`
 
 **Scoring rubric:** defined once in `.claude/reference/scoring-rubric.md` and shared with `/score`, so a posting gets the same score however it arrives. Six dimensions, each 0-100:
@@ -345,7 +345,7 @@ Invokes the job-scanner agent to run the full pipeline:
 /scan --dry-run                        # fetch without writing to DB
 ```
 
-Reports are saved to `output/lead_reports/linkedin_scan_YYYY-MM-DD.md`.
+Reports are saved to `user_data/output/lead_reports/linkedin_scan_YYYY-MM-DD.md`.
 
 ---
 
@@ -356,9 +356,9 @@ Reports are saved to `output/lead_reports/linkedin_scan_YYYY-MM-DD.md`.
 Converts `.md` files to PDF on demand, e.g. scan reports and interview prep for mobile reading. Pure Python (`markdown` + `xhtml2pdf`, see `requirements.txt`). PDFs are written alongside the originals; source files are never modified.
 
 ```bash
-python scripts/convert_md_to_pdf.py output/lead_reports/linkedin_scan_2026-03-15.md
-python scripts/convert_md_to_pdf.py output/lead_reports/
-python scripts/convert_md_to_pdf.py output/ --recursive
+python scripts/convert_md_to_pdf.py user_data/output/lead_reports/linkedin_scan_2026-03-15.md
+python scripts/convert_md_to_pdf.py user_data/output/lead_reports/
+python scripts/convert_md_to_pdf.py user_data/output/ --recursive
 ```
 
 ---
@@ -384,7 +384,7 @@ For zero-LLM data collection that runs even when Claude Code is closed:
    - Program: `python`
    - Arguments: `scripts/linkedin/sync.py && python scripts/linkedin/pre_filter.py`
    - Start in: `F:\workspace\careerforge`
-4. Log output: redirect to `data/sync.log`
+4. Log output: redirect to `user_data/data/sync.log`
 
 This decouples data freshness from Claude Code availability and keeps LLM costs minimal.
 
@@ -402,19 +402,19 @@ Prints how many jobs would be fetched without writing to DB. Check the log lines
 ```bash
 python scripts/linkedin/sync.py --scope gtm_sa_ai_cloud --days 7
 python scripts/linkedin/sync.py --scope forward_deploy_engineer --days 7
-sqlite3 data/jobs.db "SELECT source_scope, COUNT(*) FROM jobs GROUP BY source_scope"
+sqlite3 user_data/data/jobs.db "SELECT source_scope, COUNT(*) FROM jobs GROUP BY source_scope"
 ```
 
 ### Check Pre-Filter Hit Rate
 ```bash
 python scripts/linkedin/pre_filter.py
-sqlite3 data/jobs.db "SELECT hard_filtered, COUNT(*) FROM job_scores GROUP BY hard_filtered"
-sqlite3 data/jobs.db "SELECT filter_reason, COUNT(*) FROM job_scores WHERE hard_filtered=1 GROUP BY filter_reason ORDER BY COUNT(*) DESC"
+sqlite3 user_data/data/jobs.db "SELECT hard_filtered, COUNT(*) FROM job_scores GROUP BY hard_filtered"
+sqlite3 user_data/data/jobs.db "SELECT filter_reason, COUNT(*) FROM job_scores WHERE hard_filtered=1 GROUP BY filter_reason ORDER BY COUNT(*) DESC"
 ```
 
 ### Check Score Distribution
 ```bash
-sqlite3 data/jobs.db "SELECT tier, COUNT(*) FROM job_scores WHERE score IS NOT NULL GROUP BY tier"
+sqlite3 user_data/data/jobs.db "SELECT tier, COUNT(*) FROM job_scores WHERE score IS NOT NULL GROUP BY tier"
 ```
 
 ### Re-Score with Different Criteria
@@ -425,7 +425,7 @@ python scripts/linkedin/report.py --threshold 55 --no-mark
 
 Reset scores and re-score (deletes scores, not jobs):
 ```bash
-sqlite3 data/jobs.db "DELETE FROM job_scores WHERE hard_filtered=0"
+sqlite3 user_data/data/jobs.db "DELETE FROM job_scores WHERE hard_filtered=0"
 /scan
 ```
 
@@ -462,4 +462,4 @@ The original file had `[]` followed by list items on subsequent lines (silently 
 Two processes writing simultaneously. Ensure only one `sync.py` runs at a time. If using OS-level scheduler + cron, stagger their start times (e.g., sync at 6 AM, /scan at 8 AM).
 
 ### DB migration (schema changes)
-Delete `data/jobs.db` and re-run `init_db.py` followed by `sync.py --bootstrap`. Jobs will be re-fetched; scores will need to be re-generated.
+Delete `user_data/data/jobs.db` and re-run `init_db.py` followed by `sync.py --bootstrap`. Jobs will be re-fetched; scores will need to be re-generated.

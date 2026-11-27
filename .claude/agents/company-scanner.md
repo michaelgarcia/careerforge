@@ -30,16 +30,16 @@ that touches `.xlsx`, and it is fully deterministic.
 ## Shared rules
 
 Read these before starting. They are the single source for rules this file only summarizes:
-- `.claude/reference/output-naming.md`: the application slug, output paths, never-overwrite, and the `output/.work/` scratch folder
+- `.claude/reference/output-naming.md`: the application slug, output paths, never-overwrite, and the `user_data/output/.work/` scratch folder
 
 ---
 
 ## Step 1 — Read Candidate Context
 
-Read `knowledge_base/candidate_summary_compact.md`. This is a condensed file
+Read `user_data/knowledge_base/candidate_summary_compact.md`. This is a condensed file
 (not the full KB) — it exists specifically so this agent's context stays small.
-Generate it first if it is missing **or older than `config/preferences.yaml` or
-`knowledge_base/candidate_profile.yaml`** (compare modification times), so a
+Generate it first if it is missing **or older than `user_data/config/preferences.yaml` or
+`user_data/knowledge_base/candidate_profile.yaml`** (compare modification times), so a
 change to the criteria or the profile always reaches classification:
 
 ```bash
@@ -47,13 +47,13 @@ python scripts/company_scanner/generate_candidate_summary.py
 ```
 
 If that script errors, relay its message and stop: it needs a built knowledge
-base ("build my profile") and `config/preferences.yaml` with the
+base ("build my profile") and `user_data/config/preferences.yaml` with the
 `company_scanner` block ("set up my job filters"). There is no
 degraded mode — classification without candidate context produces unreliable
 manager/IC and scope judgments.
 
 The compact file also states this feature's filter criteria, generated from
-`config/preferences.yaml`: the location scope (a home city and/or remote
+`user_data/config/preferences.yaml`: the location scope (a home city and/or remote
 eligibility), the role types and functions in scope, and the compensation floor. These criteria do not change per
 run. Use them exactly as the compact file states them, and never restate them
 in this file or any other committed file.
@@ -88,7 +88,7 @@ not touch Excel — `write_trackers.py` (Step 6) is what turns this into a
 ## Step 4 — Export Jobs Needing Classification
 
 ```bash
-python scripts/company_scanner/export_for_review.py --output output/.work/company_scan/
+python scripts/company_scanner/export_for_review.py --output user_data/output/.work/company_scan/
 ```
 
 This exports only jobs that are new or whose description changed since they
@@ -96,7 +96,7 @@ were last classified (tracked via a content hash) — already-classified,
 unchanged jobs are skipped automatically. Read the manifest:
 
 ```bash
-cat output/.work/company_scan/manifest.json
+cat user_data/output/.work/company_scan/manifest.json
 ```
 
 If the manifest is empty, skip to Step 7 (write trackers) — there may still
@@ -167,20 +167,20 @@ Build a JSON array:
 ]
 ```
 
-Save it to `output/.work/company_classifications.json`.
+Save it to `user_data/output/.work/company_classifications.json`.
 
 ---
 
 ## Step 6 — Apply Classifications and Write Trackers
 
 ```bash
-python scripts/company_scanner/apply_classifications.py --input output/.work/company_classifications.json
+python scripts/company_scanner/apply_classifications.py --input user_data/output/.work/company_classifications.json
 python scripts/company_scanner/write_trackers.py
 ```
 
 `write_trackers.py` is the only script that touches `.xlsx` files, and it is
 fully rule-based — no AI judgment happens here. It writes
-`output/company_trackers/{company}.xlsx`, inserting new qualified rows as
+`user_data/output/company_trackers/{company}.xlsx`, inserting new qualified rows as
 "New", refreshing non-frozen fields on existing qualified rows, and flipping
 no-longer-listed New/Reviewed rows to "Deleted" (never touching rows already
 marked "Applied"). If a tracker file is locked (open in Excel), it falls back
@@ -201,7 +201,7 @@ produces a single self-contained HTML file covering every company (not just
 the one scanned this run, if `--company` was used): disposition breakdown,
 rejection reasons, per-company and location charts, recent scan-run history,
 and a sortable/filterable table of every job record ever seen. Note the
-printed output path (`output/analytics/company_scan_{date}.html`) for the
+printed output path (`user_data/output/analytics/company_scan_{date}.html`) for the
 summary in Step 8.
 
 ---
@@ -213,7 +213,7 @@ Report, per company:
 2. **Classification** — how many jobs were classified this run, broken down by disposition (qualified vs. each rejection reason).
 3. **Tracker** — rows added, rows updated, rows flipped to Deleted, and the tracker file path (or `.xlsx.new` fallback path with a note to close Excel and re-run).
 4. **New qualified postings** — list title, location, comp range (if known), and URL for every row newly added this run.
-5. **Dashboard** — the `output/analytics/company_scan_{date}.html` path from Step 7, with a one-line note that it's a full audit view (all companies, all dispositions, sortable/filterable).
+5. **Dashboard** — the `user_data/output/analytics/company_scan_{date}.html` path from Step 7, with a one-line note that it's a full audit view (all companies, all dispositions, sortable/filterable).
 
 Example:
 
@@ -224,9 +224,9 @@ Example:
 
 **Classified:** 6 new/changed jobs — 2 qualified, 3 rejected_location, 1 rejected_manager_role
 
-**Tracker:** output/company_trackers/anthropic.xlsx — 2 added, 4 updated, 0 deleted
+**Tracker:** user_data/output/company_trackers/anthropic.xlsx — 2 added, 4 updated, 0 deleted
 
-**Dashboard:** output/analytics/company_scan_2026-06-21.html — full audit view with disposition breakdown and a sortable/filterable table of every job seen
+**Dashboard:** user_data/output/analytics/company_scan_2026-06-21.html — full audit view with disposition breakdown and a sortable/filterable table of every job seen
 
 ### New Qualified Postings
 

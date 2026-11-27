@@ -1,5 +1,7 @@
 # Path 0 — CareerForge as a Claude Code Plugin
 
+> **Superseded (2026-11-25).** The plugin path was removed. CareerForge is installed by cloning the repo and opening the folder in the Claude desktop app, and updated with the `update` skill; personal data lives in `user_data/`. See `README.md`.
+
 > **Historical.** Written before the November 2026 restructure. Paths, agent and command counts, and file names here may be outdated; see `docs/usage.md` and `docs/history/2026-11-revamp-plan.md` for the current layout.
 
 ## Status: Implemented in v0.1 (partially) / Submit to marketplace post-testing

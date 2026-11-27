@@ -2,8 +2,8 @@
 
 Application tracking uses two complementary files:
 
-- **`postings/applications.csv`** — structured event log (one row per status transition, gitignored)
-- **`postings/journal/{company-slug}.md`** — free-form narrative notes per company (gitignored)
+- **`user_data/postings/applications.csv`** — structured event log (one row per status transition, gitignored)
+- **`user_data/postings/journal/{company-slug}.md`** — free-form narrative notes per company (gitignored)
 
 ---
 
@@ -17,14 +17,14 @@ event_id, timestamp, slug, company, title, job_url, status, previous_status, not
 |-------|------|-------------|
 | `event_id` | integer | Auto-incrementing. Read last row to determine next ID. |
 | `timestamp` | ISO 8601 | `YYYY-MM-DDTHH:MM:SS`. Use current datetime. |
-| `slug` | string | Unique application identifier. Use `{company}-{role-short}` in kebab-case. Matches `postings/` subfolder name where it exists. |
+| `slug` | string | Unique application identifier. Use `{company}-{role-short}` in kebab-case. Matches `user_data/postings/` subfolder name where it exists. |
 | `company` | string | Company name (display form, e.g. "Google") |
 | `title` | string | Job title as listed in the posting |
 | `job_url` | string | Link to the original posting (optional) |
 | `status` | enum | New status (see enum below) |
 | `previous_status` | enum | Prior status — read the last row for this slug to populate |
 | `note` | string | Free-text transition context. Quote if it contains commas. |
-| `output_files` | string | Comma-separated paths to generated files (e.g., `output/resumes/acme-staff-engineer_resume_2026-05-04.docx`) |
+| `output_files` | string | Comma-separated paths to generated files, **relative to `user_data/`** (e.g., `output/resumes/acme-staff-engineer_resume_2026-05-04.docx`) |
 
 **The CSV is append-only. Never edit or delete existing rows.**
 
@@ -66,7 +66,7 @@ Analytics-meaningful groupings:
 
 ## Journal Format
 
-`postings/journal/{company-slug}.md`:
+`user_data/postings/journal/{company-slug}.md`:
 
 ```markdown
 # {Company Name} — Application Journal
@@ -87,7 +87,7 @@ Analytics-meaningful groupings:
 
 ## Analytics
 
-Run `python scripts/application_analytics.py` to generate an HTML dashboard at `output/analytics/application_pipeline_YYYY-MM-DD.html`.
+Run `python scripts/application_analytics.py` to generate an HTML dashboard at `user_data/output/analytics/application_pipeline_YYYY-MM-DD.html`.
 
 The dashboard shows:
 - Active pipeline with days-in-status (rows in amber = stale, 14+ days)

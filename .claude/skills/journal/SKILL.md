@@ -10,15 +10,15 @@ Append a dated note to the journal for a company or application.
 
 $ARGUMENTS
 
-The journal lives at `postings/journal/{company-slug}.md`. Use it to record recruiter conversations, interview impressions, next steps, and any context worth remembering between sessions.
+The journal lives at `user_data/postings/journal/{company-slug}.md`. Use it to record recruiter conversations, interview impressions, next steps, and any context worth remembering between sessions.
 
 **How to determine the company slug:**
 - Lowercase the company name, replace spaces with hyphens (e.g., "Google" → `google`, "Acme Robotics" → `acme-robotics`)
 - If $ARGUMENTS references a specific application slug, use the company portion of that slug
 
 **Steps:**
-1. Read `postings/applications.csv` — find the latest event for matching applications to surface current status and any existing slug context
-2. Read `postings/journal/{company-slug}.md` if it exists; otherwise create it with this header:
+1. Read `user_data/postings/applications.csv` — find the latest event for matching applications to surface current status and any existing slug context
+2. Read `user_data/postings/journal/{company-slug}.md` if it exists; otherwise create it with this header:
 
 ```markdown
 # {Company Name} — Application Journal

@@ -7,7 +7,7 @@ description: >
 ---
 Show me an overview of my current job search pipeline.
 
-Read `postings/applications.csv` and present a summary of all applications.
+Read `user_data/postings/applications.csv` and present a summary of all applications.
 
 **How to compute current state from the CSV:**
 - The CSV is an event log (one row per status transition, append-only)
@@ -36,4 +36,4 @@ Then show:
 - `offered` / `negotiating` → "Immediate action required"
 - `on_hold` → "Monitor; reach out if 30+ days with no update"
 
-Also check `postings/journal/` — if journal files exist for active companies, mention them so the user knows context is available ("Journal available: postings/journal/google.md").
+Also check `user_data/postings/journal/` — if journal files exist for active companies, mention them so the user knows context is available ("Journal available: user_data/postings/journal/google.md").

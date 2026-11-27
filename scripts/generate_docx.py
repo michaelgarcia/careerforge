@@ -396,7 +396,7 @@ def _build_resume(doc: Document, content: dict) -> None:
         'patents': _render_patents,
     }
     # Default order. Skills renders AFTER experience: the reader should reach the
-    # evidence before the keyword list. Keep in sync with config/resume_style.yaml.
+    # evidence before the keyword list. Keep in sync with templates/resume_style.yaml.
     section_order = s.get('section_order') or [
         'summary', 'experience', 'skills', 'certifications', 'education',
         'publications', 'speaking', 'projects', 'awards', 'patents',

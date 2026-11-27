@@ -1,7 +1,7 @@
 ---
 name: scan-companies
 description: >
-  Check the career pages of specific target companies (config/company_targets.yaml) for new
+  Check the career pages of specific target companies (user_data/config/company_targets.yaml) for new
   postings, classify them against the candidate's fixed criteria, and update each company's
   Excel tracker. Use for "any new openings at <company>?", "scan my target companies".
 argument-hint: "[--company <name>] [--dry-run]"
@@ -11,8 +11,8 @@ background: false
 ---
 Scan the configured company career pages for new job postings:
 
-1. Read candidate context (knowledge_base/candidate_summary_compact.md), regenerating it via scripts/company_scanner/generate_candidate_summary.py if it is missing or older than config/preferences.yaml or the profile
-2. Sync jobs from all enabled companies in config/company_targets.yaml (scripts/company_scanner/sync.py)
+1. Read candidate context (user_data/knowledge_base/candidate_summary_compact.md), regenerating it via scripts/company_scanner/generate_candidate_summary.py if it is missing or older than user_data/config/preferences.yaml or the profile
+2. Sync jobs from all enabled companies in user_data/config/company_targets.yaml (scripts/company_scanner/sync.py)
 3. Mark jobs no longer listed as still_listed=0 (scripts/company_scanner/mark_deleted.py)
 4. Export new/changed jobs needing classification (scripts/company_scanner/export_for_review.py)
 5. Classify each exported job (IC vs. manager, location scope, comp parsing, disposition) against the fixed filter criteria stated in the compact candidate summary (location scope, role types, comp floor)

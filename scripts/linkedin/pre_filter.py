@@ -20,12 +20,12 @@ from pathlib import Path
 
 import yaml
 
-_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # adds scripts/ to path
+from paths import USER_DATA  # noqa: E402
 
 from linkedin.init_db import DB_PATH
 
-PREFS_PATH = _ROOT / "config" / "preferences.yaml"
+PREFS_PATH = USER_DATA / "config" / "preferences.yaml"
 
 # Title keywords that indicate clearly under-level roles
 _JUNIOR_TITLE_KEYWORDS = {

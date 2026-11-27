@@ -1,10 +1,10 @@
 # Candidate Profile Schema
 
-**This is the only definition of `knowledge_base/candidate_profile.yaml`.** The kb-builder agent, the `capture-story` skill and every reader follow it. `templates/candidate_profile.template.yaml` is an example that conforms to it, not a second definition.
+**This is the only definition of `user_data/knowledge_base/candidate_profile.yaml`.** The kb-builder agent, the `capture-story` skill and every reader follow it. `templates/candidate_profile.template.yaml` is an example that conforms to it, not a second definition.
 
 Conventions:
 - **Required** fields are marked `# required`. Everything else is optional. Omit an optional field rather than writing an empty value when the source doesn't support it.
-- **Provenance:** `source` is a path relative to `knowledge_base/sources/` (for example `"Resumes and mind maps/resume_2025.pdf"`), or `"unverified"`. Never invent one. Older story captures use `story-capture-session-YYYY-MM-DD`; new ones point to a file under `sources/Stories/`.
+- **Provenance:** `source` is a path relative to `user_data/knowledge_base/sources/` (for example `"Resumes and mind maps/resume_2025.pdf"`), or `"unverified"`. Never invent one. Older story captures use `story-capture-session-YYYY-MM-DD`; new ones point to a file under `sources/Stories/`.
 - **Dates** are `YYYY-MM` (or `YYYY`); `end_date` may be `"Present"`.
 - Field semantics for achievements (XYZ, leadership scope, wording): `.claude/reference/achievement-format.md`.
 
@@ -101,7 +101,7 @@ projects:
 
 ## Performance reviews
 
-There is no separate reviews section. Quantified accomplishments from reviews become achievements under the matching `experience` entry. Quotes, growth themes and progression signals go into `candidate_narrative.md`. The old `candidate_reviews.yaml` is archived in `knowledge_base/archive/`, and no agent reads it.
+There is no separate reviews section. Quantified accomplishments from reviews become achievements under the matching `experience` entry. Quotes, growth themes and progression signals go into `candidate_narrative.md`. The old `candidate_reviews.yaml` is archived in `user_data/knowledge_base/archive/`, and no agent reads it.
 
 ## Growing the schema
 

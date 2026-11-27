@@ -5,7 +5,7 @@ description: >
   into rounds and interviewers, generate likely questions per round mapped to the candidate's real
   stories, and build a story bank. Use for "I have an interview at X", "prep me for Tuesday",
   "practice questions for my loop". Use "comp" for offer and negotiation research only.
-argument-hint: "[posting URL, pasted text, or postings/<slug>] [comp]"
+argument-hint: "[posting URL, pasted text, or user_data/postings/<slug>] [comp]"
 ---
 
 # Interview prep (coordinator)
@@ -16,18 +16,18 @@ Arguments: $ARGUMENTS
 
 ## 1. Resolve the application
 
-- **Posting:** a URL (fetch it), pasted text, or `postings/<slug>/` (read the posting file in it; PDFs via `pdftotext -layout`).
-- **No argument:** read `postings/applications.csv`, take the latest row per slug, and use the most recent application whose status is `recruiter_screen`, `hm_screen`, `technical_screen` or `in_loop`. If several match, ask which one. If none, ask for the posting.
+- **Posting:** a URL (fetch it), pasted text, or `user_data/postings/<slug>/` (read the posting file in it; PDFs via `pdftotext -layout`).
+- **No argument:** read `user_data/postings/applications.csv`, take the latest row per slug, and use the most recent application whose status is `recruiter_screen`, `hm_screen`, `technical_screen` or `in_loop`. If several match, ask which one. If none, ask for the posting.
 - **Slug:** per `.claude/reference/output-naming.md` (reuse the tracker's slug when one exists).
 - If a URL yields no readable job description, stop and ask. Never substitute a different posting.
 
 ## 2. Gather insider facts first
 
-Read `postings/journal/<company>.md` if it exists (use `rg --no-ignore` or Read; it is gitignored). Extract what the candidate has actually been told: the rounds and their order, interviewer names and roles, format, dates, focus areas, recruiter guidance. **Insider facts beat public research.** Pass them to `process_research` and to every `round_prep` as "Known from the candidate's journal". If the journal names an interviewer for a round, that round's prep is written for that person's role and likely angle.
+Read `user_data/postings/journal/<company>.md` if it exists (use `rg --no-ignore` or Read; it is gitignored). Extract what the candidate has actually been told: the rounds and their order, interviewer names and roles, format, dates, focus areas, recruiter guidance. **Insider facts beat public research.** Pass them to `process_research` and to every `round_prep` as "Known from the candidate's journal". If the journal names an interviewer for a round, that round's prep is written for that person's role and likely angle.
 
 ## 3. Create the output folder
 
-`output/interview_prep/<slug>_<YYYY-MM-DD>/` (append `_2` if it exists).
+`user_data/output/interview_prep/<slug>_<YYYY-MM-DD>/` (append `_2` if it exists).
 
 ## 4. Research in parallel
 
@@ -36,7 +36,7 @@ Launch these `interview-prep` subagents at the same time, each with the posting 
 | task_type | Skip when |
 |---|---|
 | `process_research` (include the journal facts) | never |
-| `company_research` | `postings/<slug>/company_research.md` exists and is under 30 days old: copy it into `output_dir` instead |
+| `company_research` | `user_data/postings/<slug>/company_research.md` exists and is under 30 days old: copy it into `output_dir` instead |
 | `compensation_research` | never |
 
 If the argument includes `comp`, run only `compensation_research`, report, and stop.
